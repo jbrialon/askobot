@@ -1,21 +1,19 @@
 {
   "name": "askobot",
   "version": "1.0.0",
-  "description": "Askobot GPT",
-  "type": "module",
+  "description": "askobot",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "deploy": "netlify deploy --prod"
+    "serve": "node server.js"
   },
   "author": "jbrialon",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "netlify-cli": "^17.21.1",
-    "netlify-lambda": "^2.0.16",
     "node-fetch": "^3.3.2",
     "openai": "^4.32.1",
-    "serverless-http": "^3.2.0"
+    "tmi.js": "^1.8.5"
   }
 }
