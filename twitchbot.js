@@ -21,6 +21,7 @@ const client = new tmi.Client({
 
 client.on("message", (channel, tags, message, self) => {
   const user = tags.username;
+  const displayUserName = tags['display-name'];
   const isNotBot =
     tags.username.toLowerCase() !==
     process.env.TWITCH_BOT_USERNAME.toLowerCase();
@@ -43,13 +44,15 @@ client.on("message", (channel, tags, message, self) => {
   //   })();
   // }
 
-  if (command === "askowbot") {
-    askGPT(channel, args, user);
+  if (command === "askowbot" || command === "askobot") {
+    const question = args.join(' ');
+    askGPT(channel, question, displayUserName);
   }
 });
 
 const askGPT = async (channel, question, user) => {
-  const systemContent = config.context[channel];
+  const contexts = config.context[channel]
+  const systemContent = contexts[Math.floor(Math.random() * contexts.length)];
   const message = `je suis ${user} et voici ma ${question}`;
 
   logToDiscord(channel, user, `${question}`);

@@ -21,9 +21,9 @@ const log = (channel, user, message) => {
     embeds: [
       {
         author: {
-          name: user,
+          name: channel,
         },
-        title: channel,
+        title: user,
         description: message,
       },
     ],
