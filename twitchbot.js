@@ -2,7 +2,7 @@ import tmi from "tmi.js";
 import OpenAI from "openai";
 
 import { log } from "./utils/utils.js";
-// const { fetchLeaderboardData } = require("./battleground.js");
+import { fetchLeaderboardData } from "./battleground.js";
 import config from "./config.json" with { type: "json" };
 
 const openai = new OpenAI({
@@ -31,18 +31,18 @@ client.on("message", (channel, tags, message, self) => {
   const args = message.slice(1).split(" ");
   const command = args.shift().toLowerCase();
 
-  // if (command === "bgrank") {
-  //   (async () => {
-  //     try {
-  //       const data = await fetchLeaderboardData(args);
+  if (command === "bgrank") {
+    (async () => {
+      try {
+        const data = await fetchLeaderboardData(args);
 
-  //       const message = data ? `${args[0]} : ${data}` : "non trouvé :(";
-  //       client.say(channel, message);
-  //     } catch (error) {
-  //       console.error("Error fetching leaderboard data:", error);
-  //     }
-  //   })();
-  // }
+        const message = data ? `🤖 ${args[0]} : ${data} 🤖` : "🤖 non trouvé :( 🤖";
+        client.say(channel, message);
+      } catch (error) {
+        console.error("Error fetching leaderboard data:", error);
+      }
+    })();
+  }
 
   if (command === "askowbot" || command === "askobot") {
     const question = args.join(' ');

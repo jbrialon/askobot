@@ -1,4 +1,4 @@
-const { exec } = require("child_process");
+import fetch from "node-fetch";
 
 const VALID_REGIONS = ["EU", "US", "AP"];
 const MAX_PAGES = 4;
@@ -13,24 +13,19 @@ const findRankByAccountId = (allPlayers, accountId) => {
   return player ? player.rank : null;
 };
 
-// Function to execute a curl command and return a Promise
-const execCurlCommand = (curlCommand) => {
-  return new Promise((resolve, reject) => {
-    exec(curlCommand, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error executing cURL: ${error}`);
-        reject(error);
-        return;
-      }
-      try {
-        const data = JSON.parse(stdout);
-        resolve(data);
-      } catch (parseError) {
-        console.error("Error parsing JSON response");
-        reject(parseError);
-      }
-    });
-  });
+// Function to fetch data using node-fetch and return a Promise
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error fetching data: ${error}`);
+    throw error;
+  }
 };
 
 // Main function to fetch leaderboard data for the first 100 players
@@ -42,8 +37,8 @@ const fetchLeaderboardData = async (args) => {
   // Generate promises for each page
   const promises = [];
   for (let page = 1; page <= MAX_PAGES; page++) {
-    const curlCommand = `curl "https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=${page}"`;
-    promises.push(execCurlCommand(curlCommand));
+    const url = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=${page}`;
+    promises.push(fetchData(url));
   }
 
   // Execute all promises simultaneously and process results
@@ -62,6 +57,4 @@ const fetchLeaderboardData = async (args) => {
   }
 };
 
-module.exports = {
-  fetchLeaderboardData,
-};
+export { fetchLeaderboardData };
