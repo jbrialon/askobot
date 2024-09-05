@@ -9,8 +9,8 @@ const findRankByAccountId = (allPlayers, accountId) => {
     (player) => player.accountid.toLowerCase() === accountId.toLowerCase()
   );
 
-  // If a player is found, return their rank, otherwise return null
-  return player ? player.rank : null;
+  // If a player is found, return the player object, otherwise return null
+  return player ? player : null;
 };
 
 // Function to fetch data using node-fetch and return a Promise
