@@ -39,4 +39,10 @@ const log = (channel, user, message) => {
   });
 };
 
-export { getCurrentTimeOfDay, log };
+// Function to add French ordinal suffixes
+const getFrenchOrdinal = (rank) => {
+  if (rank === 1) return `${rank}er`; // "1er" for 1st place
+  return `${rank}ème`; // "2ème", "3ème", etc. for other ranks
+};
+
+export { getCurrentTimeOfDay, log, getFrenchOrdinal };

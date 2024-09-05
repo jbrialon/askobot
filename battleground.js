@@ -30,7 +30,20 @@ const fetchData = async (url) => {
 
 // Main function to fetch leaderboard data for the first 100 players
 const fetchLeaderboardData = async (args) => {
-  const region = "EU";
+  const paramOne = args[0];
+  let paramTwo = args[1];
+
+  // Normalize paramTwo by capitalizing it, and handle the case when paramTwo doesn't exist
+  paramTwo = paramTwo ? paramTwo.toUpperCase() : "";
+
+  // Special case: if paramTwo is 'NA', treat it as 'US'
+  if (paramTwo === "NA") {
+    paramTwo = "US";
+  }
+
+  // Check if paramTwo is a valid region, otherwise default to 'EU'
+  const region = VALID_REGIONS.includes(paramTwo) ? paramTwo : "EU";
+
   const leaderboardId = "battlegrounds";
   let allPlayers = [];
 
@@ -50,8 +63,22 @@ const fetchLeaderboardData = async (args) => {
       }
     });
 
-    // Process or return the combined results
-    return findRankByAccountId(allPlayers, args[0]);
+    // Attempt to parse paramOne as a number
+    const parsedNumber = Number(paramOne);
+
+    if (!isNaN(parsedNumber)) {
+      // paramOne is a number (index), return the player at that index
+      const index = parsedNumber - 1; // Adjust for 1-based indexing
+      return allPlayers[index] || null; // Return player or null if index is out of range
+    } else if (typeof paramOne === "string") {
+      // paramOne is an account ID (string), find the rank by account ID
+      return findRankByAccountId(allPlayers, paramOne);
+    } else {
+      console.error(
+        "Invalid paramOne type. Must be a string (account ID) or a number (index)."
+      );
+      return null;
+    }
   } catch (error) {
     console.error("Error fetching leaderboard data:", error);
   }

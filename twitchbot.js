@@ -2,7 +2,7 @@ import tmi from "tmi.js";
 import OpenAI from "openai";
 import os from "os";
 
-import { log } from "./utils/utils.js";
+import { log, getFrenchOrdinal } from "./utils/utils.js";
 import { fetchLeaderboardData } from "./battleground.js";
 import config from "./config.json" with { type: "json" };
 
@@ -46,7 +46,10 @@ client.on("message", (channel, tags, message, self) => {
             4: "🍫",
           };
           let emoji = rankEmojis[player.rank] || "🤖";
-          const message = `${emoji} ${player.accountid} : ${player.rank} ${emoji}`;
+          const message = `${emoji} ${player.accountid} : ${getFrenchOrdinal(
+            player.rank
+          )} (${player.rating}) ${emoji}`;
+          console.log(player);
           client.say(channel, message);
         } else {
           const message = `invente un message comme quoi le joueur ${args[0]} n'a pas été trouvé dans le classement`;
