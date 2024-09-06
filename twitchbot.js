@@ -36,6 +36,13 @@ client.on("message", (channel, tags, message, self) => {
   if (command === "bgrank") {
     (async () => {
       try {
+        // Check if args is empty
+        if (!args || args.length === 0 || args[0].toLowerCase() === "askowbot") {
+          const message = `invente un message ou tu nous dit quelle position dans le classement du ladder hearthstone battleground tu occupes`;
+          askGPT(channel, message);
+          return;
+        }
+
         const player = await fetchLeaderboardData(args);
 
         if (player) {
@@ -49,7 +56,6 @@ client.on("message", (channel, tags, message, self) => {
           const message = `${emoji} ${player.accountid} : ${getFrenchOrdinal(
             player.rank
           )} (${player.rating}) ${emoji}`;
-          console.log(player);
           client.say(channel, message);
         } else {
           const message = `invente un message comme quoi le joueur ${args[0]} n'a pas été trouvé dans le classement`;
