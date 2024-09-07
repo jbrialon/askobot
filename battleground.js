@@ -1,7 +1,6 @@
 import fetch from "node-fetch";
 
 const VALID_REGIONS = ["EU", "US", "AP"];
-const MAX_PAGES = 4;
 
 const findRankByAccountId = (allPlayers, accountId) => {
   // Find the player object that matches the accountId
@@ -46,16 +45,35 @@ const fetchLeaderboardData = async (args) => {
 
   const leaderboardId = "battlegrounds";
   let allPlayers = [];
+  let MAX_PAGES = 1; // Default value before the first API call
 
-  // Generate promises for each page
-  const promises = [];
-  for (let page = 1; page <= MAX_PAGES; page++) {
-    const url = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=${page}`;
-    promises.push(fetchData(url));
-  }
-
-  // Execute all promises simultaneously and process results
   try {
+    // Fetch the first page to determine the total number of pages
+    const firstPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=1`;
+    const firstPageData = await fetchData(firstPageUrl);
+
+    // Update MAX_PAGES based on the totalPages in the API response
+    if (
+      firstPageData &&
+      firstPageData.leaderboard &&
+      firstPageData.leaderboard.pagination
+    ) {
+      MAX_PAGES = firstPageData.leaderboard.pagination.totalPages;
+    }
+
+    // Add the first page of players to the list
+    if (firstPageData.leaderboard && firstPageData.leaderboard.rows) {
+      allPlayers = allPlayers.concat(firstPageData.leaderboard.rows);
+    }
+
+    // Generate promises for remaining pages, if any
+    const promises = [];
+    for (let page = 2; page <= MAX_PAGES; page++) {
+      const url = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=${page}`;
+      promises.push(fetchData(url));
+    }
+
+    // Execute all remaining promises simultaneously and process results
     const results = await Promise.all(promises);
     results.forEach((result) => {
       if (result && result.leaderboard && result.leaderboard.rows) {
