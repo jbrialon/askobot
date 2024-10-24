@@ -2,6 +2,8 @@ import fetch from "node-fetch";
 
 const VALID_REGIONS = ["EU", "US", "AP"];
 
+const cache = new MemoryCache();
+
 const findRankByAccountId = (allPlayers, accountId) => {
   // Find the player object that matches the accountId
   const player = allPlayers.find(
@@ -31,6 +33,12 @@ const fetchData = async (url) => {
 const fetchLeaderboardData = async (args) => {
   const paramOne = args[0];
   let paramTwo = args[1];
+
+  const cachedLeaderboardData = cache.get([paramOne, paramTwo]);
+  if (cachedLeaderboardData) {
+    console.log("Cache hit");
+    return cachedLeaderboardData;
+  }
 
   // Normalize paramTwo by capitalizing it, and handle the case when paramTwo doesn't exist
   paramTwo = paramTwo ? paramTwo.toUpperCase() : "";
