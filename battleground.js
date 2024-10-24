@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import { MemoryCache } from "./utils/memory-cache.js";
 
 const VALID_REGIONS = ["EU", "US", "AP"];
 
