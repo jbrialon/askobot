@@ -34,7 +34,8 @@ const fetchLeaderboardData = async (args) => {
   const paramOne = args[0];
   let paramTwo = args[1];
 
-  const cachedLeaderboardData = cache.get([paramOne, paramTwo]);
+  const cacheKey = [paramOne, paramTwo];
+  const cachedLeaderboardData = cache.get(cacheKey);
   if (cachedLeaderboardData) {
     console.log("Cache hit");
     return cachedLeaderboardData;
@@ -95,10 +96,18 @@ const fetchLeaderboardData = async (args) => {
     if (!isNaN(parsedNumber)) {
       // paramOne is a number (index), return the player at that index
       const index = parsedNumber - 1; // Adjust for 1-based indexing
-      return allPlayers[index] || null; // Return player or null if index is out of range
+      const player = allPlayers[index] || null; // Return player or null if index is out of range
+      if (player) {
+        cache.set(cacheKey, player);
+      }
+      return player;
     } else if (typeof paramOne === "string") {
       // paramOne is an account ID (string), find the rank by account ID
-      return findRankByAccountId(allPlayers, paramOne);
+      const leaderboardData = findRankByAccountId(allPlayers, paramOne);
+      if (leaderboardData) {
+        cache.set(cacheKey, leaderboardData);
+      }
+      return leaderboardData;
     } else {
       console.error(
         "Invalid paramOne type. Must be a string (account ID) or a number (index)."
