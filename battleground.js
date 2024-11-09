@@ -31,7 +31,7 @@ const fetchData = async (url) => {
 };
 
 // Main function to fetch leaderboard data for the first 100 players
-const fetchLeaderboardData = async (args) => {
+const fetchLeaderboardData = async (args, isDuo) => {
   const paramOne = args[0];
   let paramTwo = args[1];
 
@@ -53,7 +53,7 @@ const fetchLeaderboardData = async (args) => {
   // Check if paramTwo is a valid region, otherwise default to 'EU'
   const region = VALID_REGIONS.includes(paramTwo) ? paramTwo : "EU";
 
-  const leaderboardId = "battlegrounds";
+  const leaderboardId = isDuo ? "battlegroundsduo" : "battlegrounds";
   let allPlayers = [];
   let MAX_PAGES = 1; // Default value before the first API call
 

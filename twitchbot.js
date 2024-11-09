@@ -33,7 +33,8 @@ client.on("message", (channel, tags, message, self) => {
   const args = message.slice(1).split(" ");
   const command = args.shift().toLowerCase();
 
-  if (command === "bgrank") {
+  if (command === "bgrank" || command === "bgrankduo") {
+    const isDuo = command === "bgrankduo";
     (async () => {
       try {
         // Check if args is empty
@@ -43,7 +44,7 @@ client.on("message", (channel, tags, message, self) => {
           return;
         }
 
-        const player = await fetchLeaderboardData(args);
+        const player = await fetchLeaderboardData(args, isDuo);
 
         if (player) {
           const rankEmojis = {
@@ -55,7 +56,7 @@ client.on("message", (channel, tags, message, self) => {
           let emoji = rankEmojis[player.rank] || "🤖";
           const message = `${emoji} ${player.accountid} : ${getFrenchOrdinal(
             player.rank
-          )} (${player.rating}) ${emoji}`;
+          )} (${player.rating}) ${isDuo ? '(duo)' : ''}${emoji}`;
           client.say(channel, message);
         } else {
           const message = `invente un message comme quoi le joueur ${args[0]} n'a pas été trouvé dans le classement`;
@@ -79,19 +80,22 @@ client.on("message", (channel, tags, message, self) => {
 const askGPT = async (channel, message) => {
   const contexts = config.context[channel];
   const systemContent = contexts[Math.floor(Math.random() * contexts.length)];
+  let content;
 
-  const completion = await openai.chat.completions.create({
-    messages: [
-      {
-        role: "system",
-        content: systemContent,
-      },
-      { role: "user", content: message },
-    ],
-    model: "gpt-3.5-turbo",
-    stream: false,
-  });
-  const content = completion.choices[0].message.content;
+  try {
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: "system", content: systemContent },
+        { role: "user", content: message },
+      ],
+      model: "gpt-3.5-turbo",
+      stream: false,
+    });
+    content = completion.choices[0].message.content;
+  } catch (error) {
+    content = "<Error.01.beep.boop>";
+  }
+
   logToDiscord(channel, "Askowbot", content);
   client.say(channel, `🤖 ${content} 🤖`);
 };
