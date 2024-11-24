@@ -75,8 +75,8 @@ const fetchLeaderboardData = async (args, isDuo) => {
 
       if (player) {
         cache.set(cacheKey, player);
+        return player;
       }
-      return player;
     } catch (error) {
       console.error("Error finding player by rank number:", error);
       return null;
@@ -95,7 +95,6 @@ const fetchLeaderboardData = async (args, isDuo) => {
         const leaderboardData = findRankByAccountId(players, paramOne);
         if (leaderboardData) {
           cache.set(cacheKey, leaderboardData);
-          console.log("Found player, caching and returning");
           return leaderboardData;
         }
         // we have not found the player, so we need to fetch the next pages, checking if there are some
