@@ -2,6 +2,8 @@ import fetch from "node-fetch";
 import { MemoryCache } from "./utils/memory-cache.js";
 
 const VALID_REGIONS = ["EU", "US", "AP"];
+const PLAYERS_PER_PAGE = 25;
+const TOP_PAGES = 8;
 
 const cache = new MemoryCache();
 
@@ -54,6 +56,61 @@ const fetchLeaderboardData = async (args, isDuo) => {
   const region = VALID_REGIONS.includes(paramTwo) ? paramTwo : "EU";
 
   const leaderboardId = isDuo ? "battlegroundsduo" : "battlegrounds";
+
+  // Attempt to parse paramOne as a number
+  const playerRankNumber = Number(paramOne);
+
+  if (!isNaN(playerRankNumber)) {
+    try {
+      // paramOne is a number (index), return the player at that index
+      const playerIndex = playerRankNumber - 1; // Adjust for 1-based indexing
+      const playerPage = Math.ceil(playerRankNumber / PLAYERS_PER_PAGE);
+
+      const playerPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=${playerPage}`;
+      const playerPageData = await fetchData(playerPageUrl);
+
+      const playerIndexInPage = playerIndex % PLAYERS_PER_PAGE;
+      const player =
+        playerPageData?.leaderboard?.rows?.[playerIndexInPage] || null; // Return null if index is out of range
+
+      if (player) {
+        cache.set(cacheKey, player);
+        return player;
+      }
+    } catch (error) {
+      console.error("Error finding player by rank number:", error);
+      return null;
+    }
+  } else if (typeof paramOne === "string") {
+    // paramOne is an account ID (string), find the rank by account ID
+    try {
+      let pageIndex = 1;
+      let pagesRemaining = true;
+      // we only fetch the first 8 pages as it's in the top 200 players, the rest we will go through the slow method
+      while (pageIndex <= TOP_PAGES && pagesRemaining) {
+        const pageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=${pageIndex}`;
+        const pageData = await fetchData(pageUrl);
+
+        const players = pageData?.leaderboard?.rows || [];
+        const leaderboardData = findRankByAccountId(players, paramOne);
+        if (leaderboardData) {
+          cache.set(cacheKey, leaderboardData);
+          return leaderboardData;
+        }
+        // we have not found the player, so we need to fetch the next pages, checking if there are some
+        const totalPages = pageData?.leaderboard?.pagination?.totalPages || 1;
+        if (totalPages <= pageIndex) {
+          pagesRemaining = false;
+        }
+        pageIndex++;
+      }
+    } catch (error) {
+      console.error("Error finding player by account ID:", error);
+    }
+  }
+
+  // manual method, we sohuld never reach this for a call by rannk number
+  console.log("Fallback method, fetching all pages");
   let allPlayers = [];
   let MAX_PAGES = 1; // Default value before the first API call
 
@@ -91,12 +148,9 @@ const fetchLeaderboardData = async (args, isDuo) => {
       }
     });
 
-    // Attempt to parse paramOne as a number
-    const parsedNumber = Number(paramOne);
-
-    if (!isNaN(parsedNumber)) {
+    if (!isNaN(playerRankNumber)) {
       // paramOne is a number (index), return the player at that index
-      const index = parsedNumber - 1; // Adjust for 1-based indexing
+      const index = playerRankNumber - 1; // Adjust for 1-based indexing
       const player = allPlayers[index] || null; // Return player or null if index is out of range
       if (player) {
         cache.set(cacheKey, player);
