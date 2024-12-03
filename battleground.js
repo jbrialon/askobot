@@ -4,7 +4,7 @@ import { MemoryCache } from "./utils/memory-cache.js";
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
 const TOP_PAGES = 8;
-
+const CURRENT_SEASON = 14;
 const cache = new MemoryCache();
 
 const findRankByAccountId = (allPlayers, accountId) => {
@@ -66,7 +66,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
       const playerIndex = playerRankNumber - 1; // Adjust for 1-based indexing
       const playerPage = Math.ceil(playerRankNumber / PLAYERS_PER_PAGE);
 
-      const playerPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=${playerPage}`;
+      const playerPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&seasonId=${CURRENT_SEASON}&page=${playerPage}`;
       const playerPageData = await fetchData(playerPageUrl);
 
       const playerIndexInPage = playerIndex % PLAYERS_PER_PAGE;
@@ -88,7 +88,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
       let pagesRemaining = true;
       // we only fetch the first 8 pages as it's in the top 200 players, the rest we will go through the slow method
       while (pageIndex <= TOP_PAGES && pagesRemaining) {
-        const pageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=${pageIndex}`;
+        const pageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&seasonId=${CURRENT_SEASON}&page=${pageIndex}`;
         const pageData = await fetchData(pageUrl);
 
         const players = pageData?.leaderboard?.rows || [];
@@ -116,7 +116,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
 
   try {
     // Fetch the first page to determine the total number of pages
-    const firstPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=1`;
+    const firstPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&seasonId=${CURRENT_SEASON}&page=1`;
     const firstPageData = await fetchData(firstPageUrl);
 
     // Update MAX_PAGES based on the totalPages in the API response

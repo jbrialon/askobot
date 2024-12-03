@@ -28,6 +28,8 @@ const lastCommandTime = {};
 client.on("message", (channel, tags, message, self) => {
   const user = tags.username;
   const displayUserName = tags["display-name"];
+  // const isSub = tags.subscriber;
+
   const isNotBot =
     tags.username.toLowerCase() !==
     process.env.TWITCH_BOT_USERNAME.toLowerCase();
@@ -42,20 +44,27 @@ client.on("message", (channel, tags, message, self) => {
     const isDuo = command === "bgrankduo";
 
     // Check if the cooldown has expired
-    if (lastCommandTime[channel] && currentTime - lastCommandTime[channel] < COMMAND_COOLDOWN) {
-      // client.say(channel, `⏳ Commande en cooldown ! Veuillez patienter encore un peu. ⏳`);
+    if (
+      lastCommandTime[channel] &&
+      currentTime - lastCommandTime[channel] < COMMAND_COOLDOWN
+    ) {
+      // client.say(channel, `⏳ Commande en cooldown! Veuillez patienter encore un peu. ⏳`);
       return;
     }
     lastCommandTime[channel] = currentTime;
 
     (async () => {
       try {
-        if (!args || args.length === 0 || args[0].toLowerCase() === "askowbot") {
+        if (
+          !args ||
+          args.length === 0 ||
+          args[0].toLowerCase() === "askowbot"
+        ) {
           const message = `invente un message ou tu nous dit quelle position dans le classement du ladder hearthstone battleground tu occupes`;
           askGPT(channel, message);
           return;
         }
-        
+
         // we inform the User we are performing a search
         const search = args[0];
         let message;
@@ -63,13 +72,13 @@ client.on("message", (channel, tags, message, self) => {
         if (!isNaN(search)) {
           // If search is a number
           message = `invente un message ou tu nous dit que tu cherches le ${getFrenchOrdinal(
-          parseInt(search, 10)
+            parseInt(search, 10)
           )} joueur dans le classement mais que comme il y a bcp de resultats la recherche est longue`;
         } else {
           // If search is a string
           message = `invente un message ou tu nous dit que tu cherches le joueur ${search} dans le classement mais que comme il y a bcp de resultats la recherche est longue`;
         }
-        askGPT(channel, message);
+        // askGPT(channel, message);
 
         const player = await fetchLeaderboardData(args, isDuo);
 
@@ -83,7 +92,9 @@ client.on("message", (channel, tags, message, self) => {
           let emoji = rankEmojis[player.rank] || "🤖";
           const message = `${emoji} ${player.accountid} : ${getFrenchOrdinal(
             player.rank
-          )} (${player.rating}) ${isDuo ? '(duo)' : ''} ${emoji}  [📛⏳ ${config.commandCooldown}m]`;
+          )} (${player.rating}) ${isDuo ? "(duo)" : ""} ${emoji}  [📛⏳ ${
+            config.commandCooldown
+          }m]`;
           client.say(channel, message);
         } else {
           const message = `invente un message comme quoi le joueur ${args[0]} n'a pas été trouvé dans le classement`;

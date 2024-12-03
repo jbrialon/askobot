@@ -1,6 +1,6 @@
 {
   "port": 3000,
-  "commandCooldown": 3,
+  "commandCooldown": 0.5,
   "channels": [
     "askowbol",
     "lbineau",
