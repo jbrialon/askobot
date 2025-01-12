@@ -174,4 +174,38 @@ const fetchLeaderboardData = async (args, isDuo) => {
   }
 };
 
-export { fetchLeaderboardData };
+const fetchCardData = async (cardName) => {
+  const url = `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&textFilter=${encodeURIComponent(
+    cardName
+  )}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${process.env.BLIZZARD_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `fetchCardData: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+
+    // Vérifier si des cartes ont été trouvées
+    if (data.cards && data.cards.length > 0) {
+      return data.cards[0]; // Retourne la première carte trouvée
+    } else {
+      return null; // Aucune carte trouvée
+    }
+  } catch (error) {
+    console.error("fetchCardData:", error);
+    return null;
+  }
+};
+
+export { fetchCardData, fetchLeaderboardData };

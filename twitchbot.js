@@ -2,8 +2,8 @@ import tmi from "tmi.js";
 import OpenAI from "openai";
 import os from "os";
 
-import { log, getFrenchOrdinal } from "./utils/utils.js";
-import { fetchLeaderboardData } from "./battleground.js";
+import { log, getFrenchOrdinal, cleanText } from "./utils/utils.js";
+import { fetchCardData, fetchLeaderboardData } from "./battleground.js";
 import config from "./config.json" with { type: "json" };
 
 const hostname = os.hostname();
@@ -120,22 +120,92 @@ const askGPT = async (channel, message) => {
   const systemContent = contexts[Math.floor(Math.random() * contexts.length)];
   let content;
 
+  const tools = [
+    {
+      type: "function",
+      function: {
+        name: "get_card_info",
+        description:
+          "Fetch Hearthstone Battlegrounds card details. Use this tool when a user asks about a specific card.",
+        parameters: {
+          type: "object",
+          properties: {
+            card_name: {
+              type: "string",
+              description:
+                "The name of the Hearthstone Battlegrounds card to fetch information about.",
+            },
+          },
+          required: ["card_name"],
+          additionalProperties: false,
+        },
+      },
+    },
+    {
+      type: "function",
+      function: {
+        name: "get_hero_info",
+        description:
+          "Fetch Hearthstone Battlegrounds hero details. Use this tool when a user asks about a specific hero.",
+        parameters: {
+          type: "object",
+          properties: {
+            hero_name: {
+              type: "string",
+              description:
+                "The name of the Hearthstone Battlegrounds hero to fetch information about.",
+            },
+          },
+          required: ["hero_name"],
+          additionalProperties: false,
+        },
+      },
+    },
+  ];
+
   try {
-    const completion = await openai.chat.completions.create({
+    const response = await openai.chat.completions.create({
       messages: [
         { role: "system", content: systemContent },
         { role: "user", content: message },
       ],
-      model: "gpt-3.5-turbo",
-      stream: false,
+      model: "gpt-4o-mini",
+      tools,
     });
-    content = completion.choices[0].message.content;
+
+    if (response.choices[0].finish_reason === "tool_calls") {
+      const functionCall = response.choices[0].message.tool_calls[0].function;
+      if (functionCall.name === "get_card_info") {
+        const cardName = JSON.parse(functionCall.arguments).card_name;
+        const cardData = await fetchCardData(cardName);
+        if (cardData) {
+          content = `${cardData.name}: ${cleanText(cardData.text)}`;
+        } else {
+          content = "Aucune carte trouvée portant ce nom 🤔";
+        }
+      } else if (functionCall.name === "get_hero_info") {
+        const heroName = JSON.parse(functionCall.arguments).hero_name;
+        const heroData = await fetchHeroData(heroName);
+        content = heroData;
+      }
+    } else {
+      content = response.choices[0].message.content;
+    }
   } catch (error) {
     content = "<Error.01.beep.boop>";
   }
 
   logToDiscord(channel, "Askowbot", content);
   client.say(channel, `🤖 ${content} 🤖`);
+};
+
+const fetchHeroData = async (heroName) => {
+  try {
+    return `${heroName} TODO fetch hero Data`;
+  } catch (error) {
+    console.error("Error fetching Hearthstone Battlegrounds heroes:", error);
+    return null;
+  }
 };
 
 const logToDiscord = (channel, user, message) => {

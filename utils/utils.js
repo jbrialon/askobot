@@ -45,4 +45,7 @@ const getFrenchOrdinal = (rank) => {
   return `${rank}ème`; // "2ème", "3ème", etc. for other ranks
 };
 
-export { getCurrentTimeOfDay, log, getFrenchOrdinal };
+const cleanText = (text) => {
+  return text.replace(/<\/?(b|i)>/g, ""); // Removes <b>, </b>, <i>, and </i> tags};
+};
+export { getCurrentTimeOfDay, log, getFrenchOrdinal, cleanText };
