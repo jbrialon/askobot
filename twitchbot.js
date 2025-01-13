@@ -141,26 +141,26 @@ const askGPT = async (channel, message) => {
         },
       },
     },
-    {
-      type: "function",
-      function: {
-        name: "get_hero_info",
-        description:
-          "Fetch Hearthstone Battlegrounds hero details. Use this tool when a user asks about a specific hero.",
-        parameters: {
-          type: "object",
-          properties: {
-            hero_name: {
-              type: "string",
-              description:
-                "The name of the Hearthstone Battlegrounds hero to fetch information about.",
-            },
-          },
-          required: ["hero_name"],
-          additionalProperties: false,
-        },
-      },
-    },
+    // {
+    //   type: "function",
+    //   function: {
+    //     name: "get_hero_info",
+    //     description:
+    //       "Fetch Hearthstone Battlegrounds hero details. Use this tool when a user asks about a specific hero.",
+    //     parameters: {
+    //       type: "object",
+    //       properties: {
+    //         hero_name: {
+    //           type: "string",
+    //           description:
+    //             "The name of the Hearthstone Battlegrounds hero to fetch information about.",
+    //         },
+    //       },
+    //       required: ["hero_name"],
+    //       additionalProperties: false,
+    //     },
+    //   },
+    // },
   ];
 
   try {
@@ -183,11 +183,12 @@ const askGPT = async (channel, message) => {
         } else {
           content = "Aucune carte trouvée portant ce nom 🤔";
         }
-      } else if (functionCall.name === "get_hero_info") {
-        const heroName = JSON.parse(functionCall.arguments).hero_name;
-        const heroData = await fetchHeroData(heroName);
-        content = heroData;
-      }
+      } 
+      // else if (functionCall.name === "get_hero_info") {
+      //   const heroName = JSON.parse(functionCall.arguments).hero_name;
+      //   const heroData = await fetchHeroData(heroName);
+      //   content = heroData;
+      // }
     } else {
       content = response.choices[0].message.content;
     }
