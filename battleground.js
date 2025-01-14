@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import { MemoryCache } from "./utils/memory-cache.js";
+import { getValidToken } from "./utils/utils.js";
 
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
@@ -175,6 +176,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
 };
 
 const fetchCardData = async (cardName) => {
+  const token = await getValidToken();
   const url = `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&textFilter=${encodeURIComponent(
     cardName
   )}`;
@@ -183,7 +185,7 @@ const fetchCardData = async (cardName) => {
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${process.env.BLIZZARD_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
