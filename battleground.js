@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import { MemoryCache } from "./utils/memory-cache.js";
-import { getValidToken } from "./utils/utils.js";
+import { getValidToken, cleanText } from "./utils/utils.js";
 
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
@@ -210,4 +210,174 @@ const fetchCardData = async (cardName) => {
   }
 };
 
-export { fetchCardData, fetchLeaderboardData };
+const fetchAllCardData = async () => {
+  const token = await getValidToken();
+  const baseUrl = `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds`;
+
+  let allCards = [];
+  let currentPage = 1;
+
+  try {
+    while (true) {
+      const response = await fetch(`${baseUrl}&page=${currentPage}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch cards: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const cardsWithDetails = await Promise.all(
+        (data.cards || []).map(
+          async ({
+            id,
+            slug,
+            name,
+            text,
+            cardTypeId,
+            childIds,
+            battlegrounds,
+          }) => {
+            const cleanedBattlegrounds = battlegrounds
+              ? {
+                  hero: battlegrounds.hero,
+                  quest: battlegrounds.quest,
+                  reward: battlegrounds.reward,
+                  anomaly: cardTypeId === 43,
+                  trinket: cardTypeId === 44,
+                  duosOnly: battlegrounds.duosOnly,
+                  solosOnly: battlegrounds.solosOnly,
+                }
+              : undefined;
+
+            // get gold card text
+            let upgradeText;
+            if (battlegrounds?.upgradeId) {
+              try {
+                const upgradeResponse = await fetch(
+                  `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.upgradeId}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+
+                if (upgradeResponse.ok) {
+                  const upgradeData = await upgradeResponse.json();
+                  const upgradeCard = upgradeData.cards?.[0];
+                  if (upgradeCard && upgradeCard.text) {
+                    upgradeText = cleanText(upgradeCard.text);
+                  }
+                }
+              } catch (upgradeError) {
+                console.error(
+                  "Failed to fetch upgrade card data:",
+                  upgradeError
+                );
+              }
+            }
+
+            // get hero power text
+            if (battlegrounds?.hero && Array.isArray(childIds)) {
+              for (const childId of childIds) {
+                try {
+                  const childResponse = await fetch(
+                    `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${childId}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                      },
+                    }
+                  );
+
+                  if (childResponse.ok) {
+                    const childData = await childResponse.json();
+                    const childCard = childData.cards?.[0];
+                    if (
+                      childCard &&
+                      childCard.cardTypeId === 10 &&
+                      childCard.text
+                    ) {
+                      text = cleanText(childCard.text);
+                      break; // Update the text and stop searching
+                    }
+                  }
+                } catch (childError) {
+                  console.error("Failed to fetch child card data:", childError);
+                }
+              }
+            }
+
+            // get companion data
+            let companion;
+            if (battlegrounds?.companionId) {
+              try {
+                const companionResponse = await fetch(
+                  `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.companionId}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+
+                if (companionResponse.ok) {
+                  const companionData = await companionResponse.json();
+                  const companionCard = companionData.cards?.[0];
+                  if (
+                    companionCard &&
+                    companionCard.name &&
+                    companionCard.text
+                  ) {
+                    companion = {
+                      name: companionCard.name,
+                      text: cleanText(companionCard.text),
+                    };
+                  }
+                }
+              } catch (companionError) {
+                console.error(
+                  "Failed to fetch companion card data:",
+                  companionError
+                );
+              }
+            }
+
+            return {
+              id,
+              slug,
+              name,
+              text: cleanText(text),
+              upgradeText,
+              companion,
+              battlegrounds: cleanedBattlegrounds,
+            };
+          }
+        )
+      );
+
+      allCards = allCards.concat(cardsWithDetails);
+
+      if (currentPage >= data.pageCount) {
+        break; // Exit the loop if we have fetched all pages
+      }
+
+      currentPage++;
+    }
+
+    return allCards;
+  } catch (error) {
+    console.error("fetchCards:", error);
+    return [];
+  }
+};
+
+export { fetchAllCardData, fetchCardData, fetchLeaderboardData };

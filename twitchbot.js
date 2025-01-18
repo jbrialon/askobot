@@ -53,32 +53,24 @@ client.on("message", (channel, tags, message, self) => {
     }
     lastCommandTime[channel] = currentTime;
 
+    // TODO: Should be in config maybe
+    const battleTagByChannel = {
+      "#askowbol": "Askow",
+      "#lbineau": "lbineau",
+      "#slyders_hs": "Slyders",
+      "#veluxdeluxe": "Velux",
+      "#yanousama": "yanousama",
+      "#cytro97": "Cytro",
+      "#spidy_hs": "Spidy",
+    };
+
     (async () => {
       try {
-        if (
-          !args ||
-          args.length === 0 ||
-          args[0].toLowerCase() === "askowbot"
-        ) {
-          const message = `invente un message ou tu nous dit quelle position dans le classement du ladder hearthstone battleground tu occupes`;
-          askGPT(channel, message);
-          return;
+        if (!args || args.length === 0) {
+          // if not parameter is provided, we want the ranking of the stramer
+          console.log(channel, battleTagByChannel[channel]);
+          args[0] = battleTagByChannel[channel];
         }
-
-        // we inform the User we are performing a search
-        const search = args[0];
-        let message;
-
-        if (!isNaN(search)) {
-          // If search is a number
-          message = `invente un message ou tu nous dit que tu cherches le ${getFrenchOrdinal(
-            parseInt(search, 10)
-          )} joueur dans le classement mais que comme il y a bcp de resultats la recherche est longue`;
-        } else {
-          // If search is a string
-          message = `invente un message ou tu nous dit que tu cherches le joueur ${search} dans le classement mais que comme il y a bcp de resultats la recherche est longue`;
-        }
-        // askGPT(channel, message);
 
         const player = await fetchLeaderboardData(args, isDuo);
 
@@ -183,7 +175,7 @@ const askGPT = async (channel, message) => {
         } else {
           content = "Aucune carte trouvée portant ce nom 🤔";
         }
-      } 
+      }
       // else if (functionCall.name === "get_hero_info") {
       //   const heroName = JSON.parse(functionCall.arguments).hero_name;
       //   const heroData = await fetchHeroData(heroName);
