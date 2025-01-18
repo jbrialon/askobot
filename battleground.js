@@ -1,6 +1,9 @@
 import fetch from "node-fetch";
+import Fuse from "fuse.js";
+
 import { MemoryCache } from "./utils/memory-cache.js";
 import { getValidToken, cleanText } from "./utils/utils.js";
+import cards from "./db/db.json" with { type: "json" };
 
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
@@ -175,205 +178,220 @@ const fetchLeaderboardData = async (args, isDuo) => {
   }
 };
 
-const fetchCardData = async (cardName) => {
-  const token = await getValidToken();
-  const url = `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&textFilter=${encodeURIComponent(
-    cardName
-  )}`;
+const fetchCardData = (cardName, hero) => {
+  const options = {
+    keys: ["name.en", "name.fr"], // Fields to search
+    threshold: 0.3, // Lower threshold means stricter matches
+    includeScore: true, // Include match score for sorting
+  };
 
-  try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+  const dataset = cards.filter((card) => card.battlegrounds.hero === hero);
+  // // Initialize Fuse.js
+  const fuse = new Fuse(dataset, options);
 
-    if (!response.ok) {
-      throw new Error(
-        `fetchCardData: ${response.status} ${response.statusText}`
-      );
-    }
+  // Perform the search
+  const results = fuse.search(cardName);
 
-    const data = await response.json();
-
-    // Vérifier si des cartes ont été trouvées
-    if (data.cards && data.cards.length > 0) {
-      return data.cards[0]; // Retourne la première carte trouvée
-    } else {
-      return null; // Aucune carte trouvée
-    }
-  } catch (error) {
-    console.error("fetchCardData:", error);
-    return null;
+  if (results.length === 0) {
+    return null; // No matches
   }
+
+  // Return the best match
+  return results[0].item;
 };
 
 const fetchAllCardData = async () => {
   const token = await getValidToken();
-  const baseUrl = `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds`;
+  const baseUrls = [
+    `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds`,
+    `https://eu.api.blizzard.com/hearthstone/cards?locale=en_US&gameMode=battlegrounds`,
+  ];
 
   let allCards = [];
-  let currentPage = 1;
+  let currentPages = [1, 1]; // Tracks the page for each locale
 
   try {
     while (true) {
-      const response = await fetch(`${baseUrl}&page=${currentPage}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch cards: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const cardsWithDetails = await Promise.all(
-        (data.cards || []).map(
-          async ({
-            id,
-            slug,
-            name,
-            text,
-            cardTypeId,
-            childIds,
-            battlegrounds,
-          }) => {
-            const cleanedBattlegrounds = battlegrounds
-              ? {
-                  hero: battlegrounds.hero,
-                  quest: battlegrounds.quest,
-                  reward: battlegrounds.reward,
-                  anomaly: cardTypeId === 43,
-                  trinket: cardTypeId === 44,
-                  duosOnly: battlegrounds.duosOnly,
-                  solosOnly: battlegrounds.solosOnly,
-                }
-              : undefined;
-
-            // get gold card text
-            let upgradeText;
-            if (battlegrounds?.upgradeId) {
-              try {
-                const upgradeResponse = await fetch(
-                  `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.upgradeId}`,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                      "Content-Type": "application/json",
-                    },
-                  }
-                );
-
-                if (upgradeResponse.ok) {
-                  const upgradeData = await upgradeResponse.json();
-                  const upgradeCard = upgradeData.cards?.[0];
-                  if (upgradeCard && upgradeCard.text) {
-                    upgradeText = cleanText(upgradeCard.text);
-                  }
-                }
-              } catch (upgradeError) {
-                console.error(
-                  "Failed to fetch upgrade card data:",
-                  upgradeError
-                );
-              }
-            }
-
-            // get hero power text
-            if (battlegrounds?.hero && Array.isArray(childIds)) {
-              for (const childId of childIds) {
-                try {
-                  const childResponse = await fetch(
-                    `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${childId}`,
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                      },
-                    }
-                  );
-
-                  if (childResponse.ok) {
-                    const childData = await childResponse.json();
-                    const childCard = childData.cards?.[0];
-                    if (
-                      childCard &&
-                      childCard.cardTypeId === 10 &&
-                      childCard.text
-                    ) {
-                      text = cleanText(childCard.text);
-                      break; // Update the text and stop searching
-                    }
-                  }
-                } catch (childError) {
-                  console.error("Failed to fetch child card data:", childError);
-                }
-              }
-            }
-
-            // get companion data
-            let companion;
-            if (battlegrounds?.companionId) {
-              try {
-                const companionResponse = await fetch(
-                  `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.companionId}`,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                      "Content-Type": "application/json",
-                    },
-                  }
-                );
-
-                if (companionResponse.ok) {
-                  const companionData = await companionResponse.json();
-                  const companionCard = companionData.cards?.[0];
-                  if (
-                    companionCard &&
-                    companionCard.name &&
-                    companionCard.text
-                  ) {
-                    companion = {
-                      name: companionCard.name,
-                      text: cleanText(companionCard.text),
-                    };
-                  }
-                }
-              } catch (companionError) {
-                console.error(
-                  "Failed to fetch companion card data:",
-                  companionError
-                );
-              }
-            }
-
-            return {
-              id,
-              slug,
-              name,
-              text: cleanText(text),
-              upgradeText,
-              companion,
-              battlegrounds: cleanedBattlegrounds,
-            };
-          }
+      const responses = await Promise.all(
+        baseUrls.map((baseUrl, index) =>
+          fetch(`${baseUrl}&page=${currentPages[index]}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          })
         )
       );
 
-      allCards = allCards.concat(cardsWithDetails);
+      const data = await Promise.all(
+        responses.map((response) => response.json())
+      );
+      const localeResults = await Promise.all(
+        data.map(async (localeData, localeIndex) => {
+          const localeCards = localeData.cards || [];
+          return Promise.all(
+            localeCards.map(
+              async ({ slug, name, text, childIds, battlegrounds }) => {
+                const cleanedBattlegrounds = battlegrounds
+                  ? {
+                      hero: battlegrounds.hero,
+                      quest: battlegrounds.quest,
+                      reward: battlegrounds.reward,
+                      duosOnly: battlegrounds.duosOnly,
+                      solosOnly: battlegrounds.solosOnly,
+                    }
+                  : undefined;
 
-      if (currentPage >= data.pageCount) {
-        break; // Exit the loop if we have fetched all pages
+                // get golden text
+                let upgradeText;
+                if (battlegrounds?.upgradeId && localeIndex === 0) {
+                  try {
+                    const upgradeResponse = await fetch(
+                      `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.upgradeId}`,
+                      {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                          "Content-Type": "application/json",
+                        },
+                      }
+                    );
+
+                    if (upgradeResponse.ok) {
+                      const upgradeData = await upgradeResponse.json();
+                      const upgradeCard = upgradeData.cards?.[0];
+                      if (upgradeCard && upgradeCard.text) {
+                        upgradeText = cleanText(upgradeCard.text);
+                      }
+                    }
+                  } catch (upgradeError) {
+                    console.error(
+                      "Failed to fetch upgrade card data:",
+                      upgradeError
+                    );
+                  }
+                }
+
+                // get hero power text
+                if (
+                  battlegrounds?.hero &&
+                  Array.isArray(childIds) &&
+                  localeIndex === 0
+                ) {
+                  for (const childId of childIds) {
+                    try {
+                      const childResponse = await fetch(
+                        `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${childId}`,
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
+
+                      if (childResponse.ok) {
+                        const childData = await childResponse.json();
+                        const childCard = childData.cards?.[0];
+                        if (
+                          childCard &&
+                          childCard.cardTypeId === 10 &&
+                          childCard.text
+                        ) {
+                          text = cleanText(childCard.text);
+                          break; // Update the text and stop searching
+                        }
+                      }
+                    } catch (childError) {
+                      console.error(
+                        "Failed to fetch child card data:",
+                        childError
+                      );
+                    }
+                  }
+                }
+
+                // get companion data
+                let companion;
+                if (battlegrounds?.companionId) {
+                  try {
+                    const companionResponse = await fetch(
+                      `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.companionId}`,
+                      {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                          "Content-Type": "application/json",
+                        },
+                      }
+                    );
+
+                    if (companionResponse.ok) {
+                      const companionData = await companionResponse.json();
+                      const companionCard = companionData.cards?.[0];
+                      if (
+                        companionCard &&
+                        companionCard.name &&
+                        companionCard.text
+                      ) {
+                        companion = {
+                          name: companionCard.name,
+                          text: cleanText(companionCard.text),
+                        };
+                      }
+                    }
+                  } catch (companionError) {
+                    console.error(
+                      "Failed to fetch companion card data:",
+                      companionError
+                    );
+                  }
+                }
+
+                return {
+                  slug,
+                  name: {
+                    [localeIndex === 0 ? "fr" : "en"]: name,
+                  },
+                  text: localeIndex === 0 ? cleanText(text) : undefined, // Keep only French text
+                  upgradeText,
+                  companion,
+                  battlegrounds: cleanedBattlegrounds,
+                };
+              }
+            )
+          );
+        })
+      );
+
+      // Combine results from both locales
+      allCards = allCards.concat(localeResults.flat());
+
+      // Increment pages for locales
+      currentPages = currentPages.map((page, index) =>
+        page < data[index].pageCount ? page + 1 : page
+      );
+
+      // Break the loop if all pages for both locales are fetched
+      if (currentPages.every((page, index) => page >= data[index].pageCount)) {
+        break;
       }
-
-      currentPage++;
     }
 
-    return allCards;
+    // Merge card data by slug
+    const mergedCards = allCards.reduce((acc, card) => {
+      if (!acc[card.slug]) {
+        acc[card.slug] = { ...card };
+      } else {
+        acc[card.slug] = {
+          ...acc[card.slug],
+          name: { ...acc[card.slug].name, ...card.name },
+          text: acc[card.slug].text || card.text, // Keep French text
+          upgradeText: acc[card.slug].upgradeText || card.upgradeText, // Keep French text
+        };
+      }
+      return acc;
+    }, {});
+
+    return Object.values(mergedCards);
   } catch (error) {
     console.error("fetchCards:", error);
     return [];

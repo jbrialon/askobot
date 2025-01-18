@@ -68,7 +68,6 @@ client.on("message", (channel, tags, message, self) => {
       try {
         if (!args || args.length === 0) {
           // if not parameter is provided, we want the ranking of the stramer
-          console.log(channel, battleTagByChannel[channel]);
           args[0] = battleTagByChannel[channel];
         }
 
@@ -127,32 +126,37 @@ const askGPT = async (channel, message) => {
               description:
                 "The name of the Hearthstone Battlegrounds card to fetch information about.",
             },
+            golden: {
+              type: "boolean",
+              description:
+                "Whether to fetch information about the golden version of the card.",
+            },
           },
           required: ["card_name"],
           additionalProperties: false,
         },
       },
     },
-    // {
-    //   type: "function",
-    //   function: {
-    //     name: "get_hero_info",
-    //     description:
-    //       "Fetch Hearthstone Battlegrounds hero details. Use this tool when a user asks about a specific hero.",
-    //     parameters: {
-    //       type: "object",
-    //       properties: {
-    //         hero_name: {
-    //           type: "string",
-    //           description:
-    //             "The name of the Hearthstone Battlegrounds hero to fetch information about.",
-    //         },
-    //       },
-    //       required: ["hero_name"],
-    //       additionalProperties: false,
-    //     },
-    //   },
-    // },
+    {
+      type: "function",
+      function: {
+        name: "get_hero_info",
+        description:
+          "Fetch Hearthstone Battlegrounds hero details. Use this tool when a user asks about a specific hero.",
+        parameters: {
+          type: "object",
+          properties: {
+            hero_name: {
+              type: "string",
+              description:
+                "The name of the Hearthstone Battlegrounds hero to fetch information about.",
+            },
+          },
+          required: ["hero_name"],
+          additionalProperties: false,
+        },
+      },
+    },
   ];
 
   try {
@@ -168,19 +172,26 @@ const askGPT = async (channel, message) => {
     if (response.choices[0].finish_reason === "tool_calls") {
       const functionCall = response.choices[0].message.tool_calls[0].function;
       if (functionCall.name === "get_card_info") {
-        const cardName = JSON.parse(functionCall.arguments).card_name;
-        const cardData = await fetchCardData(cardName);
+        const { card_name: cardName, golden } = JSON.parse(
+          functionCall.arguments
+        );
+        const cardData = fetchCardData(cardName, false);
         if (cardData) {
-          content = `${cardData.name}: ${cleanText(cardData.text)}`;
+          content = `${cardData.name.fr}: ${
+            golden ? cardData.upgradeText : cardData.text
+          } `;
         } else {
           content = "Aucune carte trouvée portant ce nom 🤔";
         }
+      } else if (functionCall.name === "get_hero_info") {
+        const heroName = JSON.parse(functionCall.arguments).hero_name;
+        const heroData = fetchCardData(heroName, true);
+        if (heroData) {
+          content = `${heroData.name.fr}: ${heroData.text} `;
+        } else {
+          content = "Aucun hero trouvée portant ce nom 🤔";
+        }
       }
-      // else if (functionCall.name === "get_hero_info") {
-      //   const heroName = JSON.parse(functionCall.arguments).hero_name;
-      //   const heroData = await fetchHeroData(heroName);
-      //   content = heroData;
-      // }
     } else {
       content = response.choices[0].message.content;
     }
@@ -190,15 +201,6 @@ const askGPT = async (channel, message) => {
 
   logToDiscord(channel, "Askowbot", content);
   client.say(channel, `🤖 ${content} 🤖`);
-};
-
-const fetchHeroData = async (heroName) => {
-  try {
-    return `${heroName} TODO fetch hero Data`;
-  } catch (error) {
-    console.error("Error fetching Hearthstone Battlegrounds heroes:", error);
-    return null;
-  }
 };
 
 const logToDiscord = (channel, user, message) => {
