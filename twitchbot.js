@@ -2,7 +2,7 @@ import tmi from "tmi.js";
 import OpenAI from "openai";
 import os from "os";
 
-import { log, getFrenchOrdinal, cleanText } from "./utils/utils.js";
+import { log, getFrenchOrdinal } from "./utils/utils.js";
 import { fetchCardData, fetchLeaderboardData } from "./battleground.js";
 import config from "./config.json" with { type: "json" };
 
@@ -18,7 +18,7 @@ const client = new tmi.Client({
     username: "Askowbot",
     password: `oauth:${process.env.TWITCH_OAUTH}`,
   },
-  channels: config.channels,
+  channels: config.channels.map((channel) => channel.twitchChannel.slice(1)),
 });
 
 // Cooldown threshold in milliseconds
@@ -53,22 +53,13 @@ client.on("message", (channel, tags, message, self) => {
     }
     lastCommandTime[channel] = currentTime;
 
-    // TODO: Should be in config maybe
-    const battleTagByChannel = {
-      "#askowbol": "Askow",
-      "#lbineau": "lbineau",
-      "#slyders_hs": "Slyders",
-      "#veluxdeluxe": "Velux",
-      "#yanousama": "yanousama",
-      "#cytro97": "Cytro",
-      "#spidy_hs": "Spidy",
-    };
-
     (async () => {
       try {
         if (!args || args.length === 0) {
           // if not parameter is provided, we want the ranking of the stramer
-          args[0] = battleTagByChannel[channel];
+          args[0] = config.channels.find(
+            (c) => c.twitchChannel === channel,
+          ).battletag;
         }
 
         const player = await fetchLeaderboardData(args, isDuo);
@@ -82,7 +73,7 @@ client.on("message", (channel, tags, message, self) => {
           };
           let emoji = rankEmojis[player.rank] || "🤖";
           const message = `${emoji} ${player.accountid} : ${getFrenchOrdinal(
-            player.rank
+            player.rank,
           )} (${player.rating}) ${isDuo ? "(duo)" : ""} ${emoji}  [📛⏳ ${
             config.commandCooldown
           }m]`;
@@ -99,7 +90,7 @@ client.on("message", (channel, tags, message, self) => {
 
   if (command === "askowbot" || command === "askobot") {
     const question = args.join(" ");
-    const message = `je suis ${displayUserName} et voici ma ${question}`;
+    const message = `je suis ${displayUserName} et voici ma question: "${question}"`;
 
     askGPT(channel, message);
     logToDiscord(channel, user, `${question}`);
@@ -107,11 +98,13 @@ client.on("message", (channel, tags, message, self) => {
 });
 
 const askGPT = async (channel, message) => {
-  const contexts = config.context[channel];
+  const contexts = config.channels.find(
+    (c) => c.twitchChannel === channel,
+  ).context;
   const systemContent = contexts[Math.floor(Math.random() * contexts.length)];
   let content;
 
-  const tools = [
+  const cardTools = [
     {
       type: "function",
       function: {
@@ -137,19 +130,22 @@ const askGPT = async (channel, message) => {
         },
       },
     },
+  ];
+
+  const heroTools = [
     {
       type: "function",
       function: {
-        name: "get_hero_info",
+        name: "get_hero_power_info",
         description:
-          "Fetch Hearthstone Battlegrounds hero details. Use this tool when a user asks about a specific hero.",
+          "Fetch the hero power of a specific Hearthstone Battlegrounds hero. This function should only be used when the user asks specifically about the hero power (hp) of the hero, nothing else.",
         parameters: {
           type: "object",
           properties: {
             hero_name: {
               type: "string",
               description:
-                "The name of the Hearthstone Battlegrounds hero to fetch information about.",
+                "The name of the Hearthstone Battlegrounds hero to fetch the hero power information for.",
             },
           },
           required: ["hero_name"],
@@ -160,20 +156,29 @@ const askGPT = async (channel, message) => {
   ];
 
   try {
-    const response = await openai.chat.completions.create({
+    const payload = {
       messages: [
         { role: "system", content: systemContent },
         { role: "user", content: message },
       ],
       model: "gpt-4o-mini",
-      tools,
-    });
+    };
+
+    if (config.gptCardTriggerWords.some((word) => message.includes(word))) {
+      payload.tools = cardTools;
+    } else if (
+      config.gptHeroTriggerWords.some((word) => message.includes(word))
+    ) {
+      payload.tools = heroTools;
+    }
+
+    const response = await openai.chat.completions.create(payload);
 
     if (response.choices[0].finish_reason === "tool_calls") {
       const functionCall = response.choices[0].message.tool_calls[0].function;
       if (functionCall.name === "get_card_info") {
         const { card_name: cardName, golden } = JSON.parse(
-          functionCall.arguments
+          functionCall.arguments,
         );
         const cardData = fetchCardData(cardName, false);
         if (cardData) {
@@ -183,19 +188,20 @@ const askGPT = async (channel, message) => {
         } else {
           content = "Aucune carte trouvée portant ce nom 🤔";
         }
-      } else if (functionCall.name === "get_hero_info") {
+      } else if (functionCall.name === "get_hero_power_info") {
         const heroName = JSON.parse(functionCall.arguments).hero_name;
         const heroData = fetchCardData(heroName, true);
         if (heroData) {
           content = `${heroData.name.fr}: ${heroData.text} `;
         } else {
-          content = "Aucun hero trouvée portant ce nom 🤔";
+          content = "Aucun hero trouvé portant ce nom 🤔";
         }
       }
     } else {
       content = response.choices[0].message.content;
     }
   } catch (error) {
+    console.log(error);
     content = "<Error.01.beep.boop>";
   }
 

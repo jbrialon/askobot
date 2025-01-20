@@ -14,7 +14,7 @@ const cache = new MemoryCache();
 const findRankByAccountId = (allPlayers, accountId) => {
   // Find the player object that matches the accountId
   const player = allPlayers.find(
-    (player) => player.accountid.toLowerCase() === accountId.toLowerCase()
+    (player) => player.accountid.toLowerCase() === accountId.toLowerCase(),
   );
 
   // If a player is found, return the player object, otherwise return null
@@ -169,7 +169,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
       return leaderboardData;
     } else {
       console.error(
-        "Invalid paramOne type. Must be a string (account ID) or a number (index)."
+        "Invalid paramOne type. Must be a string (account ID) or a number (index).",
       );
       return null;
     }
@@ -185,7 +185,12 @@ const fetchCardData = (cardName, hero) => {
     includeScore: true, // Include match score for sorting
   };
 
-  const dataset = cards.filter((card) => card.battlegrounds.hero === hero);
+  const dataset = cards.filter(
+    (card) =>
+      card.battlegrounds.hero === hero &&
+      card.battlegrounds.quest === false &&
+      card.battlegrounds.reward === false,
+  );
   // // Initialize Fuse.js
   const fuse = new Fuse(dataset, options);
 
@@ -219,12 +224,12 @@ const fetchAllCardData = async () => {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
-          })
-        )
+          }),
+        ),
       );
 
       const data = await Promise.all(
-        responses.map((response) => response.json())
+        responses.map((response) => response.json()),
       );
       const localeResults = await Promise.all(
         data.map(async (localeData, localeIndex) => {
@@ -253,7 +258,7 @@ const fetchAllCardData = async () => {
                           Authorization: `Bearer ${token}`,
                           "Content-Type": "application/json",
                         },
-                      }
+                      },
                     );
 
                     if (upgradeResponse.ok) {
@@ -266,7 +271,7 @@ const fetchAllCardData = async () => {
                   } catch (upgradeError) {
                     console.error(
                       "Failed to fetch upgrade card data:",
-                      upgradeError
+                      upgradeError,
                     );
                   }
                 }
@@ -286,7 +291,7 @@ const fetchAllCardData = async () => {
                             Authorization: `Bearer ${token}`,
                             "Content-Type": "application/json",
                           },
-                        }
+                        },
                       );
 
                       if (childResponse.ok) {
@@ -304,7 +309,7 @@ const fetchAllCardData = async () => {
                     } catch (childError) {
                       console.error(
                         "Failed to fetch child card data:",
-                        childError
+                        childError,
                       );
                     }
                   }
@@ -321,7 +326,7 @@ const fetchAllCardData = async () => {
                           Authorization: `Bearer ${token}`,
                           "Content-Type": "application/json",
                         },
-                      }
+                      },
                     );
 
                     if (companionResponse.ok) {
@@ -341,7 +346,7 @@ const fetchAllCardData = async () => {
                   } catch (companionError) {
                     console.error(
                       "Failed to fetch companion card data:",
-                      companionError
+                      companionError,
                     );
                   }
                 }
@@ -356,10 +361,10 @@ const fetchAllCardData = async () => {
                   companion,
                   battlegrounds: cleanedBattlegrounds,
                 };
-              }
-            )
+              },
+            ),
           );
-        })
+        }),
       );
 
       // Combine results from both locales
@@ -367,7 +372,7 @@ const fetchAllCardData = async () => {
 
       // Increment pages for locales
       currentPages = currentPages.map((page, index) =>
-        page < data[index].pageCount ? page + 1 : page
+        page < data[index].pageCount ? page + 1 : page,
       );
 
       // Break the loop if all pages for both locales are fetched
