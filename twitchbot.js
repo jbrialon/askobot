@@ -6,6 +6,7 @@ import { log, getFrenchOrdinal } from "./utils/utils.js";
 import { fetchCardData, fetchLeaderboardData } from "./battleground.js";
 import config from "./config.json" with { type: "json" };
 
+config.chatMemory = config.chatMemory || {};
 const hostname = os.hostname();
 const openai = new OpenAI({
   organization: process.env.ORGKEY,
@@ -80,7 +81,7 @@ client.on("message", (channel, tags, message, self) => {
           client.say(channel, message);
         } else {
           const message = `invente un message comme quoi le joueur ${args[0]} n'a pas été trouvé dans le classement`;
-          askGPT(channel, message);
+          askGPT(channel, displayUserName, message);
         }
       } catch (error) {
         console.error("Error fetching leaderboard data:", error);
@@ -90,19 +91,30 @@ client.on("message", (channel, tags, message, self) => {
 
   if (command === "askowbot" || command === "askobot") {
     const question = args.join(" ");
-    const message = `je suis ${displayUserName} et voici ma question: "${question}"`;
 
-    askGPT(channel, message);
-    logToDiscord(channel, user, `${question}`);
+    askGPT(channel, displayUserName, question);
+    logToDiscord(channel, displayUserName, `${question}`);
   }
 });
 
-const askGPT = async (channel, message) => {
+const askGPT = async (channel, displayUserName, question) => {
   const contexts = config.channels.find(
     (c) => c.twitchChannel === channel,
   ).context;
   const systemContent = contexts[Math.floor(Math.random() * contexts.length)];
   let content;
+
+  // Initialize chat history for the channel if not present
+  if (!config.chatMemory[channel]) {
+    config.chatMemory[channel] = [];
+  }
+
+  // Trim user history to the last messages
+  if (config.chatMemory[channel].length > config.memoryCapacity) {
+    config.chatMemory[channel] = config.chatMemory[channel].slice(
+      -config.memoryCapacity,
+    );
+  }
 
   const cardTools = [
     {
@@ -155,10 +167,13 @@ const askGPT = async (channel, message) => {
     },
   ];
 
+  const message = `je suis ${displayUserName} et voici ma question: "${question}"`;
+
   try {
     const payload = {
       messages: [
         { role: "system", content: systemContent },
+        ...config.chatMemory[channel],
         { role: "user", content: message },
       ],
       model: "gpt-4o-mini",
@@ -171,7 +186,7 @@ const askGPT = async (channel, message) => {
     ) {
       payload.tools = heroTools;
     }
-
+    console.log(payload);
     const response = await openai.chat.completions.create(payload);
 
     if (response.choices[0].finish_reason === "tool_calls") {
@@ -204,6 +219,12 @@ const askGPT = async (channel, message) => {
     console.log(error);
     content = "<Error.01.beep.boop>";
   }
+
+  // Append the user's message to their history
+  config.chatMemory[channel].push({
+    role: "assistant",
+    content: `${displayUserName} previous question was "${question}" and your answer was ${content}`,
+  });
 
   logToDiscord(channel, "Askowbot", content);
   client.say(channel, `🤖 ${content} 🤖`);
