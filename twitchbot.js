@@ -1,6 +1,7 @@
 import tmi from "tmi.js";
 import OpenAI from "openai";
 import os from "os";
+import { EventEmitter } from "events";
 
 import { log, getFrenchOrdinal } from "./utils/utils.js";
 import { fetchCardData, fetchLeaderboardData } from "./battleground.js";
@@ -11,12 +12,13 @@ import config from "./config.json" with { type: "json" };
 /**
  * TwitchBot handles Twitch chat commands, interacts with OpenAI and manages bot state.
  */
-export default class TwitchBot {
+export default class TwitchBot extends EventEmitter {
   /**
    * Constructs a new TwitchBot instance.
    * Initializes configuration, chat memory, command registry, and sets up the Twitch client.
    */
   constructor() {
+    super();
     // Ensure chatMemory exists in config
     config.chatMemory = config.chatMemory || {};
     this.config = config;
@@ -325,6 +327,7 @@ export default class TwitchBot {
 
     this.logToDiscord(channel, "Askowbot", content);
     this.client.say(channel, `🤖 ${content} 🤖`);
+    this.emit("chat", question, content);
   }
 
   /**
