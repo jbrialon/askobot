@@ -1,11 +1,11 @@
 <template>
   <div class="chat">
-    <ul>
-      <li v-for="(message, index) in chatHistory" :key="index">
-        <span class="user">{{ message.tags["display-name"] }}</span
-        ><span class="message">{{ message.message }}</span>
+    <TransitionGroup name="list" tag="ul">
+      <li v-for="item in chatHistory" :key="item.tags.id">
+        <span class="user">{{ item.tags["display-name"] }}</span
+        ><span class="message">{{ item.message }}</span>
       </li>
-    </ul>
+    </TransitionGroup>
   </div>
 </template>
 
@@ -20,7 +20,7 @@ export default {
   },
   data() {
     return {
-      chatHistory: null,
+      chatHistory: [],
     };
   },
   mounted() {
@@ -32,6 +32,44 @@ export default {
         .slice(-4);
       console.log("Received chat history:", chatHistory);
     });
+
+    // let messageCounter = 0;
+    // let toggleMessage = true;
+    // setInterval(() => {
+    //   const messageOne = {
+    //     channel: "#askowbol",
+    //     tags: {
+    //       "display-name": "Askowbol",
+    //     },
+    //     message: "!askobot tu es live sur les internet tu savais ça?",
+    //     id: messageCounter++,
+    //   };
+
+    //   const messageTwo = {
+    //     channel: "#askowbol",
+    //     tags: {
+    //       "display-name": "Askowbot",
+    //     },
+    //     message:
+    //       "🤖 Oh là là, bravo, Sherlock ! Tu as découvert le secret de l'univers ! Je suis en ligne, quelle surprise ! 🤖",
+    //     id: messageCounter++,
+    //   };
+
+    //   // Push messageOne or messageTwo depending on the toggle flag
+    //   if (toggleMessage) {
+    //     this.chatHistory.push(messageOne);
+    //   } else {
+    //     this.chatHistory.push(messageTwo);
+    //   }
+
+    //   // Flip the toggle flag for the next interval
+    //   toggleMessage = !toggleMessage;
+
+    //   //  Filter chatHistory and keep only the last 4 messages for channel "#askowbol"
+    //   this.chatHistory = this.chatHistory
+    //     .filter((item) => item.channel === "#askowbol")
+    //     .slice(-4);
+    // }, 10000);
   },
 };
 </script>
@@ -53,7 +91,7 @@ export default {
       .user {
         position: absolute;
         display: block;
-        top: -14px;
+        top: -15px;
         left: 0;
         font-weight: bold;
         background: white;
@@ -64,12 +102,34 @@ export default {
       .message {
         display: block;
         background: #efefef;
-        padding: 35px 12px 13px 30px;
-        border-radius: 19px;
+        padding: 35px 12px 13px 20px;
+        border-radius: 10px 20px 20px 20px;
         max-width: 320px;
         min-width: 320px;
       }
     }
+  }
+
+  .list-move,
+  .list-enter-active,
+  .list-leave-active {
+    transition: all 0.5s ease;
+  }
+
+  .list-enter-from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  .list-leave-to {
+    opacity: 0;
+    transform: translateY(-130px);
+  }
+
+  /* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+  .list-leave-active {
+    position: absolute;
   }
 }
 </style>
