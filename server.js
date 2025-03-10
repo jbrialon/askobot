@@ -3,7 +3,7 @@ import config from "./config.json" with { type: "json" };
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import TwitchBot from "./twitchBot.js";
+import TwitchBot from "./twitchbot.js";
 import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 
