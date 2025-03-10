@@ -1,7 +1,7 @@
 import Experience from "../Experience";
+import Askobot from "./Askobot";
 import Environment from "./Environment";
 import Ground from "./Ground";
-// import Plane from "./Plane";
 
 export default class World {
   constructor() {
@@ -13,7 +13,7 @@ export default class World {
     this.resources.on("ready", () => {
       // Setup
       this.ground = new Ground();
-      // this.plane = new Plane();
+      this.askobot = new Askobot();
       this.environment = new Environment();
     });
   }

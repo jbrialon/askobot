@@ -30,6 +30,7 @@ export default class Ground {
       }),
     );
     this.mesh.rotation.x = -Math.PI / 2;
+    this.mesh.receiveShadow = true;
     this.scene.add(this.mesh);
   }
 

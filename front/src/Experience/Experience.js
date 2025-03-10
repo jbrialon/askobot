@@ -1,5 +1,7 @@
 import * as THREE from "three";
 
+import Socket from "../Socket/Socket.js";
+
 import Sizes from "./Utils/Sizes.js";
 import Time from "./Utils/Time.js";
 import Resources from "./Utils/Resources.js";
@@ -40,6 +42,7 @@ export default class Experience {
     }
 
     // Setup
+    this.socket = new Socket();
     this.debug = new Debug();
     this.stats = new Stats();
     this.sizes = new Sizes();

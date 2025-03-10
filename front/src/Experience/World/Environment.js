@@ -64,7 +64,7 @@ export default class Environment {
     this.sunLight.shadow.camera.right = 5;
     this.sunLight.shadow.camera.bottom = -5;
     this.sunLight.shadow.bias = -0.0001;
-    this.sunLight.position.set(2, 8, 8);
+    this.sunLight.position.set(-5, 3, 10);
     this.scene.add(this.sunLight);
   }
 
