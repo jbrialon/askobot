@@ -1,12 +1,24 @@
 import fetch from "node-fetch";
 
+const cache = {};
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
 /**
  * Fetches Twitch channel information for the given channel name.
  *
- * @param {string} channelName - The Twitch channel login name.
+ * @param {string} channel - The Twitch channel login name.
  * @returns {Promise<object|null>} An object containing channel info, or null if not found.
  */
-async function getChannelInfo(channelName) {
+async function getChannelInfo(channel) {
+  const channelName = channel.startsWith("#") ? channel.slice(1) : channel;
+
+  if (
+    cache[channelName] &&
+    Date.now() - cache[channelName].timestamp < CACHE_DURATION
+  ) {
+    return cache[channelName].data;
+  }
+
   try {
     // Step 1: Get OAuth Token
     const tokenResponse = await fetch("https://id.twitch.tv/oauth2/token", {
@@ -55,38 +67,25 @@ async function getChannelInfo(channelName) {
       channelInfo = channelData.data[0];
     }
 
-    // Return an object with the relevant info
-    return {
+    const result = {
       displayName: userInfo.display_name,
       description: userInfo.description,
       profileImage: userInfo.profile_image_url,
       offlineBanner: userInfo.offline_image_url,
-      lastGameSet: channelInfo.game_name || "N/A",
-      lastTitle: channelInfo.title || "N/A",
+      game: channelInfo.game_name || "N/A",
+      title: channelInfo.title || "N/A",
     };
+
+    cache[channelName] = {
+      timestamp: Date.now(),
+      data: result,
+    };
+
+    return result;
   } catch (error) {
     console.error("Error fetching data from Twitch API:", error);
     return null;
   }
 }
 
-/**
- * Builds a formatted context string from Twitch channel information.
- *
- * @param {string} channelName - The Twitch channel login name.
- * @returns {Promise<string>} A context string with channel information.
- */
-async function buildTwitchContext(channelName) {
-  const info = await getChannelInfo(channelName);
-  if (!info) return "";
-
-  // Build a multi-line context string
-  return `
-    Twitch Channel Info:
-    Channel Description: ${info.description}
-    Game: ${info.lastGameSet}
-    Stream Title: ${info.lastTitle}
-  `;
-}
-
-export { buildTwitchContext };
+export { getChannelInfo };

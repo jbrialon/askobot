@@ -5,7 +5,7 @@ import { EventEmitter } from "events";
 
 import { log, getFrenchOrdinal } from "./utils/utils.js";
 import { fetchCardData, fetchLeaderboardData } from "./battleground.js";
-import { buildTwitchContext } from "./twitchData.js";
+import { getChannelInfo } from "./twitchData.js";
 
 import config from "./config.json" with { type: "json" };
 
@@ -30,9 +30,6 @@ export default class TwitchBot extends EventEmitter {
       apiKey: process.env.APIKEY,
     });
 
-    // Initialize Twitch context cache
-    this.twitchContextCache = {}; // { channelName: { timestamp: number, context: string } }
-
     this.client = new tmi.Client({
       options: { debug: true },
       identity: {
@@ -43,6 +40,11 @@ export default class TwitchBot extends EventEmitter {
         channel.twitchChannel.slice(1),
       ),
     });
+
+    setTimeout(() => {
+      // this.client.say("#askowbol", `🤖 yo 🤖`);
+    }, 1000);
+    //
 
     // Command registry mapping command names to handler methods
     this.commandHandlers = {
@@ -190,25 +192,19 @@ export default class TwitchBot extends EventEmitter {
       (c) => c.twitchChannel === channel,
     );
     const contexts = channelConfig.context;
-    // Extract channel name (assuming channel string starts with "#")
-    const channelName = channel.startsWith("#") ? channel.slice(1) : channel;
-
-    // Retrieve Twitch context from cache if available, else build and cache it.
-    let twitchContext = "";
-    const cacheEntry = this.twitchContextCache[channelName];
-    const twentyFourHours = 24 * 60 * 60 * 1000;
-    if (cacheEntry && Date.now() - cacheEntry.timestamp < twentyFourHours) {
-      twitchContext = cacheEntry.context;
-    } else {
-      twitchContext = await buildTwitchContext(channelName);
-      this.twitchContextCache[channelName] = {
-        timestamp: Date.now(),
-        context: twitchContext,
-      };
-    }
+    const channelInfo = await getChannelInfo(channel);
 
     // Build system content with additional Twitch context
-    const systemContent = `${contexts[Math.floor(Math.random() * contexts.length)]}\n\nAdditional Twitch Context:\n${twitchContext}`;
+    const title = channelInfo ? channelInfo.title : "N/A";
+    const game = channelInfo ? channelInfo.game : "N/A";
+    const description = channelInfo ? channelInfo.description : "N/A";
+    const systemContentTemplate =
+      contexts[Math.floor(Math.random() * contexts.length)];
+    const systemContent = systemContentTemplate
+      .replace("{{game}}", game)
+      .replace("{{title}}", title)
+      .replace("{{desc}}", description);
+
     let content = "";
     // Initialize chat history for the channel if not present
     if (!this.chatMemory[channel]) {

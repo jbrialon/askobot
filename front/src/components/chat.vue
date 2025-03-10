@@ -25,7 +25,11 @@ export default {
   },
   mounted() {
     this.socket.instance.on("history", (chatHistory) => {
-      this.chatHistory = chatHistory.slice(-4);
+      this.chatHistory = chatHistory
+        .filter((item) => {
+          return item.channel === "#askowbol";
+        })
+        .slice(-4);
       console.log("Received chat history:", chatHistory);
     });
 

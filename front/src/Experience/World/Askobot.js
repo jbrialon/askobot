@@ -24,6 +24,9 @@ export default class Askobot {
         yoyo: true,
         duration: 0.1,
         repeat: 5,
+        onComplete: () => {
+          this.mesh.position.y = 4;
+        },
       });
     });
 
@@ -37,7 +40,7 @@ export default class Askobot {
       depthWrite: false,
     });
     this.mesh = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), this.material);
-    this.mesh.position.x = 0;
+    this.mesh.position.y = 4;
     this.mesh.castShadow = true;
     this.scene.add(this.mesh);
   }
