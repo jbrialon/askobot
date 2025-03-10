@@ -91,6 +91,12 @@ export default class TwitchBot extends EventEmitter {
     const isNotBot =
       user.toLowerCase() !== process.env.TWITCH_BOT_USERNAME.toLowerCase();
 
+    this.emit("chat", {
+      channel,
+      tags,
+      message,
+    });
+
     // Process messages starting with "!" only
     if (self || (!message.startsWith("!") && isNotBot)) return;
 
@@ -327,7 +333,6 @@ export default class TwitchBot extends EventEmitter {
 
     this.logToDiscord(channel, "Askowbot", content);
     this.client.say(channel, `🤖 ${content} 🤖`);
-    this.emit("chat", question, content);
   }
 
   /**
