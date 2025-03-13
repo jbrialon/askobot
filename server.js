@@ -21,7 +21,7 @@ twitchBot.on("chat", (data) => {
 const app = express();
 
 // Serve static files from the front-end build directory
-const distPath = path.join(__dirname, "front", "dist");
+const distPath = path.join(__dirname, "client", "dist");
 app.use(express.static(distPath));
 
 const server = http.createServer(app);

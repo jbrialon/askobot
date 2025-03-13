@@ -18,6 +18,11 @@ body {
   font-family: Monospace;
   font-size: 13px;
   line-height: 24px;
+  background-image: radial-gradient(
+    farthest-corner circle at 100% 0%,
+    #00dfff 0%,
+    #8c00ea 100%
+  );
 }
 
 .experience {
@@ -27,6 +32,11 @@ body {
   width: 100vw;
   height: var(--vh);
   z-index: -1;
+  background-image: radial-gradient(
+    farthest-corner circle at 100% 0%,
+    #00dfff 0%,
+    #8c00ea 100%
+  );
 }
 
 .webgl {

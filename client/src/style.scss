@@ -1,0 +1,36 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+
+  &:before,
+  &:after {
+    box-sizing: inherit;
+  }
+}
+
+html,
+body {
+  overflow: hidden;
+}
+
+html,
+body {
+  color: #000;
+  font-family: Monospace;
+  font-size: 13px;
+  line-height: 24px;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background-image: radial-gradient(
+    farthest-corner circle at 100% 0%,
+    #00dfff 0%,
+    #8c00ea 100%
+  );
+}
+#app {
+  height: 100%;
+  width: 100%;
+}
