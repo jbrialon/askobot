@@ -30,15 +30,15 @@ onBeforeRender(({ delta, elapsed }) => {
 });
 
 props.socket.instance.on("history", (chatHistory) => {
-  gsap.to(askobotRef.value.position, {
-    y: "+=1",
-    yoyo: true,
-    duration: 0.1,
-    repeat: 5,
-    onComplete: () => {
-      askobotRef.value.position.y = 0;
-    },
-  });
+  // gsap.to(askobotRef.value.position, {
+  //   y: "+=1",
+  //   yoyo: true,
+  //   duration: 0.1,
+  //   repeat: 5,
+  //   onComplete: () => {
+  //     askobotRef.value.position.y = 0;
+  //   },
+  // });
 });
 </script>
 
