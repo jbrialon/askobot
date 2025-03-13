@@ -10,7 +10,7 @@ import Askobot from "./components/3d/askobot.vue";
 import chat from "./components/ui/chat.vue";
 
 // Socket
-import Socket from "./Socket/Socket.js";
+import Socket from "./socket/Socket.js";
 const socket = new Socket();
 </script>
 
