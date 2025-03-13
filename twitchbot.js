@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import os from "os";
 import { EventEmitter } from "events";
 
-import { log, getFrenchOrdinal } from "./utils/utils.js";
+import { getFrenchOrdinal, log } from "./utils/utils.js";
 import { fetchCardData, fetchLeaderboardData } from "./battleground.js";
 import { getChannelInfo } from "./twitchData.js";
 
@@ -339,7 +339,11 @@ export default class TwitchBot extends EventEmitter {
    * @param {string} message - The log message.
    */
   logToDiscord(channel, user, message) {
-    log(channel, user, message);
+    log
+      .message()
+      .addField({ name: user, value: message })
+      .addFooter(`channel: ${channel}`) // Small text at the end of discord notification
+      .sendMessage();
   }
 
   /**
@@ -347,6 +351,9 @@ export default class TwitchBot extends EventEmitter {
    */
   connect() {
     this.client.connect();
-    log("server", this.hostname, `🚀 Askowbot Launch success 🚀`);
+    log
+      .sucessfulMessage()
+      .addTitle("🚀 Askowbot Launch success 🚀")
+      .sendMessage();
   }
 }

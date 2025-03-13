@@ -1,4 +1,6 @@
 import fetch from "node-fetch";
+import { DiscordNotification } from "@penseapp/discord-notification";
+import os from "os";
 
 let cachedToken = null;
 let tokenExpiry = 0;
@@ -19,7 +21,7 @@ const getValidToken = async () => {
 const getOAuthToken = async () => {
   const tokenUrl = "https://oauth.battle.net/token";
   const authString = Buffer.from(
-    `${process.env.BLIZZARD_CLIENT_ID}:${process.env.BLIZZARD_CLIENT_SECRET}`
+    `${process.env.BLIZZARD_CLIENT_ID}:${process.env.BLIZZARD_CLIENT_SECRET}`,
   ).toString("base64");
 
   try {
@@ -34,7 +36,7 @@ const getOAuthToken = async () => {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch token: ${response.status} ${response.statusText}`
+        `Failed to fetch token: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -66,29 +68,7 @@ const getCurrentTimeOfDay = () => {
   }
 };
 
-const log = (channel, user, message) => {
-  var params = {
-    username: process.env.TWITCH_BOT_USERNAM,
-    embeds: [
-      {
-        author: {
-          name: channel,
-        },
-        title: user,
-        description: message,
-      },
-    ],
-  };
-  fetch(process.env.DISCORD_WEBHOOK, {
-    method: "POST",
-    headers: {
-      "Content-type": "application/json",
-    },
-    body: JSON.stringify(params),
-  }).then((res) => {
-    // console.log(res);
-  });
-};
+const log = new DiscordNotification(os.hostname(), process.env.DISCORD_WEBHOOK);
 
 // Function to add French ordinal suffixes
 const getFrenchOrdinal = (rank) => {
@@ -99,4 +79,5 @@ const getFrenchOrdinal = (rank) => {
 const cleanText = (text) => {
   return text.replace(/<\/?(b|i)>/g, ""); // Removes <b>, </b>, <i>, and </i> tags};
 };
+
 export { getValidToken, getCurrentTimeOfDay, log, getFrenchOrdinal, cleanText };
