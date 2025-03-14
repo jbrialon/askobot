@@ -1,7 +1,20 @@
 <script setup>
 // Three.js Core
+import * as THREE from "three";
+
 import { TresCanvas } from "@tresjs/core";
 import { Grid, OrbitControls } from "@tresjs/cientos";
+
+THREE.ColorManagement.enabled = true;
+
+const gl = {
+  shadows: false,
+  alpha: true,
+  outputColorSpace: THREE.SRGBColorSpace,
+  toneMapping: THREE.ACESFilmicToneMapping,
+  powerPreference: "high-performance",
+  dpr: Math.min(window.devicePixelRatio, 2),
+};
 
 // Three.js Components
 import Askobot from "./components/3d/askobot.vue";
@@ -15,7 +28,7 @@ const socket = new Socket();
 </script>
 
 <template>
-  <TresCanvas powerPreference="high-performance">
+  <TresCanvas v-bind="gl">
     <TresPerspectiveCamera
       :position="[1.5, 3, 3.5]"
       :look-at="[0, 0, 0]"
