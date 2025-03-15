@@ -1,27 +1,48 @@
 <script setup>
 import { gsap } from "gsap";
-import { LoopOnce } from "three";
-import { ref, shallowRef, unref } from "vue";
-import { useLoop } from "@tresjs/core";
+import { LoopOnce, MeshPhysicalMaterial, BackSide, Mesh } from "three";
+import { ref, shallowRef } from "vue";
 import { useGLTF, useAnimations } from "@tresjs/cientos";
 
-const { scene: model, animations } = await useGLTF("/models/askobot.glb", {
-  draco: true,
-});
 const props = defineProps({
   socket: {
     required: true,
     type: Object,
   },
 });
+
 const askobotRef = shallowRef();
-const { onBeforeRender } = useLoop();
+const { scene: model, animations } = await useGLTF(
+  "/models/askobot_baked.glb",
+  {
+    draco: true,
+  },
+);
+
+const lensMaterial = new MeshPhysicalMaterial({
+  metalness: 0.9,
+  roughness: 0.05,
+  envMapIntensity: 0.9,
+  clearcoat: 1,
+  transparent: true,
+  opacity: 0.5,
+  reflectivity: 0.2,
+  ior: 0.9,
+  color: 0xf0f0f0,
+  side: BackSide,
+});
+
+model.traverse((child) => {
+  if (child instanceof Mesh) {
+    if (child.name.includes("Lens00")) {
+      child.material = lensMaterial;
+    }
+  }
+});
 
 const { actions, mixer } = useAnimations(animations, model);
-
 const defaultAction = ref(actions.Wiggle);
 const idleAction = ref(actions["Basic BotAction.001"]);
-
 const crossfadeDuration = 1.5; // duration in seconds
 
 defaultAction.value.setLoop(LoopOnce, 1);
@@ -30,7 +51,6 @@ defaultAction.value.play();
 
 idleAction.value.setLoop(LoopOnce, 1);
 idleAction.value.clampWhenFinished = true;
-// idleAction.value.play();
 
 mixer.addEventListener("finished", (e) => {
   if (e.action.getClip().name === defaultAction.value.getClip().name) {
@@ -43,12 +63,6 @@ mixer.addEventListener("finished", (e) => {
       console.log("Crossfade complete, playing default action again.");
       defaultAction.value.reset().play();
     }, crossfadeDuration * 1000);
-  }
-});
-
-onBeforeRender(({ delta, elapsed }) => {
-  if (askobotRef.value) {
-    // askobotRef.value.position.y = Math.sin(elapsed * 0.5) + 2;
   }
 });
 

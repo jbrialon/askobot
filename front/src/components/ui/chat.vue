@@ -26,9 +26,9 @@ export default {
   mounted() {
     this.socket.instance.on("history", (chatHistory) => {
       this.chatHistory = chatHistory
-        // .filter((item) => {
-        //   return item.channel === "#askowbol";
-        // })
+        .filter((item) => {
+          return item.channel === "#askowbol";
+        })
         .slice(-4);
     });
 

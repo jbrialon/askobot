@@ -3,7 +3,7 @@
 import * as THREE from "three";
 
 import { TresCanvas } from "@tresjs/core";
-import { Grid, OrbitControls } from "@tresjs/cientos";
+import { OrbitControls, Environment, Grid } from "@tresjs/cientos";
 
 THREE.ColorManagement.enabled = true;
 
@@ -36,13 +36,13 @@ const socket = new Socket();
     />
     <OrbitControls :target="[0, 2.7, 0]"></OrbitControls>
     <Suspense><Askobot :socket="socket"></Askobot></Suspense>
-
-    <TresAmbientLight :intensity="0.8" />
-    <TresDirectionalLight :intensity="2" :position="[-5, 3, 10]" />
+    <Suspense>
+      <Environment files="/textures/large_corridor_2k.hdr" />
+    </Suspense>
     <Grid
       :args="[200, 100]"
       cell-color="#ffffff"
-      :cell-size="0.6"
+      :cell-size="0.5"
       :cell-thickness="0.5"
       section-color="#f0f0f0"
       :section-size="2"
@@ -52,6 +52,8 @@ const socket = new Socket();
       :fade-distance="20"
       :fade-strength="1"
     ></Grid>
+    <TresDirectionalLight :intensity="1" :position="[2, 3, -3]" />
+    <TresAmbientLight :intensity="0.8" />
   </TresCanvas>
   <chat :socket="socket"></chat>
 </template>
