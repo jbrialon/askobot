@@ -90,58 +90,60 @@ idleAction.value.play();
 
 // Listen for audio data response
 let analyser;
-props.socket.instance.on("voice-data", (base64Audio) => {
-  // Stop any previous audio if it's currently playing
-  if (sound.isPlaying) {
-    sound.stop();
+props.socket.instance.on("voice-data", (data) => {
+  if (data.channel === "#askowbol") {
+    // Stop any previous audio if it's currently playing
+    if (sound.isPlaying) {
+      sound.stop();
+    }
+
+    // Decode base64 to binary array
+    const binaryAudio = atob(data.audioBuffer);
+    const len = binaryAudio.length;
+    const arrayBuffer = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      arrayBuffer[i] = binaryAudio.charCodeAt(i);
+    }
+
+    // Decode audio data to AudioBuffer
+    listener.context.decodeAudioData(
+      arrayBuffer.buffer,
+      (audioBuffer) => {
+        // Set audio buffer
+        sound.setBuffer(audioBuffer);
+        sound.setLoop(false);
+        sound.setVolume(0.3);
+
+        // Clean up previous analyser if exists
+        if (analyser && analyser.analyser) {
+          analyser.analyser.disconnect();
+          analyser = null;
+        }
+
+        // Reinitialize analyser
+        analyser = new AudioAnalyser(sound, 32);
+
+        sound.play();
+
+        // Animate with GSAP
+        gsap.to(floatFactor, { value: 1, duration: 1 });
+        gsap.to(rotationFactor, { value: 1, duration: 1 });
+
+        sound.source.onended = () => {
+          // When audio ends, reset animation values
+          gsap.to(floatFactor, { value: 0.2, duration: 1 });
+          gsap.to(rotationFactor, { value: 0.1, duration: 1 });
+
+          // Explicitly stop and reset sound to free resources
+          sound.stop();
+          sound.setBuffer(null);
+        };
+      },
+      (error) => {
+        console.error("Audio decoding failed", error);
+      },
+    );
   }
-
-  // Decode base64 to binary array
-  const binaryAudio = atob(base64Audio);
-  const len = binaryAudio.length;
-  const arrayBuffer = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    arrayBuffer[i] = binaryAudio.charCodeAt(i);
-  }
-
-  // Decode audio data to AudioBuffer
-  listener.context.decodeAudioData(
-    arrayBuffer.buffer,
-    (audioBuffer) => {
-      // Set audio buffer
-      sound.setBuffer(audioBuffer);
-      sound.setLoop(false);
-      sound.setVolume(0.3);
-
-      // Clean up previous analyser if exists
-      if (analyser && analyser.analyser) {
-        analyser.analyser.disconnect();
-        analyser = null;
-      }
-
-      // Reinitialize analyser
-      analyser = new AudioAnalyser(sound, 32);
-
-      sound.play();
-
-      // Animate with GSAP
-      gsap.to(floatFactor, { value: 1, duration: 1 });
-      gsap.to(rotationFactor, { value: 1, duration: 1 });
-
-      sound.source.onended = () => {
-        // When audio ends, reset animation values
-        gsap.to(floatFactor, { value: 0.2, duration: 1 });
-        gsap.to(rotationFactor, { value: 0.1, duration: 1 });
-
-        // Explicitly stop and reset sound to free resources
-        sound.stop();
-        sound.setBuffer(null);
-      };
-    },
-    (error) => {
-      console.error("Audio decoding failed", error);
-    },
-  );
 });
 
 const { onAfterRender } = useLoop();

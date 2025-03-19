@@ -330,6 +330,7 @@ export default class TwitchBot extends EventEmitter {
     this.logToDiscord(channel, "Askowbot", content);
     this.client.say(channel, `🤖 ${content} 🤖`);
     this.emit("voice", {
+      channel,
       content,
     });
   }
