@@ -8,7 +8,6 @@ import {
   AudioListener,
   Audio,
   AudioAnalyser,
-  AudioLoader,
 } from "three";
 import { ref, shallowRef } from "vue";
 import { useTresContext, useLoop } from "@tresjs/core";
@@ -26,9 +25,7 @@ const listener = new AudioListener();
 camera.value.add(listener);
 
 // create a global audio source
-// Initialize sound once outside your callback
 const sound = new Audio(listener);
-const loader = new AudioLoader();
 
 const askobotRef = shallowRef();
 const floatFactor = ref(0.2);
