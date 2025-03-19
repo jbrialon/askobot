@@ -3,11 +3,11 @@ import OpenAI from "openai";
 import os from "os";
 import { EventEmitter } from "events";
 
-import { getFrenchOrdinal, log } from "./utils/utils.js";
-import { fetchCardData, fetchLeaderboardData } from "./battleground.js";
-import { getChannelInfo } from "./twitchData.js";
+import { getFrenchOrdinal, log } from "../utils/utils.js";
+import { fetchCardData, fetchLeaderboardData } from "../utils/battleground.js";
+import { getChannelInfo } from "../utils/twitch-data.js";
 
-import config from "./config.json" with { type: "json" };
+import config from "../../config.json" with { type: "json" };
 
 /**
  * TwitchBot handles Twitch chat commands, interacts with OpenAI and manages bot state.
@@ -329,6 +329,9 @@ export default class TwitchBot extends EventEmitter {
 
     this.logToDiscord(channel, "Askowbot", content);
     this.client.say(channel, `🤖 ${content} 🤖`);
+    this.emit("voice", {
+      content,
+    });
   }
 
   /**

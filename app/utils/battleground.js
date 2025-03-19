@@ -1,9 +1,9 @@
 import fetch from "node-fetch";
 import Fuse from "fuse.js";
 
-import { MemoryCache } from "./utils/memory-cache.js";
-import { getValidToken, cleanText } from "./utils/utils.js";
-import cards from "./db/db.json" with { type: "json" };
+import { MemoryCache } from "../classes/memory-cache.js";
+import { getValidToken, cleanText } from "./utils.js";
+import cards from "../../db/db.json" with { type: "json" };
 
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
