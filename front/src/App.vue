@@ -6,8 +6,7 @@ import Experience from "./components/3d/experience.vue";
 import Chat from "./components/ui/chat.vue";
 
 // Classes
-import Socket from "./socket/Socket.js";
-// import Debug from "./classes/Debug.js";
+import Socket from "./classes/socket.js";
 
 const socket = new Socket();
 </script>

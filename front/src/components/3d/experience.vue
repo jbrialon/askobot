@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { TresCanvas } from "@tresjs/core";
 import { EffectComposerPmndrs, BloomPmndrs } from "@tresjs/post-processing";
 import { Grid } from "@tresjs/cientos";
+import { TresLeches, useControls } from "@tresjs/leches";
 
 // Components
 import Camera from "./camera.vue";
@@ -12,6 +13,17 @@ import Askobot from "./askobot.vue";
 // THREE
 THREE.ColorManagement.enabled = true;
 
+useControls({
+  testBtn: {
+    label: "TODO",
+    type: "button",
+    onClick: () => {
+      console.log("todo");
+    },
+    size: "sm",
+  },
+});
+
 export default {
   name: "Experience",
   props: {
@@ -19,14 +31,11 @@ export default {
       required: true,
       type: Object,
     },
-    debug: {
-      required: true,
-      type: Object,
-    },
   },
   components: {
     TresCanvas,
     Camera,
+    TresLeches,
     Environment,
     Askobot,
     Grid,
@@ -84,10 +93,13 @@ export default {
 </script>
 
 <template>
+  <TresLeches></TresLeches>
   <TresCanvas v-bind="gl">
     <Camera></Camera>
     <Environment></Environment>
-    <Suspense><Askobot :socket="socket"></Askobot></Suspense>
+    <Suspense>
+      <Askobot :socket="socket"></Askobot>
+    </Suspense>
     <Grid
       :args="[200, 100]"
       cell-color="#ffffff"

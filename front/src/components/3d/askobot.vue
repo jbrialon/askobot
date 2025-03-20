@@ -1,19 +1,19 @@
 <script setup>
 import { gsap } from "gsap";
-import {
-  LoopOnce,
-  MeshPhysicalMaterial,
-  BackSide,
-  Mesh,
-  AudioListener,
-  Audio,
-  AudioAnalyser,
-} from "three";
-import { ref, shallowRef } from "vue";
-import { useTresContext, useLoop } from "@tresjs/core";
-import { useGLTF, useAnimations, Levioso } from "@tresjs/cientos";
+// Vue
+import { ref, onMounted } from "vue";
 
+// Three
+import { LoopOnce, MeshPhysicalMaterial, BackSide, Mesh } from "three";
+
+// Tres
+import { useTresContext } from "@tresjs/core";
+import { useGLTF, useAnimations, Levioso } from "@tresjs/cientos";
+import { useAudioPlayer } from "../composables/useAudioPlayer";
+
+// Component Logic
 const { camera } = useTresContext();
+const { playAudio } = useAudioPlayer(camera);
 const props = defineProps({
   socket: {
     required: true,
@@ -21,13 +21,6 @@ const props = defineProps({
   },
 });
 
-const listener = new AudioListener();
-camera.value.add(listener);
-
-// create a global audio source
-const sound = new Audio(listener);
-
-const askobotRef = shallowRef();
 const floatFactor = ref(0.2);
 const rotationFactor = ref(0.1);
 const { scene: model, animations } = await useGLTF(
@@ -50,6 +43,7 @@ const lensMaterial = new MeshPhysicalMaterial({
   side: BackSide,
 });
 
+model.visible = false;
 model.traverse((child) => {
   if (child instanceof Mesh) {
     if (child.name.includes("Lens00")) {
@@ -85,66 +79,25 @@ idleAction.value.play();
 //   }
 // });
 
-// Listen for audio data response
-let analyser;
-props.socket.instance.on("voice-data", (data) => {
-  if (data.channel === "#askowbol") {
-    // Stop any previous audio if it's currently playing
-    if (sound.isPlaying) {
-      sound.stop();
+const onPlayCallback = () => {
+  gsap.to(floatFactor, { value: 1, duration: 1 });
+  gsap.to(rotationFactor, { value: 1, duration: 1 });
+};
+
+const onEndedCallback = () => {
+  // When audio ends, reset animation values
+  gsap.to(floatFactor, { value: 0.2, duration: 1 });
+  gsap.to(rotationFactor, { value: 0.1, duration: 1 });
+};
+
+onMounted(() => {
+  props.socket.instance.on("voice-data", (data) => {
+    if (data.channel === "#askowbol") {
+      playAudio(data.audioBuffer, onPlayCallback, onEndedCallback);
     }
-
-    const arrayBuffer = data.audioBuffer;
-
-    // Decode audio data to AudioBuffer
-    listener.context.decodeAudioData(
-      arrayBuffer,
-      (audioBuffer) => {
-        // Set audio buffer
-        sound.setBuffer(audioBuffer);
-        sound.setLoop(false);
-        sound.setVolume(0.3);
-
-        // Clean up previous analyser if exists
-        if (analyser && analyser.analyser) {
-          analyser.analyser.disconnect();
-          analyser = null;
-        }
-
-        // Reinitialize analyser
-        analyser = new AudioAnalyser(sound, 32);
-
-        sound.play();
-
-        // Animate with GSAP
-        gsap.to(floatFactor, { value: 1, duration: 1 });
-        gsap.to(rotationFactor, { value: 1, duration: 1 });
-
-        sound.source.onended = () => {
-          // When audio ends, reset animation values
-          gsap.to(floatFactor, { value: 0.2, duration: 1 });
-          gsap.to(rotationFactor, { value: 0.1, duration: 1 });
-
-          // Explicitly stop and reset sound to free resources
-          sound.stop();
-          sound.setBuffer(null);
-        };
-      },
-      (error) => {
-        console.error("Audio decoding failed", error);
-      },
-    );
-  }
-});
-
-const { onAfterRender } = useLoop();
-
-onAfterRender(({}) => {
-  if (analyser) {
-    let analysis = Math.pow((analyser.getFrequencyData()[2] / 255) * 0.85, 8);
-    // TODO animate mouth
-    console.log(analysis);
-  }
+  });
+  model.visible = true;
+  gsap.to(model.position, { y: 2.7, duration: 3, delay: 2 });
 });
 </script>
 
@@ -154,6 +107,6 @@ onAfterRender(({}) => {
     :rotationFactor="rotationFactor"
     :floatFactor="floatFactor"
   >
-    <primitive position-y="2.7" ref="askobotRef" :object="model"
+    <primitive position-y="0" :object="model"
   /></Levioso>
 </template>

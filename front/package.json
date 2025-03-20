@@ -11,12 +11,12 @@
   "dependencies": {
     "@tresjs/cientos": "^4.2.0",
     "@tresjs/core": "^4.3.3",
+    "@tresjs/leches": "^0.14.1",
     "@tresjs/post-processing": "^2.2.0",
     "elevenlabs": "^1.54.0",
     "gsap": "^3.12.7",
     "socket.io-client": "^4.8.1",
     "three": "^0.174.0",
-    "tweakpane": "^4.0.5",
     "vue": "^3.5.13"
   },
   "devDependencies": {

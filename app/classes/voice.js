@@ -35,6 +35,8 @@ export default class Voice extends EventEmitter {
 
     // Combine chunks into a single Buffer
     const audioBuffer = Buffer.concat(chunks);
+    audioBuffer.toString("base64");
+    // Emit buffer to frontend (as base64)
     return audioBuffer;
   }
 }
