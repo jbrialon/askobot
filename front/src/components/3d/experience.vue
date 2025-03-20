@@ -101,14 +101,14 @@ export default {
       :fade-distance="20"
       :fade-strength="1"
     ></Grid>
-    <TresMesh :position-y="2" :scale="[0.05, 0.05, 0.05]">
+    <!-- <TresMesh :position-y="2" :scale="[0.05, 0.05, 0.05]">
       <TresSphereGeometry :args="[]" />
       <TresMeshStandardMaterial
         color="blue"
         emissive="orange"
         :emissiveIntensity="10"
       />
-    </TresMesh>
+    </TresMesh> -->
     <!-- <EffectComposerPmndrs>
       <BloomPmndrs
         :radius="state.radius"

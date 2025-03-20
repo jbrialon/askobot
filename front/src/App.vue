@@ -7,14 +7,13 @@ import Chat from "./components/ui/chat.vue";
 
 // Classes
 import Socket from "./socket/Socket.js";
-import Debug from "./classes/Debug.js";
+// import Debug from "./classes/Debug.js";
 
 const socket = new Socket();
-const debug = new Debug();
 </script>
 
 <template>
-  <Experience :socket="socket" :debug="debug"></Experience>
+  <Experience :socket="socket"></Experience>
   <Chat :socket="socket"></Chat>
 </template>
 

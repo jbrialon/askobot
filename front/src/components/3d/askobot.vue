@@ -94,17 +94,11 @@ props.socket.instance.on("voice-data", (data) => {
       sound.stop();
     }
 
-    // Decode base64 to binary array
-    const binaryAudio = atob(data.audioBuffer);
-    const len = binaryAudio.length;
-    const arrayBuffer = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      arrayBuffer[i] = binaryAudio.charCodeAt(i);
-    }
+    const arrayBuffer = data.audioBuffer;
 
     // Decode audio data to AudioBuffer
     listener.context.decodeAudioData(
-      arrayBuffer.buffer,
+      arrayBuffer,
       (audioBuffer) => {
         // Set audio buffer
         sound.setBuffer(audioBuffer);
@@ -145,7 +139,7 @@ props.socket.instance.on("voice-data", (data) => {
 
 const { onAfterRender } = useLoop();
 
-onAfterRender(({ renderer }) => {
+onAfterRender(({}) => {
   if (analyser) {
     let analysis = Math.pow((analyser.getFrequencyData()[2] / 255) * 0.85, 8);
     // TODO animate mouth
