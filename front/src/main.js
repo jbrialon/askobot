@@ -1,5 +1,4 @@
 import "./style.scss";
-import "@tresjs/leches/styles";
 import Tres from "@tresjs/core";
 import { createApp } from "vue";
 import App from "./App.vue";

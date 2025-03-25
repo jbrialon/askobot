@@ -50,6 +50,10 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
+
+  socket.on("ask-gpt", (question) => {
+    twitchBot.askGPT("#askowbol", "UIuser", question);
+  });
 });
 
 server.listen(config.port, () => {

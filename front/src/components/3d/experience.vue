@@ -3,7 +3,6 @@ import * as THREE from "three";
 import { TresCanvas } from "@tresjs/core";
 import { EffectComposerPmndrs, BloomPmndrs } from "@tresjs/post-processing";
 import { Grid } from "@tresjs/cientos";
-import { TresLeches, useControls } from "@tresjs/leches";
 
 // Components
 import Camera from "./camera.vue";
@@ -13,16 +12,32 @@ import Askobot from "./askobot.vue";
 // THREE
 THREE.ColorManagement.enabled = true;
 
-useControls({
-  testBtn: {
-    label: "TODO",
-    type: "button",
-    onClick: () => {
-      console.log("todo");
-    },
-    size: "sm",
+// Debug
+const debugObject = {
+  fields: {
+    question: "yo askobot, la forme?",
   },
-});
+  panes: {
+    input: null,
+    button: null,
+  },
+  setDebug: (ui, socket) => {
+    console.log(ui, debugObject.panes);
+    debugObject.panes.input = ui.addBinding(debugObject.fields, "question");
+    debugObject.panes.button = ui
+      .addButton({
+        title: "Ask",
+      })
+      .on("click", () => {
+        console.log(debugObject.fields.question);
+        socket.emit("ask-gpt", debugObject.fields.question);
+      });
+  },
+  removeDebug: () => {
+    debugObject.panes.input.dispose();
+    debugObject.panes.button.dispose();
+  },
+};
 
 export default {
   name: "Experience",
@@ -31,11 +46,14 @@ export default {
       required: true,
       type: Object,
     },
+    debug: {
+      required: true,
+      type: Object,
+    },
   },
   components: {
     TresCanvas,
     Camera,
-    TresLeches,
     Environment,
     Askobot,
     Grid,
@@ -53,10 +71,22 @@ export default {
         powerPreference: "high-performance",
         dpr: Math.min(window.devicePixelRatio, 2),
       },
+      debugObject: {
+        question: "what can you tell me about you?",
+      },
+      debugPanes: {
+        input: null,
+        button: null,
+      },
     };
   },
   methods: {},
-  mounted() {},
+  mounted() {
+    debugObject.setDebug(this.debug.ui, this.socket.instance);
+  },
+  beforeUnmount() {
+    debugObject.removeDebug();
+  },
 };
 
 // Debug
@@ -93,7 +123,6 @@ export default {
 </script>
 
 <template>
-  <TresLeches></TresLeches>
   <TresCanvas v-bind="gl">
     <Camera></Camera>
     <Environment></Environment>
