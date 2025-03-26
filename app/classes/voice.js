@@ -14,7 +14,7 @@ export default class Voice extends EventEmitter {
 
   async convertAsStream(text) {
     const audioStream = await this.instance.textToSpeech.convertAsStream(
-      "ay3BJ3VZOTtKSAoiiHko", // Agent ID
+      "JBFqnCBsd6RMkjVDRZzb", // Agent ID
       {
         text,
         model_id: "eleven_flash_v2_5",

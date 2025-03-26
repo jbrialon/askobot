@@ -1,33 +1,28 @@
 import { AudioListener, Audio, AudioAnalyser } from "three";
+import { ref } from "vue";
 
 export function useAudioPlayer(camera) {
   const listener = new AudioListener();
   camera.value.add(listener);
   const sound = new Audio(listener);
+  const analysis = ref(0);
   let analyser = null;
 
-  /**
-   * Plays the audio from the provided arrayBuffer and optionally triggers a callback.
-   * @param {ArrayBuffer} arrayBuffer - The raw audio data.
-   * @param {Function} [onPlayCallback] - Optional callback to trigger when audio starts playing.
-   * @param {Function} [onEndedCallback] - Optional callback to trigger when audio finished playing.
-   */
   const playAudio = (audioBuffer, onPlayCallback, onEndedCallback) => {
-    // Decode base64 to binary array
     const binaryAudio = atob(audioBuffer);
     const len = binaryAudio.length;
     const arrayBuffer = new Uint8Array(len);
     for (let i = 0; i < len; i++) {
       arrayBuffer[i] = binaryAudio.charCodeAt(i);
     }
+
     listener.context.decodeAudioData(
       arrayBuffer.buffer,
-      (audioBuffer) => {
-        sound.setBuffer(audioBuffer);
+      (decodedBuffer) => {
+        sound.setBuffer(decodedBuffer);
         sound.setLoop(false);
         sound.setVolume(0.3);
 
-        // Disconnect previous analyser if any
         if (analyser && analyser.analyser) {
           analyser.analyser.disconnect();
           analyser = null;
@@ -43,6 +38,7 @@ export function useAudioPlayer(camera) {
         sound.source.onended = () => {
           sound.stop();
           sound.setBuffer(null);
+          analysis.value = 0; // reset analysis when audio ends
 
           if (typeof onEndedCallback === "function") {
             onEndedCallback();
@@ -55,5 +51,16 @@ export function useAudioPlayer(camera) {
     );
   };
 
-  return { sound, listener, analyser, playAudio };
+  const updateAnalysis = () => {
+    if (analyser) {
+      analysis.value = Math.pow(
+        (analyser.getFrequencyData()[2] / 255) * 0.85,
+        8,
+      );
+    } else {
+      analysis.value = 0;
+    }
+  };
+
+  return { sound, listener, analyser, analysis, playAudio, updateAnalysis };
 }

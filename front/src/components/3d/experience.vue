@@ -22,14 +22,12 @@ const debugObject = {
     button: null,
   },
   setDebug: (ui, socket) => {
-    console.log(ui, debugObject.panes);
     debugObject.panes.input = ui.addBinding(debugObject.fields, "question");
     debugObject.panes.button = ui
       .addButton({
         title: "Ask",
       })
       .on("click", () => {
-        console.log(debugObject.fields.question);
         socket.emit("ask-gpt", debugObject.fields.question);
       });
   },

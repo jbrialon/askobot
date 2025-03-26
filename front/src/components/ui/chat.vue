@@ -29,7 +29,7 @@ export default {
         .filter((item) => {
           return item.channel === "#askowbol";
         })
-        .slice(-4);
+        .slice(-1);
     });
 
     // let messageCounter = 0;

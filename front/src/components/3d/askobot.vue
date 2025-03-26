@@ -1,19 +1,29 @@
 <script setup>
 import { gsap } from "gsap";
 // Vue
-import { ref, onMounted } from "vue";
+import { ref, shallowRef, onMounted } from "vue";
 
 // Three
-import { LoopOnce, MeshPhysicalMaterial, BackSide, Mesh } from "three";
+import {
+  LoopOnce,
+  MeshPhysicalMaterial,
+  BackSide,
+  Mesh,
+  Vector2,
+  Uniform,
+  ShaderMaterial,
+} from "three";
+import vertexShader from "./../../shaders/vertex.glsl";
+import fragmentShader from "./../../shaders/fragment.glsl";
 
 // Tres
-import { useTresContext } from "@tresjs/core";
+import { useTresContext, useRenderLoop } from "@tresjs/core";
 import { useGLTF, useAnimations, Levioso } from "@tresjs/cientos";
 import { useAudioPlayer } from "../composables/useAudioPlayer";
 
 // Component Logic
 const { camera } = useTresContext();
-const { playAudio } = useAudioPlayer(camera);
+const { playAudio, analysis, updateAnalysis } = useAudioPlayer(camera);
 const props = defineProps({
   socket: {
     required: true,
@@ -21,10 +31,14 @@ const props = defineProps({
   },
 });
 
+const blobRef = shallowRef(null);
+
+const { onLoop } = useRenderLoop();
+
 const floatFactor = ref(0.2);
 const rotationFactor = ref(0.1);
 const { scene: model, animations } = await useGLTF(
-  "/models/askobot_baked.glb",
+  "/models/askobot_baked2.glb",
   {
     draco: true,
   },
@@ -43,11 +57,25 @@ const lensMaterial = new MeshPhysicalMaterial({
   side: BackSide,
 });
 
+const equilizerMaterial = new ShaderMaterial({
+  transparent: true,
+  uniforms: {
+    uTime: new Uniform(0),
+    uIntensity: new Uniform(0),
+    uAmplitude: new Uniform(new Vector2(0.4, 0.4)),
+    uFrequency: new Uniform(new Vector2(20, 5)),
+  },
+  vertexShader,
+  fragmentShader,
+});
+
 model.visible = false;
 model.traverse((child) => {
   if (child instanceof Mesh) {
     if (child.name.includes("Lens00")) {
       child.material = lensMaterial;
+    } else if (child.name.includes("equilizer")) {
+      child.material = equilizerMaterial;
     }
   }
 });
@@ -80,8 +108,8 @@ idleAction.value.play();
 // });
 
 const onPlayCallback = () => {
-  gsap.to(floatFactor, { value: 1, duration: 1 });
-  gsap.to(rotationFactor, { value: 1, duration: 1 });
+  gsap.to(floatFactor, { value: 0.5, duration: 1 });
+  gsap.to(rotationFactor, { value: 0.5, duration: 1 });
 };
 
 const onEndedCallback = () => {
@@ -90,6 +118,12 @@ const onEndedCallback = () => {
   gsap.to(rotationFactor, { value: 0.1, duration: 1 });
 };
 
+onLoop(({ elapsed }) => {
+  updateAnalysis();
+  equilizerMaterial.uniforms.uTime.value = elapsed;
+  equilizerMaterial.uniforms.uIntensity.value = analysis.value;
+});
+
 onMounted(() => {
   props.socket.instance.on("voice-data", (data) => {
     if (data.channel === "#askowbol") {
@@ -97,7 +131,7 @@ onMounted(() => {
     }
   });
   model.visible = true;
-  gsap.to(model.position, { y: 2.7, duration: 3, delay: 2 });
+  // gsap.to(model.position, { y: 2.7, duration: 3, delay: 2 });
 });
 </script>
 
@@ -107,6 +141,14 @@ onMounted(() => {
     :rotationFactor="rotationFactor"
     :floatFactor="floatFactor"
   >
-    <primitive position-y="0" :object="model"
+    <primitive position-y="2.7" :object="model"
   /></Levioso>
+  <!-- <TresMesh ref="blobRef" :position="[0, 4, 0]">
+    <TresPlaneGeometry :args="[1, 0.2, 20, 20]" />
+    <TresShaderMaterial
+      :vertex-shader="vertexShader"
+      :fragment-shader="fragmentShader"
+      :uniforms="uniforms"
+    />
+  </TresMesh> -->
 </template>

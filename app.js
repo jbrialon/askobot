@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("ask-gpt", (question) => {
-    twitchBot.askGPT("#askowbol", "UIuser", question);
+    twitchBot.askGPT("#askowbol", "Jérémy", question);
   });
 });
 
