@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "serve": "node app.js",
-    "import": "node cron/fetchData.js"
+    "import": "node cron/fetch-data.js"
   },
   "author": "jbrialon",
   "license": "ISC",

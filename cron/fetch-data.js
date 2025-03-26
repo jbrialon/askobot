@@ -2,15 +2,15 @@ import "dotenv/config";
 
 import fs from "fs";
 import path from "path";
-import { fetchAllCardData } from "../battleground.js";
-import { log } from "../utils/utils.js";
+import { fetchAllCardData } from "../app/utils/battleground.js";
+import { log } from "../app/utils/utils.js";
 
 const saveDataToFile = async (outputFilePath) => {
   try {
     console.log("Fetching data for cards");
     log
       .infoMessage()
-      .addTitle("Import ")
+      .addTitle("Import")
       .addDescription("Fetching data for cards")
       .sendMessage();
     const cardsData = await fetchAllCardData();
