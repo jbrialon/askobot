@@ -19,6 +19,8 @@ import fragmentShader from "./../../shaders/fragment.glsl";
 // Tres
 import { useTresContext, useRenderLoop } from "@tresjs/core";
 import { useGLTF, useAnimations, Levioso } from "@tresjs/cientos";
+
+// Other
 import { useAudioPlayer } from "../composables/useAudioPlayer";
 
 // Component Logic
@@ -131,7 +133,6 @@ onMounted(() => {
     }
   });
   model.visible = true;
-  // gsap.to(model.position, { y: 2.7, duration: 3, delay: 2 });
 });
 </script>
 
@@ -143,12 +144,4 @@ onMounted(() => {
   >
     <primitive position-y="2.7" :object="model"
   /></Levioso>
-  <!-- <TresMesh ref="blobRef" :position="[0, 4, 0]">
-    <TresPlaneGeometry :args="[1, 0.2, 20, 20]" />
-    <TresShaderMaterial
-      :vertex-shader="vertexShader"
-      :fragment-shader="fragmentShader"
-      :uniforms="uniforms"
-    />
-  </TresMesh> -->
 </template>

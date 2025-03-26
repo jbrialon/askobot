@@ -24,12 +24,14 @@ twitchBot.on("chat", (data) => {
 });
 
 twitchBot.on("voice", async (data) => {
-  const audioBuffer = await voice.convertAsStream(data.content);
-  io.emit("voice-data", {
-    channel: data.channel,
-    content: data.content,
-    audioBuffer: audioBuffer.toString("base64"),
-  });
+  if (data.channel === "#askowbol") {
+    const audioBuffer = await voice.convertAsStream(data.content);
+    io.emit("voice-data", {
+      channel: data.channel,
+      content: data.content,
+      audioBuffer: audioBuffer.toString("base64"),
+    });
+  }
 });
 
 const app = express();
