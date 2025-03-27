@@ -1,7 +1,7 @@
 <script setup>
 import { gsap } from "gsap";
 // Vue
-import { ref, shallowRef, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
 // Three
 import {
@@ -9,9 +9,9 @@ import {
   MeshPhysicalMaterial,
   BackSide,
   Mesh,
-  Vector2,
   Uniform,
   ShaderMaterial,
+  Color,
 } from "three";
 import vertexShader from "./../../shaders/vertex.glsl";
 import fragmentShader from "./../../shaders/fragment.glsl";
@@ -23,19 +23,61 @@ import { useGLTF, useAnimations, Levioso } from "@tresjs/cientos";
 // Other
 import { useAudioPlayer } from "../composables/useAudioPlayer";
 
-// Component Logic
-const { camera } = useTresContext();
-const { playAudio, analysis, updateAnalysis } = useAudioPlayer(camera);
+// props
 const props = defineProps({
   socket: {
     required: true,
     type: Object,
   },
+  debug: {
+    required: true,
+    type: Object,
+  },
 });
 
-const blobRef = shallowRef(null);
+// Debug
+const debugObject = {
+  fields: {
+    barNumber: 10,
+    barColor: 0x3ddfff,
+  },
+  folder: null,
+  setDebug: (ui) => {
+    debugObject.folder = props.debug.ui.addFolder({
+      title: "Equilizer",
+    });
 
+    debugObject.folder
+      .addBinding(debugObject.fields, "barNumber", {
+        label: "Bar Number",
+        min: 1,
+        max: 20,
+        step: 1,
+      })
+      .on("change", () => {
+        equilizerMaterial.uniforms.uBarNumber.value =
+          debugObject.fields.barNumber;
+      });
+
+    debugObject.folder
+      .addBinding(debugObject.fields, "barColor", {
+        view: "color",
+      })
+      .on("change", () => {
+        equilizerMaterial.uniforms.uBarColor.value = new Color(
+          debugObject.fields.barColor,
+        );
+      });
+  },
+  removeDebug: () => {
+    debugObject.folder.dispose();
+  },
+};
+
+// Component Logic
 const { onLoop } = useRenderLoop();
+const { camera } = useTresContext();
+const { playAudio, analysis, updateAnalysis } = useAudioPlayer(camera);
 
 const floatFactor = ref(0.2);
 const rotationFactor = ref(0.1);
@@ -64,8 +106,8 @@ const equilizerMaterial = new ShaderMaterial({
   uniforms: {
     uTime: new Uniform(0),
     uIntensity: new Uniform(0),
-    uAmplitude: new Uniform(new Vector2(0.4, 0.4)),
-    uFrequency: new Uniform(new Vector2(20, 5)),
+    uBarNumber: new Uniform(debugObject.fields.barNumber),
+    uBarColor: new Uniform(new Color(debugObject.fields.barColor)),
   },
   vertexShader,
   fragmentShader,
@@ -133,6 +175,11 @@ onMounted(() => {
     }
   });
   model.visible = true;
+  debugObject.setDebug();
+});
+
+onBeforeUnmount(() => {
+  debugObject.removeDebug();
 });
 </script>
 

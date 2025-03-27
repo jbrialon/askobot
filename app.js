@@ -1,9 +1,10 @@
 import "dotenv/config";
 import express from "express";
 import path from "path";
-import { fileURLToPath } from "url";
 import http from "http";
+import cors from "cors";
 import { Server as SocketIOServer } from "socket.io";
+import { fileURLToPath } from "url";
 
 import config from "./config.json" with { type: "json" };
 import Voice from "./app/classes/voice.js";
@@ -36,12 +37,27 @@ twitchBot.on("voice", async (data) => {
 
 const app = express();
 
+if (process.env.NODE_ENV === "development") {
+  app.use(
+    cors({
+      origin: "http://localhost:5173", // or whatever your frontend dev server is
+      credentials: true,
+    }),
+  );
+}
+
 // Serve static files from the front-end build directory
 const distPath = path.join(__dirname, "front", "dist");
 app.use(express.static(distPath));
 
 const server = http.createServer(app);
-const io = new SocketIOServer(server);
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
 io.on("connection", (socket) => {
   console.log("New client connected");
@@ -53,8 +69,8 @@ io.on("connection", (socket) => {
     console.log("Client disconnected");
   });
 
-  socket.on("ask-gpt", (question) => {
-    twitchBot.askGPT("#askowbol", "Jérémy", question);
+  socket.on("ask-gpt", (nickname, question) => {
+    twitchBot.askGPT("#askowbol", nickname, question);
   });
 });
 

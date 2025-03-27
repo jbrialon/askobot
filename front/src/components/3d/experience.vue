@@ -15,23 +15,31 @@ THREE.ColorManagement.enabled = true;
 // Debug
 const debugObject = {
   fields: {
+    nickname: "Jérémy",
     question: "yo askobot, la forme?",
   },
   panes: {
+    nickname: null,
     input: null,
     button: null,
   },
   setDebug: (ui, socket) => {
+    debugObject.panes.nickname = ui.addBinding(debugObject.fields, "nickname");
     debugObject.panes.input = ui.addBinding(debugObject.fields, "question");
     debugObject.panes.button = ui
       .addButton({
         title: "Ask",
       })
       .on("click", () => {
-        socket.emit("ask-gpt", debugObject.fields.question);
+        socket.emit(
+          "ask-gpt",
+          debugObject.fields.nickname,
+          debugObject.fields.question,
+        );
       });
   },
   removeDebug: () => {
+    debugObject.panes.nickname.dispose();
     debugObject.panes.input.dispose();
     debugObject.panes.button.dispose();
   },
@@ -125,7 +133,7 @@ export default {
     <Camera></Camera>
     <Environment></Environment>
     <Suspense>
-      <Askobot :socket="socket"></Askobot>
+      <Askobot :socket="socket" :debug="debug"></Askobot>
     </Suspense>
     <Grid
       :args="[200, 100]"

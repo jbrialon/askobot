@@ -1,7 +1,7 @@
 <template>
   <div class="chat">
     <TransitionGroup name="list" tag="ul">
-      <li v-for="item in chatHistory" :key="item.tags.id">
+      <li v-for="(item, index) in chatHistory" :key="index">
         <span class="user">{{ item.tags["display-name"] }}</span
         ><span class="message">{{ item.message }}</span>
       </li>
@@ -31,44 +31,6 @@ export default {
         })
         .slice(-1);
     });
-
-    // let messageCounter = 0;
-    // let toggleMessage = true;
-    // setInterval(() => {
-    //   const messageOne = {
-    //     channel: "#askowbol",
-    //     tags: {
-    //       "display-name": "Askowbol",
-    //       id: messageCounter++,
-    //     },
-    //     message: "!askobot tu es live sur les internet tu savais ça?",
-    //   };
-
-    //   const messageTwo = {
-    //     channel: "#askowbol",
-    //     tags: {
-    //       "display-name": "Askowbot",
-    //       id: messageCounter++,
-    //     },
-    //     message:
-    //       "🤖 Oh là là, bravo, Sherlock ! Tu as découvert le secret de l'univers ! Je suis en ligne, quelle surprise ! 🤖",
-    //   };
-
-    //   // Push messageOne or messageTwo depending on the toggle flag
-    //   if (toggleMessage) {
-    //     this.chatHistory.push(messageOne);
-    //   } else {
-    //     this.chatHistory.push(messageTwo);
-    //   }
-
-    //   // Flip the toggle flag for the next interval
-    //   toggleMessage = !toggleMessage;
-
-    //   //  Filter chatHistory and keep only the last 4 messages for channel "#askowbol"
-    //   this.chatHistory = this.chatHistory
-    //     .filter((item) => item.channel === "#askowbol")
-    //     .slice(-4);
-    // }, 5000);
   },
 };
 </script>
