@@ -19,10 +19,10 @@ float getBarHeight(float index) {
     float normalizedIndex = index / (uBarNumber - 1.0) - 0.5;
     float distanceFromCenter = 1.0 - abs(normalizedIndex);
 
-    float idleOscillation = 0.15 + 0.05 * sin(uTime * 5.0 + index);
-    if (uIntensity > 0.0) {
-        idleOscillation = 0.0;
-    }
+    float idleOscillation = uIntensity == 0.0 ? 0.15 + 0.05 * sin(uTime * 5.0 + index) : 0.0;
+    // if (uIntensity > 0.0) {
+    //     idleOscillation = 0.0;
+    // }
     float height = clamp((distanceFromCenter - (abs(normalizedIndex) * sin(uIntensity * 90.0))) * pow(uIntensity * 2.0, 0.2), 0.1, 0.95);
     return height + idleOscillation;
 }
