@@ -19,7 +19,7 @@ export default class Voice {
             stability: 1,
             similarity_boost: 1.0,
             use_speaker_boost: false,
-            speed: 0.85,
+            speed: 1,
           },
         },
       );

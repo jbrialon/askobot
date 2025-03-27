@@ -51,7 +51,7 @@ const debugObject = {
       .addBinding(debugObject.fields, "barNumber", {
         label: "Bar Number",
         min: 1,
-        max: 20,
+        max: 60,
         step: 1,
       })
       .on("change", () => {
