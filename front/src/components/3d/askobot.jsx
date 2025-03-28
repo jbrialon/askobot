@@ -102,7 +102,7 @@ export default function Askobot({ socket }) {
 
   // your existing useFrame code stays the same
   useFrame((state) => {
-    equilizerMaterial.uniforms.uTime.value = state.clock.getElapsedTime();
+    // equilizerMaterial.uniforms.uTime.value = state.clock.getElapsedTime();
     equilizerMaterial.uniforms.uIntensity.value = analysis;
   });
 

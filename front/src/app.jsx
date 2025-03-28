@@ -1,6 +1,6 @@
 import { StrictMode, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-
+import { Leva } from "leva";
 import "./style.scss";
 
 // Classes
@@ -28,6 +28,7 @@ function App() {
 
   return (
     <>
+      <Leva hidden={isOBS} collapsed={true} />
       <Experience socket={socket} isOBS={isOBS} />
       <Console isOBS={isOBS} />
       <Chat socket={socket} />

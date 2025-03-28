@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid } from "@react-three/drei";
-import { Leva, useControls, button } from "leva";
+import { useControls, button } from "leva";
 // Components
 import Camera from "./camera";
 import Environment from "./environment";
@@ -34,7 +34,6 @@ export default function Experience({ socket, isOBS }) {
 
   return (
     <>
-      {!isOBS && <Leva collapsed={true} />}
       <Canvas>
         <Camera />
         <Environment />

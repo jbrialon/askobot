@@ -1,9 +1,8 @@
 import React from "react";
-import "./chat.scss";
 
 const ChatItem = ({ item }) => {
   return (
-    <li>
+    <>
       <div className="user">
         {item.tags["display-name"] === "Askowbot" && (
           <div className="avatar"></div>
@@ -21,7 +20,7 @@ const ChatItem = ({ item }) => {
           ) : null,
         )}
       </div>
-    </li>
+    </>
   );
 };
 

@@ -1,6 +1,8 @@
 import { useState } from "react";
-import ChatItem from "./chatItem";
+import { motion, AnimatePresence } from "framer-motion";
 import { parseEmotesInMessage, getEmoteAsUrl } from "tmi-utils";
+import ChatItem from "./chatItem";
+
 import "./chat.scss";
 
 const Chat = ({ socket }) => {
@@ -14,7 +16,7 @@ const Chat = ({ socket }) => {
         parsedMessage: parseEmotesInMessage(item.tags.emotes, item.message).map(
           (message, index, arr) => {
             if (message.type === "text") {
-              let value = message.value;
+              let value = message.value.trim();
               if (index === 0) value = value.replace(/^🤖\s*/, "");
               if (index === arr.length - 1) value = value.replace(/\s*🤖$/, "");
               return { ...message, value };
@@ -33,13 +35,31 @@ const Chat = ({ socket }) => {
     setChatHistory(parsed);
   });
 
+  const variants = {
+    initial: { opacity: 0, x: 30 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, y: -30 },
+  };
+
   return (
     <div className="chat">
-      <ul>
-        {chatHistory.map((item, index) => (
-          <ChatItem key={index} item={item} />
-        ))}
-      </ul>
+      <motion.ul layout>
+        <AnimatePresence initial={false}>
+          {chatHistory.map((item) => (
+            <motion.li
+              layout
+              key={item.tags.timestamp}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={variants}
+              transition={{ duration: 0.5 }}
+            >
+              <ChatItem key={item.tags.timestamp} item={item} />
+            </motion.li>
+          ))}
+        </AnimatePresence>
+      </motion.ul>
     </div>
   );
 };

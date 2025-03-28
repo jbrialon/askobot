@@ -52,15 +52,16 @@
       }
 
       .emote {
+        position: relative;
         height: 20px;
         display: inline-block;
         margin: 0 5px;
+        top: 5px;
       }
 
       .message {
-        display: flex;
         background: #efefef;
-        padding: 35px 12px 13px 20px;
+        padding: 30px 12px 13px 20px;
         border-radius: 10px 20px 20px 20px;
         max-width: 320px;
         min-width: 320px;
