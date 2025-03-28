@@ -15,7 +15,7 @@ export default function Experience({ socket }) {
     Ask: button((get) => {
       const currentNickname = get("nickname");
       const currentQuestion = get("question");
-      socket.instance.emit("ask-gpt", currentNickname, currentQuestion);
+      socket.emit("ask-gpt", currentNickname, currentQuestion);
     }),
   }));
 

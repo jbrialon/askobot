@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ChatItem from "./chatItem";
 import { parseEmotesInMessage, getEmoteAsUrl } from "tmi-utils";
 import "./chat.scss";
@@ -6,16 +6,13 @@ import "./chat.scss";
 const Chat = ({ socket }) => {
   const [chatHistory, setChatHistory] = useState([]);
 
-  useEffect(() => {
-    socket.instance.on("history", (history) => {
-      const parsed = history
-        .filter((item) => item.channel === "#askowbol")
-        .map((item) => ({
-          ...item,
-          parsedMessage: parseEmotesInMessage(
-            item.tags.emotes,
-            item.message,
-          ).map((message, index, arr) => {
+  socket.on("history", (history) => {
+    const parsed = history
+      .filter((item) => item.channel === "#askowbol")
+      .map((item) => ({
+        ...item,
+        parsedMessage: parseEmotesInMessage(item.tags.emotes, item.message).map(
+          (message, index, arr) => {
             if (message.type === "text") {
               let value = message.value;
               if (index === 0) value = value.replace(/^🤖\s*/, "");
@@ -28,13 +25,13 @@ const Chat = ({ socket }) => {
                 src: getEmoteAsUrl(message.value),
               }),
             };
-          }),
-        }))
-        .slice(-4);
+          },
+        ),
+      }))
+      .slice(-4);
 
-      setChatHistory(parsed);
-    });
-  }, [socket]);
+    setChatHistory(parsed);
+  });
 
   return (
     <div className="chat">

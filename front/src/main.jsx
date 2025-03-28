@@ -4,13 +4,14 @@ import "./style.scss";
 
 // Classes
 import Socket from "./classes/socket.js";
-const socket = new Socket();
 
 // Components
 import Experience from "./components/3d/experience.jsx";
 import Chat from "./components/ui/chat/chat.jsx";
 
 function App() {
+  const socket = new Socket().instance;
+
   return (
     <>
       <Experience socket={socket} />

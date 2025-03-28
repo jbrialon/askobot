@@ -6,7 +6,6 @@ import {
   Color,
   Uniform,
 } from "three";
-import { useEffect } from "react";
 
 import { useFrame } from "@react-three/fiber";
 import { Float, useAnimations, useGLTF } from "@react-three/drei";
@@ -18,7 +17,7 @@ import { useAudioPlayer } from "./../../composables/useAudioPlayer";
 
 export default function Askobot({ socket }) {
   const { scene: model, animations } = useGLTF("/models/askobot_baked2.glb");
-  const { actions, mixer } = useAnimations(animations, model);
+  const { actions } = useAnimations(animations, model);
 
   actions["Basic BotAction.001"].play();
 
@@ -71,13 +70,11 @@ export default function Askobot({ socket }) {
   //   gsap.to(rotationFactor, { value: 0.1, duration: 1 });
   // };
 
-  useEffect(() => {
-    socket.instance.on("voice-data", (data) => {
-      if (data.channel === "#askowbol") {
-        playAudio(data.audioBuffer);
-      }
-    });
-  }, [socket]);
+  socket.on("voice-data", (data) => {
+    if (data.channel === "#askowbol") {
+      playAudio(data.audioBuffer);
+    }
+  });
 
   useFrame((state) => {
     const elapsed = state.clock.getElapsedTime();
