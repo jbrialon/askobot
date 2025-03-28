@@ -1,6 +1,5 @@
 import { StrictMode, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { Leva } from "leva";
 
 import "./style.scss";
 
@@ -15,7 +14,7 @@ import Console from "./components/ui/console/console.jsx";
 function App() {
   const socket = new Socket().instance;
   const appElement = document.getElementById("app");
-  const [isOBS, setIsOBS] = useState(null);
+  const [isOBS, setIsOBS] = useState(false);
 
   useEffect(() => {
     if (typeof window.obsstudio !== "undefined") {
@@ -29,9 +28,8 @@ function App() {
 
   return (
     <>
-      <Leva hidden={isOBS} />
       <Experience socket={socket} isOBS={isOBS} />
-      {/* <Console isOBS={isOBS} /> */}
+      <Console isOBS={isOBS} />
       <Chat socket={socket} />
     </>
   );

@@ -1,3 +1,4 @@
+// Three
 import {
   MeshPhysicalMaterial,
   ShaderMaterial,
@@ -7,15 +8,29 @@ import {
   Uniform,
 } from "three";
 
+// React
+import { useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Float, useAnimations, useGLTF } from "@react-three/drei";
+import { useControls } from "leva";
 
+// App
 import vertexShader from "./../../shaders/vertex.glsl";
 import fragmentShader from "./../../shaders/fragment.glsl";
 
 import { useAudioPlayer } from "./../../composables/useAudioPlayer";
 
 export default function Askobot({ socket }) {
+  const { barColor, barNumber } = useControls("Equilizer", {
+    barNumber: {
+      value: 10,
+      step: 1,
+      min: 2,
+      max: 60,
+    },
+    barColor: "#3ddfff",
+  });
+
   const { scene: model, animations } = useGLTF("/models/askobot_baked2.glb");
   const { actions } = useAnimations(animations, model);
 
@@ -37,17 +52,21 @@ export default function Askobot({ socket }) {
     side: BackSide,
   });
 
-  const equilizerMaterial = new ShaderMaterial({
-    transparent: true,
-    uniforms: {
-      uTime: new Uniform(0),
-      uIntensity: new Uniform(0),
-      uBarNumber: new Uniform(10),
-      uBarColor: new Uniform(new Color(0x3ddfff)),
-    },
-    vertexShader,
-    fragmentShader,
-  });
+  const equilizerMaterial = useMemo(
+    () =>
+      new ShaderMaterial({
+        transparent: true,
+        uniforms: {
+          uTime: new Uniform(0),
+          uIntensity: new Uniform(0),
+          uBarNumber: new Uniform(barNumber),
+          uBarColor: new Uniform(new Color(barColor)),
+        },
+        vertexShader,
+        fragmentShader,
+      }),
+    [],
+  );
 
   model.traverse((child) => {
     if (child instanceof Mesh) {
@@ -76,9 +95,14 @@ export default function Askobot({ socket }) {
     }
   });
 
+  useEffect(() => {
+    equilizerMaterial.uniforms.uBarNumber.value = barNumber;
+    equilizerMaterial.uniforms.uBarColor.value.set(barColor);
+  }, [barNumber, barColor, equilizerMaterial]);
+
+  // your existing useFrame code stays the same
   useFrame((state) => {
-    const elapsed = state.clock.getElapsedTime();
-    equilizerMaterial.uniforms.uTime.value = elapsed;
+    equilizerMaterial.uniforms.uTime.value = state.clock.getElapsedTime();
     equilizerMaterial.uniforms.uIntensity.value = analysis;
   });
 
