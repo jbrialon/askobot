@@ -8,7 +8,7 @@ import Camera from "./camera";
 import Environment from "./environment";
 import Askobot from "./askobot";
 
-export default function Experience({ socket }) {
+export default function Experience({ socket, isOBS }) {
   useControls(() => ({
     nickname: "Jérémy",
     question: "yo askobot, la forme?",
@@ -40,7 +40,7 @@ export default function Experience({ socket }) {
       <Suspense>
         <Askobot socket={socket} />
       </Suspense>
-      <Grid args={gridSize} {...gridConfig} />
+      {!isOBS && <Grid args={gridSize} {...gridConfig} />}
     </Canvas>
   );
 }

@@ -28,7 +28,7 @@ const Chat = ({ socket }) => {
           },
         ),
       }))
-      .slice(-4);
+      .slice(-2);
 
     setChatHistory(parsed);
   });
