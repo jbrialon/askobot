@@ -97,10 +97,11 @@ export default function Askobot() {
   }, [barNumber, barColor, equilizerMaterial]);
 
   useEffect(() => {
-    manager.on("voice-data", (e) => {
+    const handler = () => {
       const { audioBuffer } = e.detail;
       playAudio(audioBuffer);
-    });
+    };
+    manager.on("voice-data", handler);
 
     return () => manager.off("voice-data", handler);
   }, []);
