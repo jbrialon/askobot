@@ -1,20 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseEmotesInMessage, getEmoteAsUrl } from "tmi-utils";
 import ChatItem from "./chatItem";
-
+import Manager from "../../../classes/manager";
 import "./chat.scss";
 
-const Chat = ({ socket }) => {
+const Chat = () => {
+  const manager = new Manager();
+
   const [chatHistory, setChatHistory] = useState([]);
 
-  socket.on("history", (history) => {
-    const parsed = history
-      .filter((item) => item.channel === "#askowbol")
-      .map((item) => ({
-        ...item,
-        parsedMessage: parseEmotesInMessage(item.tags.emotes, item.message).map(
-          (message, index, arr) => {
+  const variants = {
+    initial: { opacity: 0, x: 30 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, y: -30 },
+  };
+
+  useEffect(() => {
+    const handler = (e) => {
+      const history = e.detail;
+      const parsed = history
+        .filter((item) => item.channel === "#askowbol")
+        .map((item) => ({
+          ...item,
+          parsedMessage: parseEmotesInMessage(
+            item.tags.emotes,
+            item.message,
+          ).map((message, index, arr) => {
             if (message.type === "text") {
               let value = message.value.trim();
               if (index === 0) value = value.replace(/^🤖\s*/, "");
@@ -27,19 +39,16 @@ const Chat = ({ socket }) => {
                 src: getEmoteAsUrl(message.value),
               }),
             };
-          },
-        ),
-      }))
-      .slice(-2);
+          }),
+        }))
+        .slice(-2);
 
-    setChatHistory(parsed);
-  });
+      setChatHistory(parsed);
+    };
 
-  const variants = {
-    initial: { opacity: 0, x: 30 },
-    animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, y: -30 },
-  };
+    manager.on("history", handler);
+    return () => manager.off("history", handler);
+  }, []);
 
   return (
     <div className="chat">

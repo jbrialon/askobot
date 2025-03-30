@@ -1,20 +1,28 @@
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid } from "@react-three/drei";
 import { useControls, button } from "leva";
+import Manager from "../../classes/manager";
+
 // Components
 import Camera from "./camera";
 import Environment from "./environment";
 import Askobot from "./askobot";
 
-export default function Experience({ socket, isOBS }) {
+export default function Experience() {
+  const manager = new Manager();
+  const [isOBS, setIsOBS] = useState(false);
+
   useControls("App", () => ({
     nickname: "Jérémy",
     question: "yo askobot, la forme?",
     Ask: button((get) => {
       const currentNickname = get("App.nickname");
       const currentQuestion = get("App.question");
-      socket.emit("ask-gpt", currentNickname, currentQuestion);
+      manager.trigger("ask-gpt", {
+        nickname: currentNickname,
+        question: currentQuestion,
+      });
     }),
   }));
 
@@ -32,13 +40,18 @@ export default function Experience({ socket, isOBS }) {
     infiniteGrid: true,
   };
 
+  useEffect(() => {
+    const { isOBS } = manager.getState();
+    setIsOBS(isOBS);
+  }, []);
+
   return (
     <>
       <Canvas>
         <Camera />
         <Environment />
         <Suspense>
-          <Askobot socket={socket} />
+          <Askobot />
         </Suspense>
         {!isOBS && <Grid args={gridSize} {...gridConfig} />}
       </Canvas>

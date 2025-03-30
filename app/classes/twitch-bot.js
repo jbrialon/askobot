@@ -93,6 +93,8 @@ export default class TwitchBot extends EventEmitter {
     const isNotBot =
       user.toLowerCase() !== process.env.TWITCH_BOT_USERNAME.toLowerCase();
 
+    tags.timestamp = Date.now();
+
     this.emit("chat", {
       channel,
       tags,

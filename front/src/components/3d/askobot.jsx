@@ -15,12 +15,14 @@ import { Float, useAnimations, useGLTF } from "@react-three/drei";
 import { useControls } from "leva";
 
 // App
+import Manager from "../../classes/manager";
 import vertexShader from "./../../shaders/vertex.glsl";
 import fragmentShader from "./../../shaders/fragment.glsl";
 
 import { useAudioPlayer } from "./../../composables/useAudioPlayer";
 
-export default function Askobot({ socket }) {
+export default function Askobot() {
+  const manager = new Manager();
   const { barColor, barNumber } = useControls("Equilizer", {
     barNumber: {
       value: 10,
@@ -89,16 +91,19 @@ export default function Askobot({ socket }) {
   //   gsap.to(rotationFactor, { value: 0.1, duration: 1 });
   // };
 
-  socket.on("voice-data", (data) => {
-    if (data.channel === "#askowbol") {
-      playAudio(data.audioBuffer);
-    }
-  });
-
   useEffect(() => {
     equilizerMaterial.uniforms.uBarNumber.value = barNumber;
     equilizerMaterial.uniforms.uBarColor.value.set(barColor);
   }, [barNumber, barColor, equilizerMaterial]);
+
+  useEffect(() => {
+    manager.on("voice-data", (e) => {
+      const { audioBuffer } = e.detail;
+      playAudio(audioBuffer);
+    });
+
+    return () => manager.off("voice-data", handler);
+  }, []);
 
   // your existing useFrame code stays the same
   useFrame((state) => {

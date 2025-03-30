@@ -8,7 +8,6 @@ export default class Socket {
       return instance;
     }
     instance = this;
-    instance = this;
 
     const isDev = import.meta.env.MODE === "development";
     const backendURL = isDev ? "http://localhost:3000" : undefined;

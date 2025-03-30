@@ -1,24 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Manager from "../../../classes/manager";
 import "./console.scss";
 
-const Console = ({ isOBS }) => {
-  const [level, setLevel] = useState("");
-  const [status, setStatus] = useState("");
-  const [scene, setScene] = useState("");
+const Console = () => {
+  const manager = new Manager();
+  const [isOBS, setIsOBS] = useState(false);
+  const [level, setLevel] = useState(null);
+  const [status, setStatus] = useState(null);
+  const [scene, setScene] = useState(null);
 
-  if (isOBS) {
-    window.obsstudio.getControlLevel(function (level) {
-      setLevel(level);
-    });
+  useEffect(() => {
+    const { isOBS } = manager.getState();
+    setIsOBS(isOBS);
 
-    window.obsstudio.getStatus(function (status) {
-      setStatus(status);
-    });
-
-    window.obsstudio.getCurrentScene(function (scene) {
-      setScene(scene);
-    });
-  }
+    if (isOBS) {
+      (async () => {
+        const level = await manager.getControlLevelAsync();
+        const status = await manager.getStatusAsync();
+        const scene = await manager.getCurrentSceneAsync();
+        setLevel(level);
+        setStatus(status);
+        setScene(scene);
+      })();
+    }
+  }, []);
 
   return (
     <div className="console">
@@ -29,13 +34,13 @@ const Console = ({ isOBS }) => {
       )}
       {isOBS === true && (
         <div>
-          <div>Permission Level: {level}</div>
+          <div>Pemission Level: {level}</div>
           <div>
             Status: <pre>{status ? JSON.stringify(status) : "Loading..."}</pre>
           </div>
           <div>
-            CurrentScene:{" "}
-            <pre>{status ? JSON.stringify(scene) : "Loading..."}</pre>
+            CurrentScene:
+            <pre>{scene ? JSON.stringify(scene) : "Loading..."}</pre>
           </div>
         </div>
       )}
