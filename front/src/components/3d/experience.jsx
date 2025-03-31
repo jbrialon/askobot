@@ -1,8 +1,9 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid } from "@react-three/drei";
 import { useControls, button } from "leva";
 import Manager from "../../classes/manager";
+import { gsap } from "gsap";
 
 // Components
 import Camera from "./camera";
@@ -12,6 +13,10 @@ import Askobot from "./askobot";
 export default function Experience() {
   const manager = new Manager();
   const [isOBS, setIsOBS] = useState(false);
+  const [showDecor, setShowDecor] = useState(false);
+
+  const appElement = document.getElementById("app");
+  const gridRef = useRef();
 
   useControls("App", () => ({
     nickname: "Jérémy",
@@ -40,9 +45,34 @@ export default function Experience() {
     infiniteGrid: true,
   };
 
+  // onMounted
   useEffect(() => {
     const { isOBS } = manager.getState();
     setIsOBS(isOBS);
+
+    manager.on("obs-scene-changed", (e) => {
+      const scene = e.detail.name;
+
+      if (scene === "live") {
+        setShowDecor(false);
+        appElement?.classList.add("obs");
+        // TODO : Sam répare ça stp
+        gsap.to(gridRef.current.position, {
+          y: -5,
+          duration: 1.5,
+          ease: "power1.inOut",
+        });
+      } else {
+        setShowDecor(true);
+        appElement?.classList.remove("obs");
+        // TODO : Sam répare ça stp
+        gsap.to(gridRef.current.position, {
+          y: 0,
+          duration: 1.5,
+          ease: "power1.inOut",
+        });
+      }
+    });
   }, []);
 
   return (
@@ -53,7 +83,14 @@ export default function Experience() {
         <Suspense>
           <Askobot />
         </Suspense>
-        {!isOBS && <Grid args={gridSize} {...gridConfig} />}
+        {showDecor && (
+          <Grid
+            ref={gridRef}
+            position={[0, 0, 0]}
+            args={gridSize}
+            {...gridConfig}
+          />
+        )}
       </Canvas>
     </>
   );
