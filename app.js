@@ -40,7 +40,7 @@ const app = express();
 if (process.env.NODE_ENV === "development") {
   app.use(
     cors({
-      origin: "http://localhost:5173", // or whatever your frontend dev server is
+      origin: "http://localhost:5173",
       credentials: true,
     }),
   );
@@ -60,7 +60,13 @@ const io = new SocketIOServer(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("New client connected");
+  const isOBS = socket.handshake.query.isOBS === "true";
+  if (isOBS) {
+    console.log("New client connected running on OBS");
+  } else {
+    console.log("New client connected");
+  }
+  // Now you can use this information as needed
 
   // Send current chat history to the connected client
   socket.emit("history", chatHistory);

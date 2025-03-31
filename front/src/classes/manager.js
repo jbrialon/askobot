@@ -16,6 +16,7 @@ export default class Manager extends EventTarget {
 
     // init Events
     this.initOBS();
+    this.initOBSEvents();
     this.initSocketEvents();
   }
 
@@ -42,6 +43,15 @@ export default class Manager extends EventTarget {
     }
   }
 
+  initOBSEvents() {
+    if (this.state.isOBS) {
+      window.addEventListener("obsSceneChanged", (event) => {
+        this.dispatchEvent(
+          new CustomEvent("obs-scene-changed", { detail: event.detail }),
+        );
+      });
+    }
+  }
   getControlLevelAsync() {
     return new Promise((resolve) => {
       window.obsstudio.getControlLevel((level) => {

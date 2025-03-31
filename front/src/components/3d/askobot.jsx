@@ -97,7 +97,7 @@ export default function Askobot() {
   }, [barNumber, barColor, equilizerMaterial]);
 
   useEffect(() => {
-    const handler = () => {
+    const handler = (e) => {
       const { audioBuffer } = e.detail;
       playAudio(audioBuffer);
     };

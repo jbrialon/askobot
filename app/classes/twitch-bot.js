@@ -41,11 +41,6 @@ export default class TwitchBot extends EventEmitter {
       ),
     });
 
-    setTimeout(() => {
-      // this.client.say("#askowbol", `🤖 yo 🤖`);
-    }, 1000);
-    //
-
     // Command registry mapping command names to handler methods
     this.commandHandlers = {
       bgrank: this.handleBGRank,

@@ -8,6 +8,7 @@ const Console = () => {
   const [level, setLevel] = useState(null);
   const [status, setStatus] = useState(null);
   const [scene, setScene] = useState(null);
+  const [event, setEvent] = useState(null);
 
   useEffect(() => {
     const { isOBS } = manager.getState();
@@ -23,6 +24,10 @@ const Console = () => {
         setScene(scene);
       })();
     }
+
+    manager.on("obs-scene-changed", (e) => {
+      setScene(e.detail.name);
+    });
   }, []);
 
   return (

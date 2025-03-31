@@ -12,6 +12,11 @@ export default class Socket {
     const isDev = import.meta.env.MODE === "development";
     const backendURL = isDev ? "http://localhost:3000" : undefined;
 
-    this.instance = io(backendURL);
+    this.instance = io(backendURL, {
+      query: {
+        // If window.obsstudio is defined, then it’s running in OBS
+        isOBS: (typeof window.obsstudio !== "undefined").toString(),
+      },
+    });
   }
 }
