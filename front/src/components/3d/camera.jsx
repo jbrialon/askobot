@@ -11,7 +11,6 @@ export default function camera() {
   useEffect(() => {
     const handler = (e) => {
       const scene = e.detail.name;
-
       if (scene === "live") {
         gsap.to(controlsRef.current.target, {
           x: -2,
@@ -26,7 +25,7 @@ export default function camera() {
         });
       }
     };
-    manager.on("obs-scene-changed", handler);
+    // manager.on("obs-scene-changed", handler);
 
     return () => manager.off("obs-scene-changed", handler);
   }, [manager]);
@@ -38,7 +37,7 @@ export default function camera() {
         fov={35}
         near={0.1}
         far={1000}
-        position={[1.5, 3, 3.5]}
+        position={[1.5, 3.3, 3.5]}
       />
 
       <OrbitControls ref={controlsRef} makeDefault target={[0, 2.7, 0]} />

@@ -1,3 +1,4 @@
+import { gsap } from "gsap";
 // Three
 import {
   MeshPhysicalMaterial,
@@ -9,7 +10,7 @@ import {
 } from "three";
 
 // React
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Float, useAnimations, useGLTF } from "@react-three/drei";
 import { useControls } from "leva";
@@ -22,6 +23,7 @@ import fragmentShader from "./../../shaders/fragment.glsl";
 import { useAudioPlayer } from "./../../composables/useAudioPlayer";
 
 export default function Askobot() {
+  const askobotRef = useRef();
   const manager = new Manager();
   const { barColor, barNumber } = useControls("Equilizer", {
     barNumber: {
@@ -106,6 +108,38 @@ export default function Askobot() {
     return () => manager.off("voice-data", handler);
   }, []);
 
+  useEffect(() => {
+    if (!askobotRef.current) return;
+
+    const handler = (e) => {
+      const scene = e.detail.name;
+      if (scene === "live") {
+        gsap.to(askobotRef.current.position, {
+          x: 1.5,
+          y: 2.7,
+          z: -1,
+          duration: 1.5,
+          ease: "power1.inOut",
+        });
+      } else {
+        gsap.to(askobotRef.current.position, {
+          x: 0.5,
+          y: 2.8,
+          z: 1,
+          duration: 1.5,
+          ease: "power1.inOut",
+        });
+        gsap.to(askobotRef.current.position, {
+          duration: 1.5,
+          ease: "power1.inOut",
+        });
+      }
+    };
+    manager.on("obs-scene-changed", handler);
+
+    return () => manager.off("obs-scene-changed", handler);
+  }, [manager]);
+
   // your existing useFrame code stays the same
   useFrame((state) => {
     // equilizerMaterial.uniforms.uTime.value = state.clock.getElapsedTime();
@@ -115,7 +149,7 @@ export default function Askobot() {
   return (
     <>
       <Float speed={5} rotationIntensity={0.2} floatIntensity={0.2}>
-        <primitive position-y={2.7} object={model} />
+        <primitive ref={askobotRef} position={[0.5, 2.8, 1]} object={model} />
       </Float>
     </>
   );

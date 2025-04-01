@@ -1,6 +1,6 @@
 import { StrictMode, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { Leva, useControls } from "leva";
+import { Leva, useControls, button } from "leva";
 import "./style.scss";
 
 // Classes
@@ -17,12 +17,37 @@ function App() {
 
   const [showConsole, setShowConsole] = useState(false);
 
-  useControls("App", {
+  useControls("App", () => ({
     showConsole: {
       value: false,
-      onChange: (v) => setShowConsole(v),
+      onChange: (value) => setShowConsole(value),
     },
-  });
+    nickname: "Jérémy",
+    question: "yo askobot, la forme?",
+    Ask: button((get) => {
+      const currentNickname = get("App.nickname");
+      const currentQuestion = get("App.question");
+      manager.trigger("ask-gpt", {
+        nickname: currentNickname,
+        question: currentQuestion,
+      });
+    }),
+    "Start Scene": button(() => {
+      manager.trigger("obs-scene-changed", {
+        name: "start",
+      });
+    }),
+    "Live Scene": button(() => {
+      manager.trigger("obs-scene-changed", {
+        name: "live",
+      });
+    }),
+    "End Scene": button(() => {
+      manager.trigger("obs-scene-changed", {
+        name: "end",
+      });
+    }),
+  }));
 
   useEffect(() => {
     const { isOBS } = manager.getState();

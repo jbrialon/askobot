@@ -1,7 +1,6 @@
 import { Suspense, useEffect, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid } from "@react-three/drei";
-import { useControls, button } from "leva";
 import Manager from "../../classes/manager";
 import { gsap } from "gsap";
 
@@ -12,24 +11,10 @@ import Askobot from "./askobot";
 
 export default function Experience() {
   const manager = new Manager();
-  const [isOBS, setIsOBS] = useState(false);
-  const [showDecor, setShowDecor] = useState(false);
+  const [activeScene, setActiveScene] = useState("start");
 
   const appElement = document.getElementById("app");
   const gridRef = useRef();
-
-  useControls("App", () => ({
-    nickname: "Jérémy",
-    question: "yo askobot, la forme?",
-    Ask: button((get) => {
-      const currentNickname = get("App.nickname");
-      const currentQuestion = get("App.question");
-      manager.trigger("ask-gpt", {
-        nickname: currentNickname,
-        question: currentQuestion,
-      });
-    }),
-  }));
 
   const gridSize = [200, 100];
   const gridConfig = {
@@ -45,39 +30,33 @@ export default function Experience() {
     infiniteGrid: true,
   };
 
-  // onMounted
-
   useEffect(() => {
-    const { isOBS } = manager.getState();
-    setIsOBS(isOBS);
-
     const handler = (e) => {
-      const scene = e.detail.name;
-
-      if (scene === "live") {
-        setShowDecor(false);
-        appElement?.classList.add("obs");
-        // gridRef current is undefined on first render as showDecor is false
-        gsap.to(gridRef.current?.position, {
-          y: -5,
-          duration: 1.5,
-          ease: "power1.inOut",
-        });
-      } else {
-        setShowDecor(true);
-        appElement?.classList.remove("obs");
-        // gridRef current is undefined on first render as showDecor is false
-        gsap.to(gridRef.current?.position, {
-          y: 0,
-          duration: 1.5,
-          ease: "power1.inOut",
-        });
-      }
+      setActiveScene(e.detail.name);
     };
     manager.on("obs-scene-changed", handler);
-
     return () => manager.off("obs-scene-changed", handler);
   }, [manager]);
+
+  useEffect(() => {
+    if (!gridRef.current) return;
+
+    if (activeScene === "live") {
+      appElement?.classList.add("live");
+      gsap.to(gridRef.current.position, {
+        y: -5,
+        duration: 1.5,
+        ease: "power1.inOut",
+      });
+    } else {
+      appElement?.classList.remove("live");
+      gsap.to(gridRef.current.position, {
+        y: 0,
+        duration: 1.5,
+        ease: "power1.inOut",
+      });
+    }
+  }, [activeScene]);
 
   return (
     <>
@@ -87,14 +66,12 @@ export default function Experience() {
         <Suspense>
           <Askobot />
         </Suspense>
-        {showDecor && (
-          <Grid
-            ref={gridRef}
-            position={[0, 0, 0]}
-            args={gridSize}
-            {...gridConfig}
-          />
-        )}
+        <Grid
+          ref={gridRef}
+          position={[0, 0, 0]}
+          args={gridSize}
+          {...gridConfig}
+        />
       </Canvas>
     </>
   );

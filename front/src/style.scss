@@ -15,9 +15,10 @@ body,
 }
 
 #app {
-  background: #b9b9b9;
-  transition: all 300ms ease-in-out;
-  &.obs {
+  background: #454545;
+  transition: all 900ms ease-in-out;
+
+  &.live {
     background: transparent;
   }
 }
