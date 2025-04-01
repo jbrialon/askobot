@@ -119,7 +119,14 @@ export default function Askobot() {
           y: 2.7,
           z: -1,
           duration: 1.5,
-          ease: "power1.inOut",
+          ease: "power2.inOut",
+          delay: 1,
+        });
+        gsap.to(askobotRef.current.rotation, {
+          y: 0,
+          duration: 1.75,
+          ease: "elastic.out",
+          delay: 2.25,
         });
       } else {
         gsap.to(askobotRef.current.position, {
@@ -127,11 +134,14 @@ export default function Askobot() {
           y: 2.8,
           z: 1,
           duration: 1.5,
-          ease: "power1.inOut",
+          ease: "power2.inOut",
+          delay: 1,
         });
-        gsap.to(askobotRef.current.position, {
-          duration: 1.5,
-          ease: "power1.inOut",
+        gsap.to(askobotRef.current.rotation, {
+          y: Math.PI * 0.07,
+          duration: 1.75,
+          ease: "elastic.out",
+          delay: 2.25,
         });
       }
     };
@@ -149,7 +159,12 @@ export default function Askobot() {
   return (
     <>
       <Float speed={5} rotationIntensity={0.2} floatIntensity={0.2}>
-        <primitive ref={askobotRef} position={[0.5, 2.8, 1]} object={model} />
+        <primitive
+          ref={askobotRef}
+          position={[0.5, 2.8, 1]}
+          rotation-y={Math.PI * 0.07}
+          object={model}
+        />
       </Float>
     </>
   );

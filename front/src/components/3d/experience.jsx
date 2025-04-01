@@ -23,7 +23,7 @@ export default function Experience() {
     cellColor: "#ffffff",
     sectionSize: 2,
     sectionThickness: 2.0,
-    sectionColor: "#f0f0f0",
+    sectionColor: "#6794ba",
     fadeDistance: 20,
     fadeStrength: 1,
     followCamera: false,
@@ -44,7 +44,7 @@ export default function Experience() {
     if (activeScene === "live") {
       appElement?.classList.add("live");
       gsap.to(gridRef.current.position, {
-        y: -5,
+        y: -6,
         duration: 1.5,
         ease: "power1.inOut",
       });
@@ -66,12 +66,7 @@ export default function Experience() {
         <Suspense>
           <Askobot />
         </Suspense>
-        <Grid
-          ref={gridRef}
-          position={[0, 0, 0]}
-          args={gridSize}
-          {...gridConfig}
-        />
+        <Grid ref={gridRef} args={gridSize} {...gridConfig} />
       </Canvas>
     </>
   );

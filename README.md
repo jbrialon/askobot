@@ -72,5 +72,7 @@ The built front-end will be served statically by the backend.
 
 - Start Scene
 - End Scene with credits
+- Scene when playing, askobot appears only when he speaks, from above? randomly on the screen?
+- actual scene for both start and end
 
 ---
