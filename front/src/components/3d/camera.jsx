@@ -29,7 +29,7 @@ export default function camera() {
     manager.on("obs-scene-changed", handler);
 
     return () => manager.off("obs-scene-changed", handler);
-  }, []);
+  }, [manager]);
 
   return (
     <>

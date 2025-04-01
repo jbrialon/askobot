@@ -46,18 +46,19 @@ export default function Experience() {
   };
 
   // onMounted
+
   useEffect(() => {
     const { isOBS } = manager.getState();
     setIsOBS(isOBS);
 
-    manager.on("obs-scene-changed", (e) => {
+    const handler = (e) => {
       const scene = e.detail.name;
 
       if (scene === "live") {
         setShowDecor(false);
         appElement?.classList.add("obs");
-        // TODO : Sam répare ça stp
-        gsap.to(gridRef.current.position, {
+        // gridRef current is undefined on first render as showDecor is false
+        gsap.to(gridRef.current?.position, {
           y: -5,
           duration: 1.5,
           ease: "power1.inOut",
@@ -65,15 +66,18 @@ export default function Experience() {
       } else {
         setShowDecor(true);
         appElement?.classList.remove("obs");
-        // TODO : Sam répare ça stp
-        gsap.to(gridRef.current.position, {
+        // gridRef current is undefined on first render as showDecor is false
+        gsap.to(gridRef.current?.position, {
           y: 0,
           duration: 1.5,
           ease: "power1.inOut",
         });
       }
-    });
-  }, []);
+    };
+    manager.on("obs-scene-changed", handler);
+
+    return () => manager.off("obs-scene-changed", handler);
+  }, [manager]);
 
   return (
     <>
