@@ -37,7 +37,7 @@ twitchBot.on("voice", async (data) => {
 
 const app = express();
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.APP_ENV === "development") {
   app.use(
     cors({
       origin: "http://localhost:5173",

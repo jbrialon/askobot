@@ -36,9 +36,16 @@ export default class TwitchBot extends EventEmitter {
         username: "Askowbot",
         password: `oauth:${process.env.TWITCH_OAUTH}`,
       },
-      channels: this.config.channels.map((channel) =>
-        channel.twitchChannel.slice(1),
-      ),
+      channels: this.config.channels
+        .filter((channel) => {
+          const isAskowbol = channel.twitchChannel === "#askowbol";
+          if (process.env.APP_ENV === "development") {
+            return isAskowbol; // Only include #askowbol in development
+          } else {
+            return !isAskowbol; // Exclude #askowbol in production
+          }
+        })
+        .map((channel) => channel.twitchChannel.slice(1)),
     });
 
     // Command registry mapping command names to handler methods
