@@ -51,7 +51,7 @@ const Chat = () => {
   }, []);
 
   return (
-    <div className="chat">
+    <div className="ui-chat">
       <motion.ul layout>
         <AnimatePresence initial={false}>
           {chatHistory.map((item) => (

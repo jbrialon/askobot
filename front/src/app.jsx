@@ -1,7 +1,7 @@
 import { StrictMode, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { Leva, useControls, button } from "leva";
-import "./style.scss";
+import "./styles/style.scss";
 
 // Classes
 import Manager from "./classes/manager.js";
@@ -10,6 +10,7 @@ import Manager from "./classes/manager.js";
 import Experience from "./components/3d/experience.jsx";
 import Chat from "./components/ui/chat/chat.jsx";
 import Console from "./components/ui/console/console.jsx";
+import Start from "./components/ui/start/start.jsx";
 
 function App() {
   const manager = new Manager();
@@ -58,8 +59,11 @@ function App() {
     <>
       <Leva collapsed={true} />
       <Experience />
-      {showConsole && <Console />}
-      <Chat />
+      <div className="ui">
+        <Start />
+        {showConsole && <Console />}
+        <Chat />
+      </div>
     </>
   );
 }

@@ -1,9 +1,10 @@
-.chat {
+.ui-chat {
   position: absolute;
   display: flex;
   padding: 25px;
   bottom: 0;
   right: 0;
+  z-index: vars.$z-ui;
 
   ul {
     margin: 0;

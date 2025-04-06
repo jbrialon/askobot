@@ -10,15 +10,15 @@ export default class Voice {
   async convertAsStream(text) {
     try {
       const audioStream = await this.instance.textToSpeech.convertAsStream(
-        "JBFqnCBsd6RMkjVDRZzb", // Agent ID
+        "dmpjA77eRwk6YUSKBiAv", // Agent ID (default agend id : JBFqnCBsd6RMkjVDRZzb)
         {
           text,
-          model_id: "eleven_flash_v2_5",
+          model_id: "eleven_multilingual_v2",
           output_format: "mp3_44100_128",
           voice_settings: {
             stability: 1,
             similarity_boost: 1.0,
-            use_speaker_boost: false,
+            use_speaker_boost: true,
             speed: 1,
           },
         },

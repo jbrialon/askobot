@@ -1,0 +1,58 @@
+@use "fonts";
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+html,
+body {
+  overflow: hidden;
+  font-family: Monospace;
+  font-optical-sizing: auto;
+  color: #000;
+  font-size: 13px;
+  line-height: 24px;
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#app {
+  background: vars.$c-bg;
+  transition: all 900ms ease-in-out;
+
+  &.live {
+    background: transparent;
+  }
+}
+
+.webgl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  outline: none;
+  z-index: vars.$z-webgl;
+}
+
+.ui {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  // z-index: vars.$z-ui;
+}

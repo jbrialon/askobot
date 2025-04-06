@@ -31,7 +31,7 @@ const Console = () => {
   }, []);
 
   return (
-    <div className="console">
+    <div className="ui-console">
       {isOBS !== null && (
         <div className="obs-status">
           {isOBS ? "Running inside OBS Studio" : "Not running in OBS"}

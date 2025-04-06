@@ -8,6 +8,7 @@ import { gsap } from "gsap";
 import Camera from "./camera";
 import Environment from "./environment";
 import Askobot from "./askobot";
+import Start from "./start";
 
 export default function Experience() {
   const manager = new Manager();
@@ -60,12 +61,13 @@ export default function Experience() {
 
   return (
     <>
-      <Canvas>
+      <Canvas className="webgl">
         <Camera />
         <Environment />
         <Suspense>
           <Askobot />
         </Suspense>
+        <Start />
         <Grid ref={gridRef} args={gridSize} {...gridConfig} />
       </Canvas>
     </>

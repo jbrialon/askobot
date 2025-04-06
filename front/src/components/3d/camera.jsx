@@ -4,7 +4,7 @@ import { gsap } from "gsap";
 
 import Manager from "../../classes/manager";
 
-export default function camera() {
+export default function Camera() {
   const manager = new Manager();
   const controlsRef = useRef();
 

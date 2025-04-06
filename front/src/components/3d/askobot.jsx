@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Float, useAnimations, useGLTF } from "@react-three/drei";
-import { useControls } from "leva";
+import { useControls, button } from "leva";
 
 // App
 import Manager from "../../classes/manager";
@@ -25,7 +25,7 @@ import { useAudioPlayer } from "./../../composables/useAudioPlayer";
 export default function Askobot() {
   const askobotRef = useRef();
   const manager = new Manager();
-  const { barColor, barNumber } = useControls("Equilizer", {
+  const { barColor, barNumber, power } = useControls("Equilizer", {
     barNumber: {
       value: 10,
       step: 1,
@@ -33,6 +33,12 @@ export default function Askobot() {
       max: 60,
     },
     barColor: "#3ddfff",
+    power: {
+      value: 15,
+      step: 0.1,
+      min: 1,
+      max: 20,
+    },
   });
 
   const { scene: model, animations } = useGLTF("/models/askobot_baked2.glb");
@@ -82,16 +88,13 @@ export default function Askobot() {
     }
   });
 
-  // const onPlayCallback = () => {
-  //   gsap.to(floatFactor, { value: 0.5, duration: 1 });
-  //   gsap.to(rotationFactor, { value: 0.5, duration: 1 });
-  // };
+  const onPlayCallback = () => {
+    console.log("askobot talk start");
+  };
 
-  // const onEndedCallback = () => {
-  //   // When audio ends, reset animation values
-  //   gsap.to(floatFactor, { value: 0.2, duration: 1 });
-  //   gsap.to(rotationFactor, { value: 0.1, duration: 1 });
-  // };
+  const onEndedCallback = () => {
+    console.log("askobot talk end");
+  };
 
   useEffect(() => {
     equilizerMaterial.uniforms.uBarNumber.value = barNumber;
@@ -101,7 +104,13 @@ export default function Askobot() {
   useEffect(() => {
     const handler = (e) => {
       const { audioBuffer } = e.detail;
-      playAudio(audioBuffer);
+      playAudio({
+        source: audioBuffer,
+        volume: 0.3,
+        loop: false,
+        onPlay: onPlayCallback,
+        onEnded: onEndedCallback,
+      });
     };
     manager.on("voice-data", handler);
 
@@ -150,15 +159,43 @@ export default function Askobot() {
     return () => manager.off("obs-scene-changed", handler);
   }, [manager]);
 
-  // your existing useFrame code stays the same
+  useEffect(() => {
+    let rotationTween = null;
+
+    const handler = (e) => {
+      const analysis = Math.pow(e.detail * 0.85, 8);
+      console.log(analysis);
+
+      if (analysis > 0.045) {
+        if (rotationTween && rotationTween.isActive()) return;
+
+        rotationTween = gsap.to(askobotRef.current.rotation, {
+          x: Math.PI * 0.025,
+          duration: 0.25,
+          repeat: 1,
+          yoyo: true,
+          // ease: "power1.inOut",
+        });
+
+        console.log("dance");
+      }
+    };
+    // manager.on("start-audio", handler);
+
+    return () => manager.off("start-audio", handler);
+  }, [manager]);
+
   useFrame((state) => {
     // equilizerMaterial.uniforms.uTime.value = state.clock.getElapsedTime();
-    equilizerMaterial.uniforms.uIntensity.value = analysis;
+    equilizerMaterial.uniforms.uIntensity.value = Math.pow(
+      analysis * 0.85,
+      power,
+    );
   });
 
   return (
     <>
-      <Float speed={5} rotationIntensity={0.2} floatIntensity={0.2}>
+      <Float speed={5} rotationIntensity={0.05} floatIntensity={0.2}>
         <primitive
           ref={askobotRef}
           position={[0.5, 2.8, 1]}
