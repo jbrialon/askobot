@@ -70,8 +70,8 @@ The built front-end will be served statically by the backend.
 
 ## 🛠️ Future Ideas / TODO
 
-- Start Scene as a 3D Factory
 - End Scene with credits
+- Start Scene as a 3D Factory
 - Scene when playing, askobot appears only when he speaks, from above? randomly on the screen?
 - send discord alerts when online
 - actual scene for both start and end

@@ -7,18 +7,23 @@ export default class Voice {
     });
   }
 
+  // Default Agent ID : JBFqnCBsd6RMkjVDRZzb
+  // Askobot #1 (claptrap) : dmpjA77eRwk6YUSKBiAv
+  // Askobot 2 (voice gen) : HAszShXoWaHgc2vlxgbB
+  // Askobot 3 (GladOS) : 1Ju3wgDv0NblqqooMpNg
   async convertAsStream(text) {
     try {
       const audioStream = await this.instance.textToSpeech.convertAsStream(
-        "dmpjA77eRwk6YUSKBiAv", // Agent ID (default agend id : JBFqnCBsd6RMkjVDRZzb)
+        "1Ju3wgDv0NblqqooMpNg",
         {
           text,
           model_id: "eleven_multilingual_v2",
           output_format: "mp3_44100_128",
           voice_settings: {
             stability: 1,
-            similarity_boost: 1.0,
+            similarity_boost: 0.5,
             use_speaker_boost: true,
+            style: 0.5,
             speed: 1,
           },
         },

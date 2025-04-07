@@ -12,7 +12,7 @@ import Start from "./start";
 
 export default function Experience() {
   const manager = new Manager();
-  const [activeScene, setActiveScene] = useState("start");
+  const [activeScene, setActiveScene] = useState("live");
 
   const appElement = document.getElementById("app");
   const gridRef = useRef();
@@ -68,7 +68,7 @@ export default function Experience() {
           <Askobot />
         </Suspense>
         <Start />
-        <Grid ref={gridRef} args={gridSize} {...gridConfig} />
+        <Grid position-y={-6} ref={gridRef} args={gridSize} {...gridConfig} />
       </Canvas>
     </>
   );

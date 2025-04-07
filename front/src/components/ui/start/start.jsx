@@ -31,15 +31,13 @@ const Start = () => {
 
     return () => manager.off("obs-scene-changed", handler);
   }, [manager]);
+
   return (
     <div className="ui-start" ref={sceneRef}>
-      <div
-        className="text text-back glitch layers"
-        data-text="Ça commence bientôt!"
-      >
+      <div className="text text-back glitch" data-text="Ça commence bientôt!">
         <span>Ça commence bientôt!</span>
       </div>
-      <div className="text text-front glitch layers">
+      <div className="text text-front glitch">
         <span>Ça commence bientôt!</span>
       </div>
     </div>

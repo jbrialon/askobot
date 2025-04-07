@@ -26,13 +26,10 @@ body {
 
 #app {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-}
-
-#app {
   background: vars.$c-bg;
   transition: all 900ms ease-in-out;
+  width: 100vw;
+  height: 100vh;
 
   &.live {
     background: transparent;

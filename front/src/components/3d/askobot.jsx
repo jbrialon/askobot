@@ -166,7 +166,7 @@ export default function Askobot() {
       const analysis = Math.pow(e.detail * 0.85, 8);
       console.log(analysis);
 
-      if (analysis > 0.045) {
+      if (analysis > 0.0225) {
         if (rotationTween && rotationTween.isActive()) return;
 
         rotationTween = gsap.to(askobotRef.current.rotation, {
@@ -180,7 +180,7 @@ export default function Askobot() {
         console.log("dance");
       }
     };
-    // manager.on("start-audio", handler);
+    manager.on("start-audio", handler);
 
     return () => manager.off("start-audio", handler);
   }, [manager]);
@@ -198,8 +198,8 @@ export default function Askobot() {
       <Float speed={5} rotationIntensity={0.05} floatIntensity={0.2}>
         <primitive
           ref={askobotRef}
-          position={[0.5, 2.8, 1]}
-          rotation-y={Math.PI * 0.07}
+          position={[1.5, 2.7, -1]}
+          rotation-y={0}
           object={model}
         />
       </Float>

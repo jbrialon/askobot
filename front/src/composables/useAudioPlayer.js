@@ -26,8 +26,8 @@ export function useAudioPlayer() {
     onEnded,
   }) => {
     const sound = soundRef.current;
-    console.log(onPlay);
     const handleDecodedBuffer = (decodedBuffer) => {
+      sound.detune = 50;
       sound.setBuffer(decodedBuffer);
       sound.setLoop(loop);
       sound.setVolume(volume);
@@ -37,7 +37,6 @@ export function useAudioPlayer() {
         analyserRef.current = null;
       }
       analyserRef.current = new AudioAnalyser(sound, 32);
-
       sound.play();
 
       if (typeof onPlay === "function") {
