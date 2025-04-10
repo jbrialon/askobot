@@ -13,18 +13,33 @@ import {
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Float, useAnimations, useGLTF } from "@react-three/drei";
-import { useControls, button } from "leva";
+import { useControls } from "leva";
 
 // App
 import Manager from "../../classes/manager";
 import vertexShader from "./../../shaders/vertex.glsl";
 import fragmentShader from "./../../shaders/fragment.glsl";
-
 import { useAudioPlayer } from "./../../composables/useAudioPlayer";
 
+// Store
+import { useStore } from "../../store/store";
+
+const ASKOBOT_TRANSFORMS = {
+  live: {
+    position: { x: 1.5, y: 2.7, z: -1 },
+    rotationY: 0,
+  },
+  default: {
+    position: { x: 0.5, y: 2.8, z: 1 },
+    rotationY: Math.PI * 0.07,
+  },
+};
+
 export default function Askobot() {
-  const askobotRef = useRef();
   const manager = new Manager();
+  const scene = useStore((state) => state.scene);
+  const isFirstLoad = useRef(true);
+  const askobotRef = useRef();
   const { barColor, barNumber, power } = useControls("Equilizer", {
     barNumber: {
       value: 10,
@@ -120,44 +135,33 @@ export default function Askobot() {
   useEffect(() => {
     if (!askobotRef.current) return;
 
-    const handler = (e) => {
-      const scene = e.detail.name;
-      if (scene === "live") {
-        gsap.to(askobotRef.current.position, {
-          x: 1.5,
-          y: 2.7,
-          z: -1,
-          duration: 1.5,
-          ease: "power2.inOut",
-          delay: 1,
-        });
-        gsap.to(askobotRef.current.rotation, {
-          y: 0,
-          duration: 1.75,
-          ease: "elastic.out",
-          delay: 2.25,
-        });
-      } else {
-        gsap.to(askobotRef.current.position, {
-          x: 0.5,
-          y: 2.8,
-          z: 1,
-          duration: 1.5,
-          ease: "power2.inOut",
-          delay: 1,
-        });
-        gsap.to(askobotRef.current.rotation, {
-          y: Math.PI * 0.07,
-          duration: 1.75,
-          ease: "elastic.out",
-          delay: 2.25,
-        });
-      }
-    };
-    manager.on("obs-scene-changed", handler);
+    const { position, rotationY } =
+      ASKOBOT_TRANSFORMS[scene] ?? ASKOBOT_TRANSFORMS.default;
 
-    return () => manager.off("obs-scene-changed", handler);
-  }, [manager]);
+    // we set the initial position and rotation of the bot depending on the scene on first load,
+    // we want to animate it after
+    if (isFirstLoad.current) {
+      askobotRef.current.position.set(position.x, position.y, position.z);
+      askobotRef.current.rotation.y = rotationY;
+      isFirstLoad.current = false;
+    } else {
+      gsap.to(askobotRef.current.position, {
+        x: position.x,
+        y: position.y,
+        z: position.z,
+        duration: 1.5,
+        ease: "power2.inOut",
+        delay: 1,
+      });
+
+      gsap.to(askobotRef.current.rotation, {
+        y: rotationY,
+        duration: 1.75,
+        ease: "elastic.out",
+        delay: 2.25,
+      });
+    }
+  }, [scene]);
 
   useEffect(() => {
     let rotationTween = null;
@@ -196,12 +200,7 @@ export default function Askobot() {
   return (
     <>
       <Float speed={5} rotationIntensity={0.05} floatIntensity={0.2}>
-        <primitive
-          ref={askobotRef}
-          position={[1.5, 2.7, -1]}
-          rotation-y={0}
-          object={model}
-        />
+        <primitive ref={askobotRef} object={model} />
       </Float>
     </>
   );

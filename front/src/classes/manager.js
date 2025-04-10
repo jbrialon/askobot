@@ -1,23 +1,24 @@
 import Socket from "./socket.js";
+import { useStore } from "../store/store.js";
 
 let instance = null;
 export default class Manager extends EventTarget {
   constructor() {
     super();
-    // Singleton
     if (instance) {
       return instance;
     }
     instance = this;
     this.socket = new Socket().instance;
-    this.state = {
-      isOBS: null,
-    };
+    this.isOBS = null;
 
-    // init Events
     this.initOBS();
     this.initOBSEvents();
     this.initSocketEvents();
+
+    if (this.isOBS) {
+      this.syncCurrentScene();
+    }
   }
 
   initSocketEvents() {
@@ -36,57 +37,32 @@ export default class Manager extends EventTarget {
   }
 
   initOBS() {
-    if (typeof window.obsstudio !== "undefined") {
-      this.state.isOBS = true;
-    } else {
-      this.state.isOBS = false;
-    }
+    this.isOBS = typeof window.obsstudio !== "undefined";
+    useStore.getState().setIsOBS(this.isOBS);
   }
 
   initOBSEvents() {
-    if (this.state.isOBS) {
+    if (this.isOBS) {
       window.addEventListener("obsSceneChanged", (event) => {
-        this.dispatchEvent(
-          new CustomEvent("obs-scene-changed", { detail: event.detail }),
-        );
+        useStore.getState().setScene(event.detail.name);
       });
+    } else {
+      // dev mode
+      useStore.getState().setScene("start");
     }
   }
-  getControlLevelAsync() {
-    return new Promise((resolve) => {
-      window.obsstudio.getControlLevel((level) => {
-        resolve(level);
-      });
-    });
-  }
 
-  getStatusAsync() {
-    return new Promise((resolve) => {
-      window.obsstudio.getStatus((status) => {
-        resolve(status);
-      });
-    });
+  async syncCurrentScene() {
+    const scene = await this.getCurrentSceneAsync();
+    if (scene && scene.name) {
+      useStore.getState().setScene(scene.name);
+    }
   }
 
   getCurrentSceneAsync() {
     return new Promise((resolve) => {
-      window.obsstudio.getCurrentScene((scene) => {
-        resolve(scene);
-      });
+      window.obsstudio.getCurrentScene((scene) => resolve(scene));
     });
-  }
-
-  getState() {
-    return {
-      isOBS: this.state.isOBS,
-    };
-  }
-
-  setState(partial) {
-    this.state = {
-      ...this.state,
-      ...partial,
-    };
   }
 
   trigger(eventName, detail) {

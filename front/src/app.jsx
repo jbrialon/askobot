@@ -12,48 +12,42 @@ import Chat from "./components/ui/chat/chat.jsx";
 import Console from "./components/ui/console/console.jsx";
 import Start from "./components/ui/start/start.jsx";
 
+// Store
+import { useStore } from "./store/store.js";
 function App() {
   const manager = new Manager();
-  const appElement = document.getElementById("app");
-
   const [showConsole, setShowConsole] = useState(false);
 
-  useControls("App", () => ({
+  if (import.meta.env.MODE === "development") {
+    useControls("Bot", () => ({
+      nickname: "Jérémy",
+      question: "yo askobot, la forme?",
+      Ask: button((get) => {
+        const currentNickname = get("Bot.nickname");
+        const currentQuestion = get("Bot.question");
+        manager.trigger("ask-gpt", {
+          nickname: currentNickname,
+          question: currentQuestion,
+        });
+      }),
+    }));
+  }
+
+  useControls("OBS", () => ({
     showConsole: {
       value: false,
       onChange: (value) => setShowConsole(value),
     },
-    nickname: "Jérémy",
-    question: "yo askobot, la forme?",
-    Ask: button((get) => {
-      const currentNickname = get("App.nickname");
-      const currentQuestion = get("App.question");
-      manager.trigger("ask-gpt", {
-        nickname: currentNickname,
-        question: currentQuestion,
-      });
-    }),
     "Start Scene": button(() => {
-      manager.trigger("obs-scene-changed", {
-        name: "start",
-      });
+      useStore.getState().setScene("start");
     }),
     "Live Scene": button(() => {
-      manager.trigger("obs-scene-changed", {
-        name: "live",
-      });
+      useStore.getState().setScene("live");
     }),
     "End Scene": button(() => {
-      manager.trigger("obs-scene-changed", {
-        name: "end",
-      });
+      useStore.getState().setScene("end");
     }),
   }));
-
-  useEffect(() => {
-    const { isOBS } = manager.getState();
-    appElement?.classList.toggle("obs", isOBS);
-  }, []);
 
   return (
     <>

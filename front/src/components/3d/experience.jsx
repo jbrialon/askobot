@@ -1,7 +1,6 @@
 import { Suspense, useEffect, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid } from "@react-three/drei";
-import Manager from "../../classes/manager";
 import { gsap } from "gsap";
 
 // Components
@@ -10,10 +9,18 @@ import Environment from "./environment";
 import Askobot from "./askobot";
 import Start from "./start";
 
-export default function Experience() {
-  const manager = new Manager();
-  const [activeScene, setActiveScene] = useState("live");
+// Store
+import { useStore } from "../../store/store";
 
+// config
+const GRID_POSITIONS = {
+  live: -6,
+  default: 0,
+};
+
+export default function Experience() {
+  const scene = useStore((state) => state.scene);
+  const [gridPosition, setGridPosition] = useState(GRID_POSITIONS.default);
   const appElement = document.getElementById("app");
   const gridRef = useRef();
 
@@ -32,32 +39,24 @@ export default function Experience() {
   };
 
   useEffect(() => {
-    const handler = (e) => {
-      setActiveScene(e.detail.name);
-    };
-    manager.on("obs-scene-changed", handler);
-    return () => manager.off("obs-scene-changed", handler);
-  }, [manager]);
+    const targetPosition = GRID_POSITIONS[scene] ?? GRID_POSITIONS.default;
 
-  useEffect(() => {
-    if (!gridRef.current) return;
-
-    if (activeScene === "live") {
-      appElement?.classList.add("live");
+    if (gridRef.current) {
       gsap.to(gridRef.current.position, {
-        y: -6,
-        duration: 1.5,
-        ease: "power1.inOut",
-      });
-    } else {
-      appElement?.classList.remove("live");
-      gsap.to(gridRef.current.position, {
-        y: 0,
+        y: targetPosition,
         duration: 1.5,
         ease: "power1.inOut",
       });
     }
-  }, [activeScene]);
+
+    setGridPosition(targetPosition);
+
+    if (scene === "live") {
+      appElement?.classList.add("live");
+    } else {
+      appElement?.classList.remove("live");
+    }
+  }, [scene]);
 
   return (
     <>
@@ -68,7 +67,12 @@ export default function Experience() {
           <Askobot />
         </Suspense>
         <Start />
-        <Grid position-y={-6} ref={gridRef} args={gridSize} {...gridConfig} />
+        <Grid
+          position-y={gridPosition}
+          ref={gridRef}
+          args={gridSize}
+          {...gridConfig}
+        />
       </Canvas>
     </>
   );
