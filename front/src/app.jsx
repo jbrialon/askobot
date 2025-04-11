@@ -14,24 +14,41 @@ import Start from "./components/ui/start/start.jsx";
 
 // Store
 import { useStore } from "./store/store.js";
+
 function App() {
   const manager = new Manager();
   const [showConsole, setShowConsole] = useState(false);
 
-  if (import.meta.env.MODE === "development") {
-    useControls("Bot", () => ({
-      nickname: "Jérémy",
-      question: "yo askobot, la forme?",
-      Ask: button((get) => {
-        const currentNickname = get("Bot.nickname");
-        const currentQuestion = get("Bot.question");
-        manager.trigger("ask-gpt", {
-          nickname: currentNickname,
-          question: currentQuestion,
-        });
-      }),
-    }));
-  }
+  const isDev = import.meta.env.MODE === "development";
+  useControls(
+    "Bot",
+    () => ({
+      nickname: {
+        value: "Jérémy",
+        disabled: !isDev,
+      },
+      question: {
+        value: "yo askobot, la forme?",
+        disabled: !isDev,
+      },
+      Ask: button(
+        (get) => {
+          const currentNickname = get("Bot.nickname");
+          const currentQuestion = get("Bot.question");
+          manager.trigger("ask-gpt", {
+            nickname: currentNickname,
+            question: currentQuestion,
+          });
+        },
+        {
+          disabled: !isDev,
+        },
+      ),
+    }),
+    {
+      collapsed: !isDev,
+    },
+  );
 
   useControls("OBS", () => ({
     showConsole: {
