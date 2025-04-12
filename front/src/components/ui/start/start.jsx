@@ -1,36 +1,29 @@
 import { useEffect, useRef } from "react";
-
 import { gsap } from "gsap";
-
 import Manager from "../../../classes/manager";
+import { useStore } from "../../../store/store";
 import "./start.scss";
 
 const Start = () => {
-  const manager = new Manager();
+  const scene = useStore((state) => state.scene);
   const sceneRef = useRef();
 
   useEffect(() => {
-    const handler = (e) => {
-      const scene = e.detail.name;
-      if (scene === "start") {
-        gsap.to(sceneRef.current, {
-          autoAlpha: 1,
-          duration: 1.5,
-          ease: "power1.inOut",
-          delay: 1.5,
-        });
-      } else {
-        gsap.to(sceneRef.current, {
-          autoAlpha: 0,
-          duration: 1.5,
-          ease: "power1.inOut",
-        });
-      }
-    };
-    manager.on("obs-scene-changed", handler);
-
-    return () => manager.off("obs-scene-changed", handler);
-  }, [manager]);
+    if (scene === "start") {
+      gsap.to(sceneRef.current, {
+        autoAlpha: 1,
+        duration: 1.5,
+        ease: "power1.inOut",
+        delay: 1.5,
+      });
+    } else {
+      gsap.to(sceneRef.current, {
+        autoAlpha: 0,
+        duration: 1.5,
+        ease: "power1.inOut",
+      });
+    }
+  }, [scene]);
 
   return (
     <div className="ui-start" ref={sceneRef}>

@@ -38,12 +38,9 @@ export default class TwitchBot extends EventEmitter {
       },
       channels: this.config.channels
         .filter((channel) => {
-          const isAskowbol = channel.twitchChannel === "#askowbol";
-          if (process.env.APP_ENV === "development") {
-            return isAskowbol; // Only include #askowbol in development
-          } else {
-            return !isAskowbol; // Exclude #askowbol in production
-          }
+          return process.env.APP_ENV === "development"
+            ? channel.twitchChannel === "#askowbol" // Only include #askowbol in development
+            : channel.twitchChannel !== "#askowbol"; // Exclude #askowbol in production
         })
         .map((channel) => channel.twitchChannel.slice(1)),
     });
