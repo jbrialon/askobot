@@ -42,6 +42,8 @@ const fetchLeaderboardData = async (args, isDuo) => {
   let paramTwo = args[1];
 
   const cacheKey = [paramOne, paramTwo];
+  // Alias mode (Cheat Mode) when we search for "Sheupluh" we display the results for "oliech"
+  const overrideName = paramOne === "Sheupluh" ? "oliech" : paramOne;
   const cachedLeaderboardData = cache.get(cacheKey);
   if (cachedLeaderboardData) {
     console.log("Cache hit");
@@ -62,7 +64,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
   const leaderboardId = isDuo ? "battlegroundsduo" : "battlegrounds";
 
   // Attempt to parse paramOne as a number
-  const playerRankNumber = Number(paramOne);
+  const playerRankNumber = Number(overrideName);
 
   if (!isNaN(playerRankNumber)) {
     try {
@@ -78,6 +80,9 @@ const fetchLeaderboardData = async (args, isDuo) => {
         playerPageData?.leaderboard?.rows?.[playerIndexInPage] || null; // Return null if index is out of range
 
       if (player) {
+        if (paramOne === "Sheupluh" && player) {
+          player.accountid = "Sheupluh";
+        }
         cache.set(cacheKey, player);
         return player;
       }
@@ -85,7 +90,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
       console.error("Error finding player by rank number:", error);
       return null;
     }
-  } else if (typeof paramOne === "string") {
+  } else if (typeof overrideName === "string") {
     // paramOne is an account ID (string), find the rank by account ID
     try {
       let pageIndex = 1;
@@ -96,8 +101,11 @@ const fetchLeaderboardData = async (args, isDuo) => {
         const pageData = await fetchData(pageUrl);
 
         const players = pageData?.leaderboard?.rows || [];
-        const leaderboardData = findRankByAccountId(players, paramOne);
+        const leaderboardData = findRankByAccountId(players, overrideName);
         if (leaderboardData) {
+          if (paramOne === "Sheupluh" && leaderboardData) {
+            leaderboardData.accountid = "Sheupluh";
+          }
           cache.set(cacheKey, leaderboardData);
           return leaderboardData;
         }
@@ -157,13 +165,19 @@ const fetchLeaderboardData = async (args, isDuo) => {
       const index = playerRankNumber - 1; // Adjust for 1-based indexing
       const player = allPlayers[index] || null; // Return player or null if index is out of range
       if (player) {
+        if (paramOne === "Sheupluh" && player) {
+          player.accountid = "Sheupluh";
+        }
         cache.set(cacheKey, player);
       }
       return player;
-    } else if (typeof paramOne === "string") {
+    } else if (typeof overrideName === "string") {
       // paramOne is an account ID (string), find the rank by account ID
-      const leaderboardData = findRankByAccountId(allPlayers, paramOne);
+      const leaderboardData = findRankByAccountId(allPlayers, overrideName);
       if (leaderboardData) {
+        if (paramOne === "Sheupluh" && leaderboardData) {
+          leaderboardData.accountid = "Sheupluh";
+        }
         cache.set(cacheKey, leaderboardData);
       }
       return leaderboardData;

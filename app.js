@@ -66,7 +66,6 @@ io.on("connection", (socket) => {
   } else {
     console.log("New client connected");
   }
-  // Now you can use this information as needed
 
   // Send current chat history to the connected client
   socket.emit("history", chatHistory);
