@@ -7,7 +7,7 @@ import { getFrenchOrdinal, log } from "../utils/utils.js";
 import { fetchCardData, fetchLeaderboardData } from "../utils/battleground.js";
 import { getChannelInfo } from "../utils/twitch-data.js";
 
-import config from "../../config.json" with { type: "json" };
+import config from "../../config.js";
 
 /**
  * TwitchBot handles Twitch chat commands, interacts with OpenAI and manages bot state.

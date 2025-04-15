@@ -6,7 +6,7 @@ import crypto from "crypto";
 
 import { initAskowBot, say } from "./twitchbot.js";
 import { getChannelInfo } from "./twitchData.js";
-import config from "./config.json" with { type: "json" };
+import config from "../../config.js";
 
 const app = express();
 

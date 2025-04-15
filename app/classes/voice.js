@@ -12,11 +12,13 @@ export default class Voice {
   // Askobot 2 (voice gen) : HAszShXoWaHgc2vlxgbB
   // Askobot 3 (GladOS) : 1Ju3wgDv0NblqqooMpNg
   async convertAsStream(text) {
+    const finalText = `${text} <emotion="he said very sarcastically" />`;
+    console.log(finalText);
     try {
       const audioStream = await this.instance.textToSpeech.convertAsStream(
         "1Ju3wgDv0NblqqooMpNg",
         {
-          text,
+          text: finalText,
           model_id: "eleven_multilingual_v2",
           output_format: "mp3_44100_128",
           voice_settings: {

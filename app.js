@@ -6,7 +6,7 @@ import cors from "cors";
 import { Server as SocketIOServer } from "socket.io";
 import { fileURLToPath } from "url";
 
-import config from "./config.json" with { type: "json" };
+import config from "./config.js";
 import Voice from "./app/classes/voice.js";
 
 import TwitchBot from "./app/classes/twitch-bot.js";
