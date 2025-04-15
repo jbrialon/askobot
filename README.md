@@ -75,7 +75,10 @@ The built front-end will be served statically by the backend.
 - Scene when playing, askobot appears only when he speaks, from above? randomly on the screen?
 - send discord alerts when online
 - actual scene for both start and end
-- Slyders -> more sarcastic
 - stt -> askobot -> tts
+- generate json as response
+  - des intonations en fonction de la reponse
+  - lier ça a une animation du robot
+  - rajouter des LEDs sur le robot, les allumer a la couleur du pseudo dans le chat
 
 ---
