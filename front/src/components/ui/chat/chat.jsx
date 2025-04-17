@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { parseEmotesInMessage, getEmoteAsUrl } from "tmi-utils";
 import ChatItem from "./chatItem";
 import Manager from "../../../classes/manager";
-import "./chat.scss";
+import styles from "./chat.module.scss";
 
 const Chat = () => {
   const manager = new Manager();
@@ -51,11 +51,12 @@ const Chat = () => {
   }, []);
 
   return (
-    <div className="ui-chat">
-      <motion.ul layout>
+    <div className={styles["ui-chat"]}>
+      <motion.ul className={styles["ui-chat__list"]} layout>
         <AnimatePresence initial={false}>
           {chatHistory.map((item) => (
             <motion.li
+              className={styles["ui-chat__list-item"]}
               layout
               key={item.tags.timestamp}
               initial="initial"

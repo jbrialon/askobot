@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
-import Manager from "../../../classes/manager";
 import { useStore } from "../../../store/store";
-import "./console.scss";
+import styles from "./console.module.scss";
 
 const Console = () => {
-  const scene = useStore((state) => state.scene);
-  const isOBS = useStore((state) => state.isOBS);
+  const [scene, isOBS] = useStore((state) => [state.scene, state.isOBS]);
 
   return (
-    <div className="ui-console">
+    <div className={styles["ui-console"]}>
       {isOBS !== null && (
-        <div className="obs-status">
+        <div className={styles["ui-console__status"]}>
           {isOBS ? "Running inside OBS Studio" : "Not running in OBS"}
         </div>
       )}

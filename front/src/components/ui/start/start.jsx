@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import Manager from "../../../classes/manager";
 import { useStore } from "../../../store/store";
-import "./start.scss";
+import styles from "./start.module.scss";
 
 const Start = () => {
   const scene = useStore((state) => state.scene);
@@ -26,11 +25,16 @@ const Start = () => {
   }, [scene]);
 
   return (
-    <div className="ui-start" ref={sceneRef}>
-      <div className="text text-back glitch" data-text="Ça commence bientôt!">
+    <div className={styles["ui-start"]} ref={sceneRef}>
+      <div
+        className={`${styles["ui-start__text"]} ${styles["ui-start__text--back"]} ${styles["ui-start__text--glitch"]}`}
+        data-text="Ça commence bientôt!"
+      >
         <span>Ça commence bientôt!</span>
       </div>
-      <div className="text text-front glitch">
+      <div
+        className={`${styles["ui-start__text"]} ${styles["ui-start__text--front"]} ${styles["ui-start__text--glitch"]}`}
+      >
         <span>Ça commence bientôt!</span>
       </div>
     </div>

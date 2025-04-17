@@ -1,22 +1,31 @@
-import React from "react";
+import { Fragment } from "react";
+import styles from "./chat.module.scss";
 
 const ChatItem = ({ item }) => {
   return (
     <>
-      <div className="user">
+      <div className={styles["ui-chat__user"]}>
         {item.tags["display-name"] === "Askowbot" && (
-          <div className="avatar"></div>
+          <div className={styles["ui-chat__avatar"]}></div>
         )}
-        <div className="name" style={{ color: item.tags.color }}>
+        <div
+          className={styles["ui-chat__name"]}
+          style={{ color: item.tags.color }}
+        >
           {item.tags["display-name"]}
         </div>
       </div>
-      <div className="message">
+      <div className={styles["ui-chat__message"]}>
         {item.parsedMessage.map((message, idx) =>
           message.type === "text" ? (
-            <React.Fragment key={idx}>{message.value}</React.Fragment>
+            <Fragment key={idx}>{message.value}</Fragment>
           ) : message.type === "emote" ? (
-            <img key={idx} className="emote" src={message.src} alt="emote" />
+            <img
+              key={idx}
+              className={styles["ui-chat__emote"]}
+              src={message.src}
+              alt="emote"
+            />
           ) : null,
         )}
       </div>

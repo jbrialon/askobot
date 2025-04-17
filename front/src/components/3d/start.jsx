@@ -5,9 +5,8 @@ import { useStore } from "../../store/store";
 import Manager from "../../classes/manager";
 
 export default function Start() {
-  const scene = useStore((state) => state.scene);
-
   const manager = new Manager();
+  const scene = useStore((state) => state.scene);
 
   const { analysis, playAudio, pauseAudio } = useAudioPlayer();
 
