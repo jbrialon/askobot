@@ -1,6 +1,7 @@
 import tmi from "tmi.js";
-import OpenAI from "openai";
 import os from "os";
+import { z } from "zod";
+import { createAiFunctionInstance } from "ai-function-helper";
 import { EventEmitter } from "events";
 
 import { getFrenchOrdinal, log } from "../utils/utils.js";
@@ -15,20 +16,15 @@ import config from "../../config.js";
 export default class TwitchBot extends EventEmitter {
   /**
    * Constructs a new TwitchBot instance.
-   * Initializes configuration, chat memory, command registry, and sets up the Twitch client.
+   * Initializes configuration, chat history, command registry, and sets up the Twitch client.
    */
   constructor() {
     super();
-    // Ensure chatMemory exists in config
-    config.chatMemory = config.chatMemory || {};
     this.config = config;
-    this.chatMemory = config.chatMemory;
+    this.chatHistory = {};
     this.lastCommandTime = {};
     this.hostname = os.hostname();
-    this.openai = new OpenAI({
-      organization: process.env.ORGKEY,
-      apiKey: process.env.APIKEY,
-    });
+    this.aiFunction = createAiFunctionInstance(process.env.APIKEY);
 
     this.client = new tmi.Client({
       options: { debug: true },
@@ -156,7 +152,7 @@ export default class TwitchBot extends EventEmitter {
         this.client.say(channel, messageToSend);
       } else {
         const fallbackMessage = `invente un message comme quoi le joueur ${args[0]} n'a pas été trouvé dans le classement`;
-        this.askGPT(channel, displayUserName, fallbackMessage);
+        this.askAskobot(channel, displayUserName, fallbackMessage);
       }
     } catch (error) {
       console.error("Error fetching leaderboard data:", error);
@@ -172,169 +168,260 @@ export default class TwitchBot extends EventEmitter {
    * @param {string[]} args - Command arguments (the user's question).
    * @param {string} command - The command name that triggered this handler.
    */
-  async handleAskobot(channel, tags, args, command) {
-    const displayUserName = tags["display-name"];
-    const question = args.join(" ");
-    this.askGPT(channel, displayUserName, question);
-    this.logToDiscord(channel, displayUserName, question);
+  async handleAskobot(channel, tags, args) {
+    const username = tags["display-name"];
+    const user = {
+      name: tags["display-name"],
+      color: tags.color,
+    };
+    const message = args.join(" ");
+    this.askAskobot(channel, user, message);
+    this.logToDiscord(channel, user.name, message);
   }
 
   /**
    * Sends a question to OpenAI and relays the response back to the Twitch channel.
-   * Manages chat history, uses tools if trigger words are present, and
-   * appends additional Twitch channel context (cached for 24 hours).
+   * Manages chat history
+   * appends additional Twitch channel context (cached for 5 minutes).
    *
    * @param {string} channel - The channel to send the response to.
-   * @param {string} displayUserName - The display name of the user who asked the question.
-   * @param {string} question - The user's question.
+   * @param {object} user - The name and color of the user who asked the question.
+   * @param {string} message - The user's question.
    */
-  async askGPT(channel, displayUserName, question) {
+  async askAskobot(channel, user, message) {
     const channelConfig = this.config.channels.find(
       (c) => c.twitchChannel === channel,
     );
-    const contexts = channelConfig.context;
-    const channelInfo = await getChannelInfo(channel);
 
-    // Build system content with additional Twitch context
-    const title = channelInfo ? channelInfo.title : "N/A";
-    const game = channelInfo ? channelInfo.game : "N/A";
-    const description = channelInfo ? channelInfo.description : "N/A";
-    const systemContentTemplate =
-      contexts[Math.floor(Math.random() * contexts.length)];
-    const systemContent = systemContentTemplate
-      .replace("{{game}}", game)
-      .replace("{{title}}", title)
-      .replace("{{desc}}", description);
-
-    let content = "";
     // Initialize chat history for the channel if not present
-    if (!this.chatMemory[channel]) {
-      this.chatMemory[channel] = [];
+    if (!this.chatHistory[channel]) {
+      this.chatHistory[channel] = [];
     }
+
     // Trim chat history to configured memory capacity
-    if (this.chatMemory[channel].length > this.config.memoryCapacity) {
-      this.chatMemory[channel] = this.chatMemory[channel].slice(
+    if (this.chatHistory[channel].length > this.config.memoryCapacity) {
+      this.chatHistory[channel] = this.chatHistory[channel].slice(
         -this.config.memoryCapacity,
       );
     }
 
-    const cardTools = [
-      {
-        type: "function",
-        function: {
-          name: "get_card_info",
-          description:
-            "Fetch Hearthstone Battlegrounds card details. Use this tool when a user asks about a specific card.",
-          parameters: {
-            type: "object",
-            properties: {
-              card_name: {
-                type: "string",
-                description:
-                  "The name of the Hearthstone Battlegrounds card to fetch information about.",
-              },
-              golden: {
-                type: "boolean",
-                description:
-                  "Whether to fetch information about the golden version of the card.",
-              },
-            },
-            required: ["card_name"],
-            additionalProperties: false,
-          },
-        },
-      },
-    ];
+    const channelInfo = await getChannelInfo(channel);
 
-    const heroTools = [
-      {
-        type: "function",
-        function: {
-          name: "get_hero_power_info",
-          description:
-            "Fetch the hero power of a specific Hearthstone Battlegrounds hero. This function should only be used when the user asks specifically about the hero power (hp) of the hero, nothing else.",
-          parameters: {
-            type: "object",
-            properties: {
-              hero_name: {
-                type: "string",
-                description:
-                  "The name of the Hearthstone Battlegrounds hero to fetch the hero power information for.",
-              },
-            },
-            required: ["hero_name"],
-            additionalProperties: false,
-          },
-        },
-      },
-    ];
-
-    const msg = `je suis ${displayUserName} et voici ma question: "${question}"`;
-
-    try {
-      const payload = {
-        messages: [
-          { role: "system", content: systemContent },
-          ...this.chatMemory[channel],
-          { role: "user", content: msg },
+    const promptVars = {
+      mood: channelConfig.mood[
+        Math.floor(Math.random() * channelConfig.mood.length)
+      ], // Askobot personality
+      username: user.name,
+      message,
+      context:
+        channelConfig.context[
+          Math.floor(Math.random() * channelConfig.context.length)
         ],
-        model: "gpt-4o-mini",
-      };
+      genericContext: config.genericContext, // more about Askobot personality
+      title: channelInfo.title,
+      game: channelInfo.game,
+      desc: channelInfo.description,
+      moods: channelConfig.mood.join(", "),
+      maxChar: channelConfig.maxChar,
+    };
 
-      if (this.config.gptCardTriggerWords.some((word) => msg.includes(word))) {
-        payload.tools = cardTools;
-      } else if (
-        this.config.gptHeroTriggerWords.some((word) => msg.includes(word))
-      ) {
-        payload.tools = heroTools;
-      }
+    const result = await this.aiFunction({
+      functionName: "ask_Askobot",
+      showDebug: false,
+      debugLevel: 1,
+      blockHijack: true,
+      model: "gpt-4o-mini",
+      args: {
+        username: user.name,
+        message,
+      },
+      promptVars,
+      description: `
+        You are Askowbot, a \${mood} Robot assistant in a Twitch Channel.
 
-      const response = await this.openai.chat.completions.create(payload);
-
-      if (response.choices[0].finish_reason === "tool_calls") {
-        const functionCall = response.choices[0].message.tool_calls[0].function;
-        if (functionCall.name === "get_card_info") {
-          const { card_name: cardName, golden } = JSON.parse(
-            functionCall.arguments,
-          );
-          const cardData = fetchCardData(cardName, false);
-          if (cardData) {
-            content = `${cardData.name.fr}: ${
-              golden ? cardData.upgradeText : cardData.text
-            } `;
-          } else {
-            content = "Aucune carte trouvée portant ce nom 🤔";
-          }
-        } else if (functionCall.name === "get_hero_power_info") {
-          const heroName = JSON.parse(functionCall.arguments).hero_name;
-          const heroData = fetchCardData(heroName, true);
-          if (heroData) {
-            content = `${heroData.name.fr}: ${heroData.text} `;
-          } else {
-            content = "Aucun hero trouvé portant ce nom 🤔";
-          }
-        }
-      } else {
-        content = response.choices[0].message.content;
-      }
-    } catch (error) {
-      console.error(error);
-      content = "<Error.01.beep.boop>";
-    }
-
-    // Append the assistant's response to the chat history
-    this.chatMemory[channel].push({
+        The user "\${username}" just said: "\${message}".
+        \${context}
+        \${genericContext}
+        - Return a JSON with:
+          - response
+          - emotion: \${moods}.
+          - animation: talking, dancing, jumping.
+      `,
+      outputSchema: z.object({
+        response: z.string(),
+        emotion: z.string(),
+        animation: z.string(),
+      }),
+      history: [
+        ...this.chatHistory[channel],
+        { role: "user", content: `@${user.name}: ${message}` },
+      ],
+    });
+    this.chatHistory[channel].push({
+      role: "user",
+      content: `@${user.name}: ${message}`,
+    });
+    this.chatHistory[channel].push({
       role: "assistant",
-      content: `${displayUserName} previous question was "${question}" and your answer was ${content}`,
+      content: result.response,
     });
 
-    this.logToDiscord(channel, "Askowbot", content);
-    this.client.say(channel, `🤖 ${content} 🤖`);
+    this.logToDiscord(channel, "Askowbot", result.response);
+
+    this.client.say(channel, `🤖 ${result.response} 🤖`);
     this.emit("voice", {
       channel,
-      content,
+      result,
+      user,
     });
   }
+  // async askGPT(channel, displayUserName, question) {
+  //   const channelConfig = this.config.channels.find(
+  //     (c) => c.twitchChannel === channel,
+  //   );
+  //   const contexts = channelConfig.context;
+  //   const channelInfo = await getChannelInfo(channel);
+
+  //   // Build system content with additional Twitch context
+  //   const title = channelInfo ? channelInfo.title : "N/A";
+  //   const game = channelInfo ? channelInfo.game : "N/A";
+  //   const description = channelInfo ? channelInfo.description : "N/A";
+  //   const systemContentTemplate =
+  //     contexts[Math.floor(Math.random() * contexts.length)];
+  //   const systemContent = systemContentTemplate
+  //     .replace("{{game}}", game)
+  //     .replace("{{title}}", title)
+  //     .replace("{{desc}}", description);
+
+  //   let content = "";
+  //   // Initialize chat history for the channel if not present
+  //   if (!this.chatHistory[channel]) {
+  //     this.chatHistory[channel] = [];
+  //   }
+  //   // Trim chat history to configured memory capacity
+  //   if (this.chatHistory[channel].length > this.config.memoryCapacity) {
+  //     this.chatHistory[channel] = this.chatHistory[channel].slice(
+  //       -this.config.memoryCapacity,
+  //     );
+  //   }
+
+  //   const cardTools = [
+  //     {
+  //       type: "function",
+  //       function: {
+  //         name: "get_card_info",
+  //         description:
+  //           "Fetch Hearthstone Battlegrounds card details. Use this tool when a user asks about a specific card.",
+  //         parameters: {
+  //           type: "object",
+  //           properties: {
+  //             card_name: {
+  //               type: "string",
+  //               description:
+  //                 "The name of the Hearthstone Battlegrounds card to fetch information about.",
+  //             },
+  //             golden: {
+  //               type: "boolean",
+  //               description:
+  //                 "Whether to fetch information about the golden version of the card.",
+  //             },
+  //           },
+  //           required: ["card_name"],
+  //           additionalProperties: false,
+  //         },
+  //       },
+  //     },
+  //   ];
+
+  //   const heroTools = [
+  //     {
+  //       type: "function",
+  //       function: {
+  //         name: "get_hero_power_info",
+  //         description:
+  //           "Fetch the hero power of a specific Hearthstone Battlegrounds hero. This function should only be used when the user asks specifically about the hero power (hp) of the hero, nothing else.",
+  //         parameters: {
+  //           type: "object",
+  //           properties: {
+  //             hero_name: {
+  //               type: "string",
+  //               description:
+  //                 "The name of the Hearthstone Battlegrounds hero to fetch the hero power information for.",
+  //             },
+  //           },
+  //           required: ["hero_name"],
+  //           additionalProperties: false,
+  //         },
+  //       },
+  //     },
+  //   ];
+
+  //   const msg = `je suis ${displayUserName} et voici ma question: "${question}"`;
+
+  //   try {
+  //     const payload = {
+  //       messages: [
+  //         { role: "system", content: systemContent },
+  //         ...this.chatHistory[channel],
+  //         { role: "user", content: msg },
+  //       ],
+  //       model: "gpt-4o-mini",
+  //     };
+
+  //     if (this.config.gptCardTriggerWords.some((word) => msg.includes(word))) {
+  //       payload.tools = cardTools;
+  //     } else if (
+  //       this.config.gptHeroTriggerWords.some((word) => msg.includes(word))
+  //     ) {
+  //       payload.tools = heroTools;
+  //     }
+
+  //     const response = await this.openai.chat.completions.create(payload);
+
+  //     if (response.choices[0].finish_reason === "tool_calls") {
+  //       const functionCall = response.choices[0].message.tool_calls[0].function;
+  //       if (functionCall.name === "get_card_info") {
+  //         const { card_name: cardName, golden } = JSON.parse(
+  //           functionCall.arguments,
+  //         );
+  //         const cardData = fetchCardData(cardName, false);
+  //         if (cardData) {
+  //           content = `${cardData.name.fr}: ${
+  //             golden ? cardData.upgradeText : cardData.text
+  //           } `;
+  //         } else {
+  //           content = "Aucune carte trouvée portant ce nom 🤔";
+  //         }
+  //       } else if (functionCall.name === "get_hero_power_info") {
+  //         const heroName = JSON.parse(functionCall.arguments).hero_name;
+  //         const heroData = fetchCardData(heroName, true);
+  //         if (heroData) {
+  //           content = `${heroData.name.fr}: ${heroData.text} `;
+  //         } else {
+  //           content = "Aucun hero trouvé portant ce nom 🤔";
+  //         }
+  //       }
+  //     } else {
+  //       content = response.choices[0].message.content;
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     content = "<Error.01.beep.boop>";
+  //   }
+
+  //   // Append the assistant's response to the chat history
+  //   this.chatHistory[channel].push({
+  //     role: "assistant",
+  //     content: `${displayUserName} previous question was "${question}" and your answer was ${content}`,
+  //   });
+
+  //   this.logToDiscord(channel, "Askowbot", content);
+  //   this.client.say(channel, `🤖 ${content} 🤖`);
+  //   this.emit("voice", {
+  //     channel,
+  //     content,
+  //   });
+  // }
 
   /**
    * Logs a message to Discord using the imported log function.

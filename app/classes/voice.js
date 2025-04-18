@@ -11,6 +11,24 @@ export default class Voice {
   // Askobot #1 (claptrap) : dmpjA77eRwk6YUSKBiAv
   // Askobot 2 (voice gen) : HAszShXoWaHgc2vlxgbB
   // Askobot 3 (GladOS) : 1Ju3wgDv0NblqqooMpNg
+
+  // Robotic and calm
+  // voice_settings: {
+  //   stability: 1,
+  //   similarity_boost: 0.5,
+  //   use_speaker_boost: false,
+  //   style: 0.1,
+  //   speed: 0.9,
+  // }
+  // Excited
+  // voice_settings: {
+  //   stability: 0.3,            // Allow emotional variation
+  //   similarity_boost: 0.75,    // Keep it close to the voice
+  //   use_speaker_boost: true,
+  //   style: 0.9,                // High style = more expressive
+  //   speed: 1.2,                // Speak faster
+  // }
+
   async convertAsStream(text) {
     const finalText = `${text} <emotion="he said very sarcastically" />`;
     console.log(finalText);

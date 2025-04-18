@@ -26,11 +26,13 @@ twitchBot.on("chat", (data) => {
 
 twitchBot.on("voice", async (data) => {
   if (data.channel === "#askowbol") {
-    const audioBuffer = await voice.convertAsStream(data.content);
+    const audioBuffer = await voice.convertAsStream(data.result.response);
+    console.log(data);
     io.emit("voice-data", {
       channel: data.channel,
-      content: data.content,
+      content: data.result,
       audioBuffer: audioBuffer.toString("base64"),
+      user: data.user,
     });
   }
 });
@@ -74,8 +76,8 @@ io.on("connection", (socket) => {
     console.log("Client disconnected");
   });
 
-  socket.on("ask-gpt", (nickname, question) => {
-    twitchBot.askGPT("#askowbol", nickname, question);
+  socket.on("ask-askobot", (user, message) => {
+    twitchBot.askAskobot("#askowbol", user, message);
   });
 });
 

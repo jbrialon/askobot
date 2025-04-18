@@ -118,7 +118,7 @@ export default function Askobot() {
 
   useEffect(() => {
     const handler = (e) => {
-      const { audioBuffer } = e.detail;
+      const { audioBuffer, user } = e.detail;
       playAudio({
         source: audioBuffer,
         volume: 0.3,

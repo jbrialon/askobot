@@ -22,9 +22,13 @@ export default class Manager extends EventTarget {
   }
 
   initSocketEvents() {
-    this.addEventListener("ask-gpt", (e) => {
-      const { nickname, question } = e.detail;
-      this.socket.emit("ask-gpt", nickname, question);
+    this.addEventListener("ask-askobot", (e) => {
+      const { username, message } = e.detail;
+      const user = {
+        name: username,
+        color: "#ff00ff",
+      };
+      this.socket.emit("ask-askobot", user, message);
     });
 
     this.socket.on("history", (history) => {

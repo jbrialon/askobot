@@ -23,21 +23,21 @@ function App() {
   useControls(
     "Bot",
     () => ({
-      nickname: {
+      username: {
         value: "Jérémy",
         disabled: !isDev,
       },
-      question: {
+      message: {
         value: "yo askobot, la forme?",
         disabled: !isDev,
       },
       Ask: button(
         (get) => {
-          const currentNickname = get("Bot.nickname");
-          const currentQuestion = get("Bot.question");
-          manager.trigger("ask-gpt", {
-            nickname: currentNickname,
-            question: currentQuestion,
+          const currentNickname = get("Bot.username");
+          const currentQuestion = get("Bot.message");
+          manager.trigger("ask-askobot", {
+            username: currentNickname,
+            message: currentQuestion,
           });
         },
         {
