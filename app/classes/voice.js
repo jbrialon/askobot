@@ -29,9 +29,9 @@ export default class Voice {
   //   speed: 1.2,                // Speak faster
   // }
 
-  async convertAsStream(text) {
-    const finalText = `${text} <emotion="he said very sarcastically" />`;
-    console.log(finalText);
+  async convertAsStream({ text, emotion }) {
+    const finalText = `${text} <emotion="${emotion}" />`;
+    console.log(finalText, emotion);
     try {
       const audioStream = await this.instance.textToSpeech.convertAsStream(
         "1Ju3wgDv0NblqqooMpNg",

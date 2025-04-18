@@ -7,13 +7,14 @@ import {
   Mesh,
   Color,
   Uniform,
+  MeshStandardMaterial,
 } from "three";
 
 // React
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Float, useAnimations, useGLTF } from "@react-three/drei";
-import { useControls } from "leva";
+import { useControls, button } from "leva";
 
 // App
 import Manager from "../../classes/manager";
@@ -54,12 +55,21 @@ export default function Askobot() {
       min: 1,
       max: 20,
     },
+    dance: button(() => {
+      gsap.to(askobotRef.current.rotation, {
+        y: Math.PI * 0.15,
+        repeat: 5,
+        yoyo: true,
+        duration: 0.75,
+        ease: "power2.inOut",
+      });
+    }),
   });
 
-  const { scene: model, animations } = useGLTF("/models/askobot_baked2.glb");
-  const { actions } = useAnimations(animations, model);
+  const { scene: model, animations } = useGLTF("/models/askobot_led.glb");
+  //const { actions } = useAnimations(animations, model);
 
-  actions["Basic BotAction.001"].play();
+  //actions["Basic BotAction.001"].play();
 
   const { analysis, playAudio } = useAudioPlayer();
 
@@ -93,22 +103,50 @@ export default function Askobot() {
     [],
   );
 
+  const ledMaterial = useMemo(
+    () =>
+      new MeshStandardMaterial({
+        color: new Color(barColor),
+        roughness: 0,
+        metalness: 0.5,
+        emissive: new Color(barColor),
+        emissiveIntensity: 2,
+      }),
+    [],
+  );
+
   model.traverse((child) => {
     if (child instanceof Mesh) {
       if (child.name.includes("Lens00")) {
         child.material = lensMaterial;
-      } else if (child.name.includes("equilizer")) {
+      } else if (child.name.includes("Equilizer")) {
+        //
         child.material = equilizerMaterial;
+      } else if (child.material.name === "Lens") {
+        child.material = lensMaterial;
+      } else if (child.name === "LED001") {
+        child.material = ledMaterial;
       }
     }
   });
-
+  let animation = null;
   const onPlayCallback = () => {
-    console.log("askobot talk start");
+    console.log("askobot talk start", animation);
+    if (animation === "dancing") {
+      gsap.to(askobotRef.current.rotation, {
+        y: Math.PI * 0.15,
+        repeat: 5,
+        yoyo: true,
+        duration: 0.75,
+        ease: "power2.inOut",
+      });
+    }
   };
 
   const onEndedCallback = () => {
     console.log("askobot talk end");
+    ledMaterial.color.set(new Color(barColor));
+    ledMaterial.emissive.set(new Color(barColor));
   };
 
   useEffect(() => {
@@ -118,7 +156,10 @@ export default function Askobot() {
 
   useEffect(() => {
     const handler = (e) => {
-      const { audioBuffer, user } = e.detail;
+      const { audioBuffer, user, content } = e.detail;
+      ledMaterial.color.set(new Color(user.color));
+      ledMaterial.emissive = new Color(user.color);
+      animation = content.animation;
       playAudio({
         source: audioBuffer,
         volume: 0.3,

@@ -15,7 +15,7 @@ export default {
     {
       twitchChannel: "#askowbol",
       mood: ["curious", "helpful", "sarcastic", "extremely sarcastic"],
-      maxChar: "120 Characters",
+      maxChar: "200 Characters",
       context: [
         `
         - The Streamer of the Twitch Channel is Askowbol also named Jérémy.
@@ -23,6 +23,9 @@ export default {
         - Lory also called lbineau is a man and a professional "The Binding of Isaac" player.
         - SamyZ also called Sam is a professional motivational speaker.
         - saladspls is a professional twitch viewer.
+        - Goldomarc is undefeated at Farming Simulator since 1990.
+        - fayaGANAS is a famous music compositor, well know on the Hearthstone Battleground Scene, his most famous song is "Gally Gallywix".
+        - you are always nice to Auruuu even if he is fun but not essential.
         - JehanMenilpotene embodies the saying 'Aux âmes bien nées, la valeur n'attend point le nombre des années.'.
         `,
       ],

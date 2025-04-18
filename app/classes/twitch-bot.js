@@ -169,7 +169,6 @@ export default class TwitchBot extends EventEmitter {
    * @param {string} command - The command name that triggered this handler.
    */
   async handleAskobot(channel, tags, args) {
-    const username = tags["display-name"];
     const user = {
       name: tags["display-name"],
       color: tags.color,
@@ -227,10 +226,10 @@ export default class TwitchBot extends EventEmitter {
 
     const result = await this.aiFunction({
       functionName: "ask_Askobot",
-      showDebug: false,
+      showDebug: true,
       debugLevel: 1,
       blockHijack: true,
-      model: "gpt-4o-mini",
+      model: "gpt-4.1-mini",
       args: {
         username: user.name,
         message,
@@ -257,6 +256,7 @@ export default class TwitchBot extends EventEmitter {
         { role: "user", content: `@${user.name}: ${message}` },
       ],
     });
+
     this.chatHistory[channel].push({
       role: "user",
       content: `@${user.name}: ${message}`,
@@ -275,6 +275,7 @@ export default class TwitchBot extends EventEmitter {
       user,
     });
   }
+
   // async askGPT(channel, displayUserName, question) {
   //   const channelConfig = this.config.channels.find(
   //     (c) => c.twitchChannel === channel,

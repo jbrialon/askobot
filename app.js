@@ -26,7 +26,11 @@ twitchBot.on("chat", (data) => {
 
 twitchBot.on("voice", async (data) => {
   if (data.channel === "#askowbol") {
-    const audioBuffer = await voice.convertAsStream(data.result.response);
+    const audioBuffer = await voice.convertAsStream({
+      text: data.result.response,
+      emotion: data.result.emotion,
+    });
+
     console.log(data);
     io.emit("voice-data", {
       channel: data.channel,

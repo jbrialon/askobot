@@ -2,6 +2,7 @@ import { Suspense, useEffect, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid } from "@react-three/drei";
 import { gsap } from "gsap";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
 // Components
 import Camera from "./camera";
@@ -73,6 +74,9 @@ export default function Experience() {
           args={gridSize}
           {...gridConfig}
         />
+        <EffectComposer>
+          <Bloom luminanceThreshold={1} luminanceSmoothing={0.9} />
+        </EffectComposer>
       </Canvas>
     </>
   );
