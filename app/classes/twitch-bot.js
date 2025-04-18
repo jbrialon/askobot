@@ -188,94 +188,101 @@ export default class TwitchBot extends EventEmitter {
    * @param {string} message - The user's question.
    */
   async askAskobot(channel, user, message) {
-    const channelConfig = this.config.channels.find(
-      (c) => c.twitchChannel === channel,
-    );
-
-    // Initialize chat history for the channel if not present
-    if (!this.chatHistory[channel]) {
-      this.chatHistory[channel] = [];
-    }
-
-    // Trim chat history to configured memory capacity
-    if (this.chatHistory[channel].length > this.config.memoryCapacity) {
-      this.chatHistory[channel] = this.chatHistory[channel].slice(
-        -this.config.memoryCapacity,
+    try {
+      const channelConfig = this.config.channels.find(
+        (c) => c.twitchChannel === channel,
       );
-    }
 
-    const channelInfo = await getChannelInfo(channel);
+      if (!this.chatHistory[channel]) {
+        this.chatHistory[channel] = [];
+      }
 
-    const promptVars = {
-      mood: channelConfig.mood[
-        Math.floor(Math.random() * channelConfig.mood.length)
-      ], // Askobot personality
-      username: user.name,
-      message,
-      context:
-        channelConfig.context[
-          Math.floor(Math.random() * channelConfig.context.length)
+      if (this.chatHistory[channel].length > this.config.memoryCapacity) {
+        this.chatHistory[channel] = this.chatHistory[channel].slice(
+          -this.config.memoryCapacity,
+        );
+      }
+
+      const channelInfo = await getChannelInfo(channel);
+
+      const promptVars = {
+        mood: channelConfig.mood[
+          Math.floor(Math.random() * channelConfig.mood.length)
         ],
-      genericContext: config.genericContext, // more about Askobot personality
-      title: channelInfo.title,
-      game: channelInfo.game,
-      desc: channelInfo.description,
-      moods: channelConfig.mood.join(", "),
-      maxChar: channelConfig.maxChar,
-    };
-
-    const result = await this.aiFunction({
-      functionName: "ask_Askobot",
-      showDebug: true,
-      debugLevel: 1,
-      blockHijack: true,
-      model: "gpt-4.1-mini",
-      args: {
         username: user.name,
         message,
-      },
-      promptVars,
-      description: `
-        You are Askowbot, a \${mood} Robot assistant in a Twitch Channel.
+        context:
+          channelConfig.context[
+            Math.floor(Math.random() * channelConfig.context.length)
+          ],
+        genericContext: config.genericContext,
+        title: channelInfo.title,
+        game: channelInfo.game,
+        desc: channelInfo.description,
+        moods: channelConfig.mood.join(", "),
+        maxChar: channelConfig.maxChar,
+      };
 
-        The user "\${username}" just said: "\${message}".
-        \${context}
-        \${genericContext}
-        - Return a JSON with:
-          - response
-          - emotion: \${moods}.
-          - animation: talking, dancing, jumping.
-      `,
-      outputSchema: z.object({
-        response: z.string(),
-        emotion: z.string(),
-        animation: z.string(),
-      }),
-      history: [
-        ...this.chatHistory[channel],
-        { role: "user", content: `@${user.name}: ${message}` },
-      ],
-    });
+      const result = await this.aiFunction({
+        functionName: "ask_Askobot",
+        showDebug: true,
+        debugLevel: 1,
+        blockHijack: true,
+        model: "gpt-4.1-nano",
+        forceJsonMode: true,
+        args: {
+          username: user.name,
+          message,
+        },
+        promptVars,
+        description: `
+          You are Askowbot, a \${mood} Robot assistant in a Twitch Channel.
+  
+          The user "\${username}" just said: "\${message}".
+          \${context}
+          \${genericContext}
+          - Return a JSON with:
+            - response
+            - emotion: \${moods}.
+            - animation: talking, dancing, jumping.
+        `,
+        outputSchema: z.object({
+          response: z.string(),
+          emotion: z.string(),
+          animation: z.string(),
+        }),
+        history: [
+          ...this.chatHistory[channel],
+          { role: "user", content: `@${user.name}: ${message}` },
+        ],
+      });
 
-    this.chatHistory[channel].push({
-      role: "user",
-      content: `@${user.name}: ${message}`,
-    });
-    this.chatHistory[channel].push({
-      role: "assistant",
-      content: result.response,
-    });
+      this.chatHistory[channel].push({
+        role: "user",
+        content: `@${user.name}: ${message}`,
+      });
+      this.chatHistory[channel].push({
+        role: "assistant",
+        content: result.response,
+      });
 
-    this.logToDiscord(channel, "Askowbot", result.response);
+      this.logToDiscord(channel, "Askowbot", result.response);
 
-    this.client.say(channel, `🤖 ${result.response} 🤖`);
-    this.emit("voice", {
-      channel,
-      result,
-      user,
-    });
+      this.client.say(channel, `🤖 ${result.response} 🤖`);
+      this.emit("voice", {
+        channel,
+        result,
+        user,
+      });
+    } catch (error) {
+      console.error("❌ Error in askAskobot:", error);
+
+      const fallbackMessage =
+        "Désolé, une erreur est survenue. Je bug un peu, mais je reviendrai plus fort 💥";
+      this.client.say(channel, `🤖 ${fallbackMessage}`);
+      this.logToDiscord(channel, "Askowbot", `❌ ERROR: ${error.message}`);
+    }
   }
-
   // async askGPT(channel, displayUserName, question) {
   //   const channelConfig = this.config.channels.find(
   //     (c) => c.twitchChannel === channel,
