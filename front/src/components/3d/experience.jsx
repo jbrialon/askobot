@@ -2,8 +2,8 @@ import { Suspense, useEffect, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid } from "@react-three/drei";
 import { gsap } from "gsap";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
-
+import { EffectComposer, SMAA, Bloom } from "@react-three/postprocessing";
+import { useControls } from "leva";
 // Components
 import Camera from "./camera";
 import Environment from "./environment";
@@ -24,6 +24,20 @@ export default function Experience() {
   const [gridPosition, setGridPosition] = useState(GRID_POSITIONS.default);
   const appElement = document.getElementById("app");
   const gridRef = useRef();
+
+  const { enabled, mipmapBlur, threshold, smoothing, intensity } = useControls(
+    "Bloom",
+    {
+      enabled: true,
+      mipmapBlur: true,
+      threshold: { value: 1.24, min: 0, max: 2, step: 0.01 },
+      smoothing: { value: 0.005, min: 0, max: 1, step: 0.001 },
+      intensity: { value: 0.29, min: 0, max: 5, step: 0.01 },
+    },
+    {
+      collapsed: true,
+    },
+  );
 
   const gridSize = [200, 100];
   const gridConfig = {
@@ -74,8 +88,14 @@ export default function Experience() {
           args={gridSize}
           {...gridConfig}
         />
-        <EffectComposer>
-          <Bloom luminanceThreshold={1} luminanceSmoothing={0.9} />
+        <EffectComposer disableNormalPass multisampling={0} enabled={enabled}>
+          <Bloom
+            mipmapBlur={mipmapBlur}
+            luminanceThreshold={threshold}
+            luminanceSmoothing={smoothing}
+            intensity={intensity}
+          />
+          <SMAA />
         </EffectComposer>
       </Canvas>
     </>

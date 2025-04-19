@@ -46,25 +46,31 @@ function App() {
       ),
     }),
     {
-      collapsed: !isDev,
+      collapsed: true,
     },
   );
 
-  useControls("OBS", () => ({
-    showConsole: {
-      value: false,
-      onChange: (value) => setShowConsole(value),
+  useControls(
+    "OBS",
+    () => ({
+      showConsole: {
+        value: false,
+        onChange: (value) => setShowConsole(value),
+      },
+      "Start Scene": button(() => {
+        useStore.getState().setScene("start");
+      }),
+      "Live Scene": button(() => {
+        useStore.getState().setScene("live");
+      }),
+      "End Scene": button(() => {
+        useStore.getState().setScene("end");
+      }),
+    }),
+    {
+      collapsed: true,
     },
-    "Start Scene": button(() => {
-      useStore.getState().setScene("start");
-    }),
-    "Live Scene": button(() => {
-      useStore.getState().setScene("live");
-    }),
-    "End Scene": button(() => {
-      useStore.getState().setScene("end");
-    }),
-  }));
+  );
 
   return (
     <>

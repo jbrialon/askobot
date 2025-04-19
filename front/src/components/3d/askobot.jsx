@@ -41,39 +41,59 @@ export default function Askobot() {
   const scene = useStore((state) => state.scene);
   const isFirstLoad = useRef(true);
   const askobotRef = useRef();
-  const { barColor, barNumber, power } = useControls("Equilizer", {
-    barNumber: {
-      value: 10,
-      step: 1,
-      min: 2,
-      max: 60,
+
+  // Debug
+  const { ledColor, intensity } = useControls(
+    "LED",
+    {
+      intensity: {
+        value: 9,
+        min: 0,
+        max: 10,
+        step: 0.1,
+      },
+      ledColor: "#3ddfff",
     },
-    barColor: "#3ddfff",
-    power: {
-      value: 15,
-      step: 0.1,
-      min: 1,
-      max: 20,
+    {
+      collapsed: true,
     },
-    dance: button(() => {
-      gsap.to(askobotRef.current.rotation, {
-        y: Math.PI * 0.15,
-        repeat: 5,
-        yoyo: true,
-        duration: 0.75,
-        ease: "power2.inOut",
-      });
-    }),
-  });
+  );
+  const { barColor, barNumber, power } = useControls(
+    "Equilizer",
+    {
+      barNumber: {
+        value: 10,
+        step: 1,
+        min: 2,
+        max: 60,
+      },
+      barColor: "#3ddfff",
+      power: {
+        value: 15,
+        step: 0.1,
+        min: 1,
+        max: 20,
+      },
+      dance: button(() => {
+        gsap.to(askobotRef.current.rotation, {
+          y: Math.PI * 0.15,
+          repeat: 5,
+          yoyo: true,
+          duration: 0.75,
+          ease: "power2.inOut",
+        });
+      }),
+    },
+    {
+      collapsed: true,
+    },
+  );
 
-  const { scene: model, animations } = useGLTF("/models/askobot_led.glb");
-  //const { actions } = useAnimations(animations, model);
-
-  //actions["Basic BotAction.001"].play();
-
+  // Model
+  const { scene: model } = useGLTF("/models/askobot_led.glb");
   const { analysis, playAudio } = useAudioPlayer();
 
-  // materials
+  // Materials
   const lensMaterial = new MeshPhysicalMaterial({
     metalness: 0.9,
     roughness: 0.05,
@@ -106,11 +126,10 @@ export default function Askobot() {
   const ledMaterial = useMemo(
     () =>
       new MeshStandardMaterial({
-        color: new Color(barColor),
-        roughness: 0,
-        metalness: 0.5,
-        emissive: new Color(barColor),
-        emissiveIntensity: 2,
+        color: new Color(ledColor),
+        emissive: new Color(ledColor),
+        emissiveIntensity: intensity,
+        toneMapped: true,
       }),
     [],
   );
@@ -149,10 +168,18 @@ export default function Askobot() {
     ledMaterial.emissive.set(new Color(barColor));
   };
 
+  // Hooks
   useEffect(() => {
     equilizerMaterial.uniforms.uBarNumber.value = barNumber;
     equilizerMaterial.uniforms.uBarColor.value.set(barColor);
   }, [barNumber, barColor, equilizerMaterial]);
+
+  // Update the material when values change
+  useEffect(() => {
+    ledMaterial.color.set(ledColor);
+    ledMaterial.emissive.set(ledColor);
+    ledMaterial.emissiveIntensity = intensity;
+  }, [ledColor, intensity]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -209,7 +236,6 @@ export default function Askobot() {
 
     const handler = (e) => {
       const analysis = Math.pow(e.detail * 0.85, 8);
-      console.log(analysis);
 
       if (analysis > 0.0225) {
         if (rotationTween && rotationTween.isActive()) return;
@@ -221,8 +247,6 @@ export default function Askobot() {
           yoyo: true,
           // ease: "power1.inOut",
         });
-
-        console.log("dance");
       }
     };
     manager.on("start-audio", handler);
@@ -230,8 +254,7 @@ export default function Askobot() {
     return () => manager.off("start-audio", handler);
   }, [manager]);
 
-  useFrame((state) => {
-    // equilizerMaterial.uniforms.uTime.value = state.clock.getElapsedTime();
+  useFrame(() => {
     equilizerMaterial.uniforms.uIntensity.value = Math.pow(
       analysis * 0.85,
       power,
@@ -239,10 +262,8 @@ export default function Askobot() {
   });
 
   return (
-    <>
-      <Float speed={5} rotationIntensity={0.05} floatIntensity={0.2}>
-        <primitive ref={askobotRef} object={model} />
-      </Float>
-    </>
+    <Float speed={5} rotationIntensity={0.05} floatIntensity={0.2}>
+      <primitive ref={askobotRef} object={model} />
+    </Float>
   );
 }
