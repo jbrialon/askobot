@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createAiFunctionInstance } from "ai-function-helper";
 import { EventEmitter } from "events";
 
-import { getFrenchOrdinal, log } from "../utils/utils.js";
+import { getFrenchOrdinal, log, buildPromptVars } from "../utils/utils.js";
 import { fetchCardData, fetchLeaderboardData } from "../utils/battleground.js";
 import { getChannelInfo } from "../utils/twitch-data.js";
 
@@ -117,7 +117,10 @@ export default class TwitchBot extends EventEmitter {
    * @param {string} command - The command name that triggered this handler.
    */
   async handleBGRank(channel, tags, args, command) {
-    const displayUserName = tags["display-name"];
+    const user = {
+      name: tags["display-name"],
+      color: tags.color,
+    };
     const isDuo = command === "bgrankduo";
 
     // Check for cooldown
@@ -152,7 +155,7 @@ export default class TwitchBot extends EventEmitter {
         this.client.say(channel, messageToSend);
       } else {
         const fallbackMessage = `invente un message comme quoi le joueur ${args[0]} n'a pas été trouvé dans le classement`;
-        this.askAskobot(channel, displayUserName, fallbackMessage);
+        this.askAskobot(channel, user, fallbackMessage);
       }
     } catch (error) {
       console.error("Error fetching leaderboard data:", error);
@@ -189,6 +192,7 @@ export default class TwitchBot extends EventEmitter {
    */
   async askAskobot(channel, user, message) {
     try {
+      const channelInfo = await getChannelInfo(channel);
       const channelConfig = this.config.channels.find(
         (c) => c.twitchChannel === channel,
       );
@@ -203,26 +207,6 @@ export default class TwitchBot extends EventEmitter {
         );
       }
 
-      const channelInfo = await getChannelInfo(channel);
-
-      const promptVars = {
-        mood: channelConfig.mood[
-          Math.floor(Math.random() * channelConfig.mood.length)
-        ],
-        username: user.name,
-        message,
-        context:
-          channelConfig.context[
-            Math.floor(Math.random() * channelConfig.context.length)
-          ],
-        genericContext: config.genericContext,
-        title: channelInfo.title,
-        game: channelInfo.game,
-        desc: channelInfo.description,
-        moods: channelConfig.mood.join(", "),
-        maxChar: channelConfig.maxChar,
-      };
-
       const result = await this.aiFunction({
         functionName: "ask_Askobot",
         showDebug: true,
@@ -234,7 +218,12 @@ export default class TwitchBot extends EventEmitter {
           username: user.name,
           message,
         },
-        promptVars,
+        promptVars: buildPromptVars({
+          user,
+          message,
+          channelConfig,
+          channelInfo,
+        }),
         description: `
           You are Askowbot, a \${mood} Robot assistant in a Twitch Channel.
   
@@ -277,8 +266,7 @@ export default class TwitchBot extends EventEmitter {
     } catch (error) {
       console.error("❌ Error in askAskobot:", error);
 
-      const fallbackMessage =
-        "Désolé, une erreur est survenue. Je bug un peu, mais je reviendrai plus fort 💥";
+      const fallbackMessage = "<Error.01.beep.boop>";
       this.client.say(channel, `🤖 ${fallbackMessage}`);
       this.logToDiscord(channel, "Askowbot", `❌ ERROR: ${error.message}`);
     }
