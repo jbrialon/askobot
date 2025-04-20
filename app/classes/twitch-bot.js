@@ -233,12 +233,12 @@ export default class TwitchBot extends EventEmitter {
           - Return a JSON with:
             - response
             - emotion: \${moods}.
-            - animation: talk, dance, excited, spin
+            - animation: \${animations}.
         `,
         outputSchema: z.object({
           response: z.string(),
           emotion: z.enum(channelConfig.mood),
-          animation: z.enum(["talk", "dance", "excited", "spin"]),
+          animation: z.enum(config.animations),
         }),
         history: [
           ...this.chatHistory[channel],

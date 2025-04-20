@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import { DiscordNotification } from "@penseapp/discord-notification";
 import os from "os";
+import config from "../../config.js";
 
 let cachedToken = null;
 let tokenExpiry = 0;
@@ -93,12 +94,13 @@ const buildPromptVars = ({ user, message, channelConfig, channelInfo }) => {
     username: user.name,
     message,
     context: randomContext,
-    genericContext: channelConfig.genericContext || "",
+    genericContext: config.genericContext || "",
     title: channelInfo.title,
     game: channelInfo.game,
     desc: channelInfo.description,
     moods: channelConfig.mood.join(", "),
     maxChar: channelConfig.maxChar,
+    animations: config.animations.join(", "),
   };
 };
 

@@ -16,14 +16,15 @@ float noise(float x) {
 }
 
 float getBarHeight(float index) {
+    float intensity = uIntensity;
     float normalizedIndex = index / (uBarNumber - 1.0) - 0.5;
     float distanceFromCenter = 1.0 - abs(normalizedIndex);
-
-    float idleOscillation = uIntensity == 0.0 ? 0.15 + 0.05 * sin(uTime * 5.0 + index) : 0.0;
-    if (uIntensity > 0.0) {
+    //intensity = 0.5;
+    float idleOscillation = intensity == 0.0 ? 0.15 + 0.05 * sin(uTime * 5.0 + index) : 0.0;
+    if (intensity > 0.0) {
         idleOscillation = 0.0;
     }
-    float height = clamp((distanceFromCenter - (abs(normalizedIndex) * sin(uIntensity * 90.0))) * pow(uIntensity * 2.0, 0.2), 0.0, 0.95);
+    float height = clamp((distanceFromCenter - (abs(normalizedIndex) * sin(intensity * 90.0))) * pow(intensity * 2.0, 0.2), 0.0, 0.95);
     return height;
 }
 

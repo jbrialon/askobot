@@ -19,12 +19,13 @@ function App() {
   const manager = new Manager();
   const [showConsole, setShowConsole] = useState(false);
 
+  // Debug
   const isDev = import.meta.env.MODE === "development";
   useControls(
     "Bot",
     () => ({
       username: {
-        value: "Jérémy",
+        value: "Askow",
         disabled: !isDev,
       },
       message: {

@@ -29,14 +29,15 @@ export default class Voice {
   //   speed: 1.2,                // Speak faster
   // }
 
+  // pause in text
+  // <break time="1.5s" />
   async convertAsStream({ text, emotion }) {
-    const finalText = `${text} <emotion="${emotion}" />`;
-    console.log(finalText, emotion);
     try {
       const audioStream = await this.instance.textToSpeech.convertAsStream(
         "1Ju3wgDv0NblqqooMpNg",
         {
-          text: finalText,
+          text: `"${text}"`,
+          next_text: `, ${emotion}`,
           model_id: "eleven_multilingual_v2",
           output_format: "mp3_44100_128",
           voice_settings: {

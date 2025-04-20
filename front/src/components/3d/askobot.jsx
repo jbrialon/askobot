@@ -5,8 +5,11 @@ import {
   ShaderMaterial,
   BackSide,
   Mesh,
+  Bone,
   Color,
   Uniform,
+  MeshNormalMaterial,
+  DoubleSide,
 } from "three";
 
 // React
@@ -68,32 +71,37 @@ export default function Askobot() {
   );
 
   useControls("Bot", {
-    spin: button(() => spin()),
-    dance: button(() => dance()),
-    excited: button(() => excited()),
-    zoom: button(() => {
-      const origin = {
-        z: lens[0].position.z,
-      };
-      const tl = gsap.timeline();
-      tl.to(lens[0].position, {
-        z: origin.z + 0.005,
-        duration: 0.5,
-        ease: "power1.inOut",
-      });
+    // spin: button(() => spin()),
+    // dance: button(() => dance()),
+    // excited: button(() => excited()),
+    // zoom: button(() => {
+    //   const origin = {
+    //     y: lens[0].position.z,
+    //   };
+    //   const tl = gsap.timeline();
+    //   tl.to(lens[0].position, {
+    //     z: origin.z + 0.005,
+    //     duration: 0.5,
+    //     ease: "power1.inOut",
+    //   });
 
-      tl.to(lens[0].position, {
-        z: origin.z,
-        duration: 0.5,
-        ease: "power1.inOut",
-      });
+    //   tl.to(lens[0].position, {
+    //     z: origin.z,
+    //     duration: 0.5,
+    //     ease: "power1.inOut",
+    //   });
+    // }),
+    // looping: button(() => looping()),
+    wings: button(() => {
+      wings.forEach((wing) => {});
     }),
+    antennas: button(() => finishedTalking()),
   });
 
   // -----------------------------------------------------------------------------------
   // Model
   // -----------------------------------------------------------------------------------
-  const { scene: model } = useGLTF("/models/askobot_led.glb");
+  const { scene: model } = useGLTF("/models/askobot_compressed.glb");
   const { analysis, playAudio } = useAudioPlayer();
 
   // -----------------------------------------------------------------------------------
@@ -116,6 +124,7 @@ export default function Askobot() {
     () =>
       new ShaderMaterial({
         transparent: true,
+        side: DoubleSide,
         uniforms: {
           uTime: new Uniform(0),
           uIntensity: new Uniform(0),
@@ -130,11 +139,19 @@ export default function Askobot() {
 
   const batteries = [];
   const lens = [];
+  const wings = [];
+  const antennas = [];
   model.traverse((child) => {
     if (child instanceof Mesh) {
       if (child.name.includes("Lens00")) {
         child.material = lensMaterial;
       } else if (child.name.includes("Equilizer")) {
+        const y = child.position.y;
+        //child.position.y = y + 0.1;
+        //child.material = equilizerMaterial;
+        child.material = new MeshNormalMaterial({
+          side: DoubleSide,
+        });
         child.material = equilizerMaterial;
       } else if (child.material.name === "Lens") {
         child.material = lensMaterial;
@@ -147,6 +164,23 @@ export default function Askobot() {
         lens.push(child);
       }
     }
+    if (child instanceof Bone) {
+      //  if (child.name === "Bone007") {
+      //    batteries.push(child);
+      //  } else if (child.name === "Bone008") {
+      //    batteries.push(child);
+      //  }
+      if (child.name === "Bone011") {
+        wings.push(child);
+      } else if (child.name === "Bone012") {
+        wings.push(child);
+      }
+      if (child.name === "Bone005") {
+        antennas.push(child);
+      } else if (child.name === "Bone006") {
+        antennas.push(child);
+      }
+    }
   });
 
   // -----------------------------------------------------------------------------------
@@ -154,19 +188,29 @@ export default function Askobot() {
   // -----------------------------------------------------------------------------------
   const dance = () => {
     const origin = {
+      x: askobotRef.current.position.x,
       y: askobotRef.current.position.y,
       rotY: askobotRef.current.rotation.y,
       rotZ: askobotRef.current.rotation.z,
     };
 
     const tl = gsap.timeline();
-
     // Rotate left + slight bounce
     tl.to(askobotRef.current.rotation, {
       y: origin.rotY - Math.PI * 0.15,
       duration: 0.3,
       ease: "sine.inOut",
     });
+
+    tl.to(
+      askobotRef.current.position,
+      {
+        x: origin.x - 0.2,
+        duration: 0.3,
+        ease: "sine.inOut",
+      },
+      "<",
+    );
 
     tl.to(askobotRef.current.position, {
       y: origin.y - 0.05,
@@ -182,9 +226,11 @@ export default function Askobot() {
       duration: 0.3,
       ease: "sine.inOut",
     });
+
     tl.to(
       askobotRef.current.position,
       {
+        x: origin.x + 0.2,
         y: origin.y,
         duration: 0.5,
       },
@@ -210,6 +256,7 @@ export default function Askobot() {
     tl.to(
       askobotRef.current.position,
       {
+        x: origin.x,
         y: origin.y,
         duration: 0.5,
       },
@@ -328,6 +375,70 @@ export default function Askobot() {
 
     return tl;
   };
+
+  const looping = () => {
+    const origin = {
+      position: askobotRef.current.position,
+      rotX: askobotRef.current.rotation.x,
+    };
+
+    const amplitude = 3.5;
+    const totalTime = 0.5;
+    gsap.to(askobotRef.current.rotation, {
+      x: origin.rotX + Math.PI * -2,
+      duration: totalTime,
+      ease: "sine.inOut",
+    });
+
+    const tl = gsap.timeline();
+    tl.to(askobotRef.current.position, {
+      y: origin.position.y + 0.1 * amplitude,
+      z: origin.position.z + 0.1 * amplitude,
+      duration: totalTime / 4,
+      ease: "power1.in",
+    });
+
+    tl.to(askobotRef.current.position, {
+      y: origin.position.y + 0.2 * amplitude,
+      z: origin.position.z,
+      duration: totalTime / 4,
+      ease: "none",
+    });
+
+    tl.to(askobotRef.current.position, {
+      y: origin.position.y + 0.1 * amplitude,
+      z: origin.position.z - 0.2 * amplitude,
+      duration: totalTime / 4,
+      ease: "none",
+    });
+
+    tl.to(askobotRef.current.position, {
+      y: origin.position.y,
+      z: origin.position.z,
+      duration: totalTime / 4,
+      ease: "power1.out",
+    });
+  };
+
+  const finishedTalking = () => {
+    antennas.forEach((antenna, index) => {
+      const rotX = antenna.rotation.x;
+      const tl = gsap.timeline({
+        delay: 0.15 * index,
+        repeat: 3,
+      });
+      tl.to(antenna.rotation, {
+        x: rotX - Math.PI * 0.15,
+        duration: 0.15,
+        ease: "sine.inOut",
+      });
+      tl.to(antenna.rotation, {
+        x: rotX,
+        duration: 0.15,
+        ease: "sine.inOut",
+      });
+    });
+  };
   // -----------------------------------------------------------------------------------
   // AUDIO CALLBACKS
   // -----------------------------------------------------------------------------------
@@ -340,11 +451,14 @@ export default function Askobot() {
       spin();
     } else if (animation === "excited") {
       excited();
+    } else if (animation === "looping") {
+      looping();
     }
   };
 
   const onEndedCallback = () => {
     currentAnimation.current = null;
+    finishedTalking();
   };
 
   // -----------------------------------------------------------------------------------
@@ -440,7 +554,7 @@ export default function Askobot() {
     // Battery position update
     batteries.forEach((battery, index) => {
       const offset = index * 3;
-      const y = Math.cos(time * speed + offset) * 0.02;
+      const y = Math.cos(time * speed + offset) * 0.02 - 0.13;
       battery.position.y = y;
     });
 
