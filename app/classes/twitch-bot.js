@@ -233,12 +233,12 @@ export default class TwitchBot extends EventEmitter {
           - Return a JSON with:
             - response
             - emotion: \${moods}.
-            - animation: talking, dancing, jumping.
+            - animation: talk, dance, excited, spin
         `,
         outputSchema: z.object({
           response: z.string(),
-          emotion: z.string(),
-          animation: z.string(),
+          emotion: z.enum(channelConfig.mood),
+          animation: z.enum(["talk", "dance", "excited", "spin"]),
         }),
         history: [
           ...this.chatHistory[channel],
@@ -264,11 +264,11 @@ export default class TwitchBot extends EventEmitter {
         user,
       });
     } catch (error) {
-      console.error("❌ Error in askAskobot:", error);
+      console.error("Error in askAskobot:", error);
 
       const fallbackMessage = "<Error.01.beep.boop>";
       this.client.say(channel, `🤖 ${fallbackMessage}`);
-      this.logToDiscord(channel, "Askowbot", `❌ ERROR: ${error.message}`);
+      this.logToDiscord(channel, "Askowbot", `❌ ERROR: ${error.message} ❌`);
     }
   }
   // async askGPT(channel, displayUserName, question) {

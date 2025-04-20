@@ -22,6 +22,7 @@ export function useAudioPlayer() {
     source, // string (base64 or .mp3 path)
     volume = 0.3,
     loop = false,
+    trim = 0,
     onPlay,
     onEnded,
   }) => {
@@ -39,11 +40,26 @@ export function useAudioPlayer() {
       analyserRef.current = new AudioAnalyser(sound, 32);
       sound.play();
 
+      const totalDuration = decodedBuffer.duration;
+      const stopTime = (totalDuration - trim) * 1000;
+
+      const stopTimeout = setTimeout(() => {
+        if (sound.isPlaying) {
+          sound.stop();
+          sound.setBuffer(null);
+          setAnalysis(0);
+          if (typeof onEnded === "function") {
+            onEnded();
+          }
+        }
+      }, stopTime);
+
       if (typeof onPlay === "function") {
         onPlay();
       }
 
       sound.source.onended = () => {
+        clearTimeout(stopTimeout);
         sound.stop();
         sound.setBuffer(null);
         setAnalysis(0);

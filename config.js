@@ -15,7 +15,7 @@ export default {
   channels: [
     {
       twitchChannel: "#askowbol",
-      mood: ["curious", "helpful", "sarcastic", "extremely sarcastic"],
+      mood: ["excited", "helpful", "sarcastic", "extremely sarcastic"],
       maxChar: "200 Characters",
       context: [
         `
