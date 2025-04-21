@@ -1,7 +1,6 @@
 import fetch from "node-fetch";
 import { DiscordNotification } from "@penseapp/discord-notification";
 import os from "os";
-import config from "../../config.js";
 
 let cachedToken = null;
 let tokenExpiry = 0;
@@ -81,34 +80,4 @@ const cleanText = (text) => {
   return text.replace(/<\/?(b|i)>/g, ""); // Removes <b>, </b>, <i>, and </i> tags};
 };
 
-const buildPromptVars = ({ user, message, channelConfig, channelInfo }) => {
-  const randomMood =
-    channelConfig.mood[Math.floor(Math.random() * channelConfig.mood.length)];
-  const randomContext =
-    channelConfig.context[
-      Math.floor(Math.random() * channelConfig.context.length)
-    ];
-
-  return {
-    mood: randomMood,
-    username: user.name,
-    message,
-    context: randomContext,
-    genericContext: config.genericContext || "",
-    title: channelInfo.title,
-    game: channelInfo.game,
-    desc: channelInfo.description,
-    moods: channelConfig.mood.join(", "),
-    maxChar: channelConfig.maxChar,
-    animations: config.animations.join(", "),
-  };
-};
-
-export {
-  getValidToken,
-  getCurrentTimeOfDay,
-  log,
-  getFrenchOrdinal,
-  cleanText,
-  buildPromptVars,
-};
+export { getValidToken, getCurrentTimeOfDay, log, getFrenchOrdinal, cleanText };

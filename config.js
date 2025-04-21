@@ -1,5 +1,6 @@
 export default {
   port: 3000,
+  model: "gpt-4.1-nano",
   commandCooldown: 0.5,
   memoryCapacity: 20,
   gptCardTriggerWords: ["carte", "crea"],
@@ -19,7 +20,7 @@ export default {
       maxChar: "200 Characters",
       context: [
         `
-        - The Streamer of the Twitch Channel is Askowbol also named Jérémy.
+        - The Streamer of the Twitch Channel is Jérém and his nickname is Askow also named Askowbol.
         - Filou, Jérémy's cat is very smart and very cute cat.
         - Lory also called lbineau is a man and a professional "The Binding of Isaac" player.
         - SamyZ also called Sam is a professional motivational speaker.
