@@ -20,6 +20,8 @@ const GRID_POSITIONS = {
 
 export default function Experience() {
   const scene = useStore((state) => state.scene);
+  const isOBS = useStore((state) => state.isOBS);
+
   const [gridPosition, setGridPosition] = useState(GRID_POSITIONS.default);
   const appElement = document.getElementById("app");
   const gridRef = useRef();
@@ -51,12 +53,12 @@ export default function Experience() {
 
     setGridPosition(targetPosition);
 
-    if (scene === "live") {
+    if (scene === "live" && isOBS) {
       appElement?.classList.add("live");
     } else {
       appElement?.classList.remove("live");
     }
-  }, [scene]);
+  }, [scene, isOBS]);
 
   return (
     <>

@@ -209,9 +209,9 @@ export default class TwitchBot extends EventEmitter {
 
       const result = await this.aiFunction({
         functionName: "ask_Askobot",
-        showDebug: true,
-        debugLevel: 1,
-        blockHijack: true,
+        showDebug: process.env.APP_ENV === "development",
+        debugLevel: 2,
+        blockHijack: false,
         model: "gpt-4.1-nano",
         forceJsonMode: true,
         args: {
@@ -240,16 +240,14 @@ export default class TwitchBot extends EventEmitter {
           emotion: z.enum(channelConfig.mood),
           animation: z.enum(config.animations),
         }),
-        history: [
-          ...this.chatHistory[channel],
-          { role: "user", content: `@${user.name}: ${message}` },
-        ],
+        history: this.chatHistory[channel],
       });
 
       this.chatHistory[channel].push({
         role: "user",
         content: `@${user.name}: ${message}`,
       });
+
       this.chatHistory[channel].push({
         role: "assistant",
         content: result.response,
@@ -266,8 +264,9 @@ export default class TwitchBot extends EventEmitter {
     } catch (error) {
       console.error("Error in askAskobot:", error);
 
-      const fallbackMessage = "<Error.01.beep.boop>";
-      this.client.say(channel, `🤖 ${fallbackMessage}`);
+      const fallbackMessage =
+        "Erreur : J'ai oublié comment parler poliment, désolé !";
+      this.client.say(channel, `🤖 ${fallbackMessage} 🤖`);
       this.logToDiscord(channel, "Askowbot", `❌ ERROR: ${error.message} ❌`);
     }
   }

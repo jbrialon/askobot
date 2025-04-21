@@ -1,6 +1,6 @@
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Leva, useControls, button } from "leva";
+import { Leva, useControls, folder, button } from "leva";
 import "./styles/style.scss";
 
 // Classes
@@ -24,40 +24,43 @@ function App() {
   useControls(
     "Bot",
     () => ({
-      username: {
-        value: "Askow",
-        disabled: !isDev,
-      },
-      message: {
-        value: "yo askobot, la forme?",
-        disabled: !isDev,
-      },
-      Ask: button(
-        (get) => {
-          const currentNickname = get("Bot.username");
-          const currentQuestion = get("Bot.message");
-          manager.trigger("ask-askobot", {
-            username: currentNickname,
-            message: currentQuestion,
-          });
+      Ask: folder(
+        {
+          username: {
+            value: "Askow",
+            disabled: !isDev,
+          },
+          message: {
+            value: "yo askobot, la forme?",
+            disabled: !isDev,
+          },
+          Ask: button(
+            (get) => {
+              const username = get("Bot.Ask.username");
+              const message = get("Bot.Ask.message");
+              manager.trigger("ask-askobot", {
+                username,
+                message,
+              });
+            },
+            {
+              disabled: !isDev,
+            },
+          ),
         },
         {
-          disabled: !isDev,
+          collapsed: true,
         },
       ),
     }),
     {
-      collapsed: true,
+      collapsed: false,
     },
   );
 
   useControls(
     "OBS",
     () => ({
-      showConsole: {
-        value: false,
-        onChange: (value) => setShowConsole(value),
-      },
       "Start Scene": button(() => {
         useStore.getState().setScene("start");
       }),
@@ -67,6 +70,10 @@ function App() {
       "End Scene": button(() => {
         useStore.getState().setScene("end");
       }),
+      showConsole: {
+        value: false,
+        onChange: (value) => setShowConsole(value),
+      },
     }),
     {
       collapsed: true,

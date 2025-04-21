@@ -31,11 +31,10 @@ twitchBot.on("voice", async (data) => {
       emotion: data.result.emotion,
     });
 
-    console.log(data);
     io.emit("voice-data", {
       channel: data.channel,
       content: data.result,
-      audioBuffer: audioBuffer.toString("base64"),
+      audioBuffer: audioBuffer ? audioBuffer.toString("base64") : null,
       user: data.user,
     });
   }

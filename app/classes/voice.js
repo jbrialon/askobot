@@ -60,7 +60,8 @@ export default class Voice {
       audioBuffer.toString("base64");
       return audioBuffer;
     } catch (error) {
-      console.error("Error during text-to-speech conversion:", error);
+      // console.error("Error during text-to-speech conversion:", error);
+      console.log("Error during text-to-speech conversion");
       return null;
     }
   }

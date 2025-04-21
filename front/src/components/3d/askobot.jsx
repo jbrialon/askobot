@@ -15,8 +15,8 @@ import {
 // React
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Float, useAnimations, useGLTF } from "@react-three/drei";
-import { useControls, button } from "leva";
+import { Float, useGLTF } from "@react-three/drei";
+import { useControls, button, folder } from "leva";
 
 // App
 import Manager from "../../classes/manager";
@@ -48,54 +48,54 @@ export default function Askobot() {
   // -----------------------------------------------------------------------------------
   // Debug
   // -----------------------------------------------------------------------------------
-  const { barColor, barNumber, power } = useControls(
-    "Equilizer",
-    {
-      barNumber: {
-        value: 10,
-        step: 1,
-        min: 2,
-        max: 60,
-      },
-      barColor: "#3ddfff",
-      power: {
-        value: 15,
-        step: 0.1,
-        min: 1,
-        max: 20,
-      },
-    },
-    {
-      collapsed: true,
-    },
-  );
+  const { barColor, barNumber, power } = useControls("Bot", {
+    Animations: folder({
+      spin: button(() => spin()),
+      dance: button(() => dance()),
+      excited: button(() => excited()),
+      looping: button(() => looping()),
+      antennas: button(() => finishedTalking()),
+      wings: button(() => {
+        wings.forEach((wing) => {});
+      }),
+      zoom: button(() => {
+        const origin = {
+          y: lens[0].position.z,
+        };
+        const tl = gsap.timeline();
+        tl.to(lens[0].position, {
+          z: origin.z + 0.005,
+          duration: 0.5,
+          ease: "power1.inOut",
+        });
 
-  useControls("Bot", {
-    // spin: button(() => spin()),
-    // dance: button(() => dance()),
-    // excited: button(() => excited()),
-    // zoom: button(() => {
-    //   const origin = {
-    //     y: lens[0].position.z,
-    //   };
-    //   const tl = gsap.timeline();
-    //   tl.to(lens[0].position, {
-    //     z: origin.z + 0.005,
-    //     duration: 0.5,
-    //     ease: "power1.inOut",
-    //   });
-
-    //   tl.to(lens[0].position, {
-    //     z: origin.z,
-    //     duration: 0.5,
-    //     ease: "power1.inOut",
-    //   });
-    // }),
-    // looping: button(() => looping()),
-    wings: button(() => {
-      wings.forEach((wing) => {});
+        tl.to(lens[0].position, {
+          z: origin.z,
+          duration: 0.5,
+          ease: "power1.inOut",
+        });
+      }),
     }),
-    antennas: button(() => finishedTalking()),
+    Equilizer: folder(
+      {
+        barNumber: {
+          value: 10,
+          step: 1,
+          min: 2,
+          max: 60,
+        },
+        barColor: "#3ddfff",
+        power: {
+          value: 15,
+          step: 0.1,
+          min: 1,
+          max: 20,
+        },
+      },
+      {
+        collapsed: true,
+      },
+    ),
   });
 
   // -----------------------------------------------------------------------------------
@@ -146,12 +146,6 @@ export default function Askobot() {
       if (child.name.includes("Lens00")) {
         child.material = lensMaterial;
       } else if (child.name.includes("Equilizer")) {
-        const y = child.position.y;
-        //child.position.y = y + 0.1;
-        //child.material = equilizerMaterial;
-        child.material = new MeshNormalMaterial({
-          side: DoubleSide,
-        });
         child.material = equilizerMaterial;
       } else if (child.material.name === "Lens") {
         child.material = lensMaterial;
@@ -475,7 +469,7 @@ export default function Askobot() {
       const { audioBuffer, user, content } = e.detail;
       const animation = content.animation;
       playAudio({
-        source: audioBuffer,
+        source: audioBuffer ? audioBuffer : "/audio/error.mp3",
         volume: 0.3,
         loop: false,
         trim: 0,
@@ -586,3 +580,5 @@ export default function Askobot() {
     </Float>
   );
 }
+
+useGLTF.preload("/askobot_compressed.glb");
