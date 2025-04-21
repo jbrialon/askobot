@@ -52,7 +52,7 @@ export default class Manager extends EventTarget {
       });
     } else {
       // dev mode
-      useStore.getState().setScene("live");
+      useStore.getState().setScene("start");
     }
   }
 

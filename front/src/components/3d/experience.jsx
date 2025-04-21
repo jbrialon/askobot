@@ -34,8 +34,8 @@ export default function Experience() {
     sectionSize: 2,
     sectionThickness: 2.0,
     sectionColor: "#6794ba",
-    fadeDistance: 20,
-    fadeStrength: 1,
+    fadeDistance: 30,
+    fadeStrength: 2,
     followCamera: false,
     infiniteGrid: true,
   };

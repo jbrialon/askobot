@@ -5,10 +5,11 @@ import styles from "./start.module.scss";
 
 const Start = () => {
   const scene = useStore((state) => state.scene);
+  const isOBS = useStore((state) => state.isOBS);
   const sceneRef = useRef();
 
   useEffect(() => {
-    if (scene === "start") {
+    if (scene === "start" && isOBS) {
       gsap.to(sceneRef.current, {
         autoAlpha: 1,
         duration: 1.5,
@@ -22,7 +23,7 @@ const Start = () => {
         ease: "power1.inOut",
       });
     }
-  }, [scene]);
+  }, [scene, isOBS]);
 
   return (
     <div className={styles["ui-start"]} ref={sceneRef}>
