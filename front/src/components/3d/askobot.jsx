@@ -53,8 +53,8 @@ export default function Askobot() {
       dance: button(() => dance()),
       excited: button(() => excited()),
       looping: button(() => looping()),
-      antennas: button(() => finishedTalking()),
-      wings: button(() => {
+      "Wiggle Antennas": button(() => wiggleAntennas()),
+      "Wiggle Wings": button(() => {
         wings.forEach((wing, index) => {
           const direction = Math.pow(-1, index);
 
@@ -74,19 +74,37 @@ export default function Askobot() {
       zoom: button(() => {
         const origin = {
           y: lens[0].position.z,
+          rotY: lens[0].rotation.y,
         };
         const tl = gsap.timeline();
-        tl.to(lens[0].position, {
-          z: origin.z + 0.005,
+        tl.to(lens[0].rotation, {
+          y: origin.rotY + Math.PI * 0.15,
           duration: 0.5,
           ease: "power1.inOut",
         });
-
-        tl.to(lens[0].position, {
-          z: origin.z,
+        tl.to(
+          lens[1].scale,
+          {
+            y: 0.7,
+            duration: 0.5,
+            ease: "power1.inOut",
+          },
+          "<",
+        );
+        tl.to(lens[0].rotation, {
+          y: origin.rotY,
           duration: 0.5,
           ease: "power1.inOut",
         });
+        tl.to(
+          lens[1].scale,
+          {
+            y: 1,
+            duration: 0.5,
+            ease: "power1.inOut",
+          },
+          "<",
+        );
       }),
     }),
     Equilizer: folder(
@@ -152,6 +170,7 @@ export default function Askobot() {
 
   const batteries = [];
   const lens = [];
+  const lensMesh = [];
   const wings = [];
   const antennas = [];
   model.traverse((child) => {
@@ -162,30 +181,35 @@ export default function Askobot() {
         child.material = equilizerMaterial;
       } else if (child.material.name === "Lens") {
         child.material = lensMaterial;
+        lensMesh.push(child);
       } else if (child.name === "LED001") {
       } else if (child.name.includes("Battery")) {
         batteries.push(child);
       } else if (child.name === "Lens_Baked") {
-        lens.push(child);
+        lensMesh.push(child);
       } else if (child.name === "Text003_Baked") {
-        lens.push(child);
+        lensMesh.push(child);
       }
     }
     if (child instanceof Bone) {
-      //  if (child.name === "Bone007") {
-      //    batteries.push(child);
-      //  } else if (child.name === "Bone008") {
-      //    batteries.push(child);
-      //  }
+      // Wings
       if (child.name === "Bone011") {
         wings.push(child);
       } else if (child.name === "Bone012") {
         wings.push(child);
       }
+      // Antennas
       if (child.name === "Bone005") {
         antennas.push(child);
       } else if (child.name === "Bone006") {
         antennas.push(child);
+      }
+      // Lens
+      if (child.name === "Bone009") {
+        lens.push(child);
+      } else if (child.name === "Bone010") {
+        // glass
+        lens.push(child);
       }
     }
   });
@@ -395,6 +419,11 @@ export default function Askobot() {
       x: origin.rotX + Math.PI * -2,
       duration: totalTime,
       ease: "sine.inOut",
+      onComplete: () => {
+        gsap.set(askobotRef.current.rotation, {
+          x: origin.rotX,
+        });
+      },
     });
 
     const tl = gsap.timeline();
@@ -427,7 +456,7 @@ export default function Askobot() {
     });
   };
 
-  const finishedTalking = () => {
+  const wiggleAntennas = () => {
     antennas.forEach((antenna, index) => {
       const rotX = antenna.rotation.x;
       const tl = gsap.timeline({
@@ -446,6 +475,14 @@ export default function Askobot() {
       });
     });
   };
+
+  // Wiggle Bones
+  // const helper = new WiggleRigHelper({
+  //   skeleton: scene.getObjectByName("Stick").skeleton,
+  //   dotSize: 0.2,
+  //   lineWidth: 0.02,
+  // });
+
   // -----------------------------------------------------------------------------------
   // AUDIO CALLBACKS
   // -----------------------------------------------------------------------------------
@@ -463,9 +500,9 @@ export default function Askobot() {
     }
   };
 
-  const onEndedCallback = () => {
+  const onEndedCallback = (animation) => {
     currentAnimation.current = null;
-    finishedTalking();
+    wiggleAntennas();
   };
 
   // -----------------------------------------------------------------------------------
@@ -488,7 +525,7 @@ export default function Askobot() {
         detune: Math.floor(Math.random() * 121) - 60,
         onPlay: () => onPlayCallback(content.animation),
         onEnded: () => {
-          onEndedCallback(animation);
+          onEndedCallback(content.animation);
         },
       });
     };
@@ -518,6 +555,9 @@ export default function Askobot() {
         duration: 1.5,
         ease: "power2.inOut",
         delay: 1,
+        onComplete: () => {
+          looping();
+        },
       });
 
       gsap.to(askobotRef.current.rotation, {

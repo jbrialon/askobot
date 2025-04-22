@@ -23,7 +23,7 @@ export function useAudioPlayer() {
     volume = 0.3,
     loop = false,
     trim = 0,
-    detune,
+    detune = 0,
     onPlay,
     onEnded,
   }) => {
