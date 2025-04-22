@@ -23,12 +23,13 @@ export function useAudioPlayer() {
     volume = 0.3,
     loop = false,
     trim = 0,
+    detune,
     onPlay,
     onEnded,
   }) => {
     const sound = soundRef.current;
     const handleDecodedBuffer = (decodedBuffer) => {
-      sound.detune = 50;
+      sound.detune = detune;
       sound.setBuffer(decodedBuffer);
       sound.setLoop(loop);
       sound.setVolume(volume);

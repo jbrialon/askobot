@@ -37,8 +37,8 @@ export default class Voice {
         "1Ju3wgDv0NblqqooMpNg",
         {
           text: `"${text}"`,
-          next_text: `, ${emotion}`,
-          model_id: "eleven_multilingual_v2",
+          next_text: `, he said with a ${emotion} voice`,
+          model_id: "eleven_flash_v2_5", // eleven_multilingual_v2
           output_format: "mp3_44100_128",
           voice_settings: {
             stability: 1,
@@ -60,8 +60,7 @@ export default class Voice {
       audioBuffer.toString("base64");
       return audioBuffer;
     } catch (error) {
-      // console.error("Error during text-to-speech conversion:", error);
-      console.log("Error during text-to-speech conversion");
+      console.error("Error during text-to-speech conversion:", error);
       return null;
     }
   }

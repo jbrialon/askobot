@@ -8,7 +8,6 @@ import {
   Bone,
   Color,
   Uniform,
-  MeshNormalMaterial,
   DoubleSide,
 } from "three";
 
@@ -56,7 +55,21 @@ export default function Askobot() {
       looping: button(() => looping()),
       antennas: button(() => finishedTalking()),
       wings: button(() => {
-        wings.forEach((wing) => {});
+        wings.forEach((wing, index) => {
+          const direction = Math.pow(-1, index);
+
+          const tl = gsap.timeline({
+            repeat: 3,
+            yoyo: true, // makes it go back automatically
+          });
+
+          // animate relative to current rotation, using gsap's "+=" syntax
+          tl.to(wing.rotation, {
+            z: "+=" + direction * Math.PI * 0.15,
+            duration: 0.15,
+            ease: "sine.inOut",
+          });
+        });
       }),
       zoom: button(() => {
         const origin = {
@@ -467,14 +480,16 @@ export default function Askobot() {
   useEffect(() => {
     const handler = (e) => {
       const { audioBuffer, user, content } = e.detail;
-      const animation = content.animation;
       playAudio({
         source: audioBuffer ? audioBuffer : "/audio/error.mp3",
         volume: 0.3,
         loop: false,
         trim: 0,
+        detune: Math.floor(Math.random() * 121) - 60,
         onPlay: () => onPlayCallback(content.animation),
-        onEnded: onEndedCallback.bind(animation),
+        onEnded: () => {
+          onEndedCallback(animation);
+        },
       });
     };
     manager.on("voice-data", handler);
