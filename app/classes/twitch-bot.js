@@ -261,17 +261,7 @@ export default class TwitchBot extends EventEmitter {
 
     await this.openAI({
       model: config.model,
-      context: `
-You are Askobot, a \${mood} Robot assistant in a Twitch Channel. Askow also named Askowbol is your creator you are named after him, hence your name Asko-BOT.
-
-The user "\${username}" just said: "\${message}".
-\${context}
-\${genericContext}
-- Return a JSON with:
-  - response
-  - emotion: \${moods}.
-  - animation: \${animations}.
-    `,
+      prompt: `The user "${user.name}" just said: "${message}".`,
       promptVars: buildPromptVars({
         user,
         message,
@@ -290,12 +280,10 @@ The user "\${username}" just said: "\${message}".
           role: "user",
           content: `@${user.name}: ${message}`,
         });
-
         this.chatHistory[channel].push({
           role: "assistant",
           content: result.response,
         });
-
         this.logToDiscord(channel, "Askowbot", result.response);
         this.client.say(channel, `🤖 ${result.response} 🤖`);
         this.emit("voice", {

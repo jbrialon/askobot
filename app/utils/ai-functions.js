@@ -10,24 +10,24 @@ const createOpenAI = () => {
   });
 
   return async function aiFunction({
-    model = "gpt-4o-mini",
-    context = "",
+    model = "gpt-4.1-nano",
+    prompt,
     promptVars = {},
     history = [],
     tools = [],
     outputSchema,
-    temperature = 0.7,
-    maxTokens,
   }) {
     const zodSchema = outputSchema || null;
 
-    const interpolatedContext = Object.entries(promptVars).reduce(
+    promptVars.prompt = prompt;
+
+    const context = Object.entries(promptVars).reduce(
       (p, [key, value]) => p.replace(`\${${key}}`, value),
-      context,
+      config.genericContext,
     );
 
     const messages = [
-      ...(context ? [{ role: "system", content: interpolatedContext }] : []),
+      ...(context ? [{ role: "system", content: context }] : []),
       ...history,
       {
         role: "user",
@@ -38,8 +38,6 @@ const createOpenAI = () => {
     const options = {
       model,
       messages,
-      temperature,
-      max_tokens: maxTokens,
       tools: tools.length > 0 ? tools : undefined, // TODO
       response_format: zodSchema
         ? zodResponseFormat(zodSchema, "structured_output")
@@ -66,11 +64,11 @@ const buildPromptVars = ({ user, message, channelConfig, channelInfo }) => {
     ];
 
   return {
+    time: new Date().toLocaleString(),
     mood: randomMood,
     username: user.name,
     message,
-    context: randomContext,
-    genericContext: config.genericContext || "",
+    channelContext: randomContext,
     title: channelInfo.title,
     game: channelInfo.game,
     desc: channelInfo.description,
