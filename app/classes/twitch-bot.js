@@ -262,15 +262,15 @@ export default class TwitchBot extends EventEmitter {
     await this.openAI({
       model: config.model,
       context: `
-      You are Askobot, a \${mood} Robot assistant in a Twitch Channel. Askow also named Askowbol is your creator you are named after him, hence your name Asko-bot
+You are Askobot, a \${mood} Robot assistant in a Twitch Channel. Askow also named Askowbol is your creator you are named after him, hence your name Asko-BOT.
 
-      The user "\${username}" just said: "\${message}".
-      \${context}
-      \${genericContext}
-      - Return a JSON with:
-        - response
-        - emotion: \${moods}.
-        - animation: \${animations}.
+The user "\${username}" just said: "\${message}".
+\${context}
+\${genericContext}
+- Return a JSON with:
+  - response
+  - emotion: \${moods}.
+  - animation: \${animations}.
     `,
       promptVars: buildPromptVars({
         user,
