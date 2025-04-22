@@ -105,6 +105,21 @@ export default function Askobot() {
           },
           "<",
         );
+
+        const tlZoom = gsap.timeline();
+        const bone = lens[0];
+        const originZ = lens[0].position.z;
+        tlZoom.to(bone.position, {
+          z: bone.position.z + 0.02,
+          duration: 0.5,
+          ease: "power1.inOut",
+        });
+
+        tlZoom.to(bone.position, {
+          z: originZ,
+          duration: 0.5,
+          ease: "power1.inOut",
+        });
       }),
     }),
     Equilizer: folder(
@@ -331,6 +346,47 @@ export default function Askobot() {
       0.05, // slightly after the drop starts
     );
 
+    tl.to(
+      antennas[0].rotation,
+      {
+        z: Math.PI * -0.15,
+        duration: 0.25,
+        ease: "power2.out",
+      },
+      "<",
+    );
+    tl.to(
+      antennas[1].rotation,
+      {
+        z: Math.PI * -0.15,
+        duration: 0.25,
+        ease: "power2.out",
+      },
+      "<",
+    );
+
+    tl.to(
+      antennas[0].rotation,
+      {
+        z: 0,
+        delay: 0.5,
+        duration: 0.5,
+        ease: "power2.out",
+      },
+      "<",
+    );
+
+    tl.to(
+      antennas[1].rotation,
+      {
+        z: 0,
+        //delay: 0.05,
+        duration: 0.5,
+        ease: "power2.out",
+      },
+      "<",
+    );
+
     // Step 4: Move back to position
     const { position } =
       ASKOBOT_TRANSFORMS[scene] ?? ASKOBOT_TRANSFORMS.default;
@@ -338,6 +394,16 @@ export default function Askobot() {
       y: position.y,
       duration: 1,
       ease: "power1.out",
+    });
+    tl.to(antennas[0].rotation, {
+      z: 0,
+      duration: 0.15,
+      ease: "power2.out",
+    });
+    tl.to(antennas[1].rotation, {
+      z: 0,
+      duration: 0.15,
+      ease: "power2.out",
     });
   };
 
