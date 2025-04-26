@@ -31,7 +31,7 @@ twitchBot.on("voice", async (data) => {
       emotion: data.result.emotion,
     });
 
-    io.emit("voice-data", {
+    io.emit("audio-voice", {
       channel: data.channel,
       content: data.result,
       audioBuffer: audioBuffer ? audioBuffer.toString("base64") : null,

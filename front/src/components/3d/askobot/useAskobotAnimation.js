@@ -1,11 +1,16 @@
 import { gsap } from "gsap";
+import { useEffect, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+
 import { ASKOBOT_TRANSFORMS } from "./constants";
 
 export default function useAskobotAnimation(
   ref,
   scene,
-  { wings, antennas, lens },
+  { wings, antennas, lens, batteries },
 ) {
+  const isFirstLoad = useRef(true);
+
   const dance = () => {
     const origin = {
       x: ref.current.position.x,
@@ -386,5 +391,51 @@ export default function useAskobotAnimation(
     });
   };
 
+  // update Askobot position based on Scene
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const { position, rotationY } =
+      ASKOBOT_TRANSFORMS[scene] ?? ASKOBOT_TRANSFORMS.default;
+
+    // we set the initial position and rotation of the bot depending on the scene on first load,
+    // we want to animate it after
+    if (isFirstLoad.current) {
+      ref.current.position.set(position.x, position.y, position.z);
+      ref.current.rotation.y = rotationY;
+      isFirstLoad.current = false;
+    } else {
+      gsap.to(ref.current.position, {
+        x: position.x,
+        y: position.y,
+        z: position.z,
+        duration: 1.5,
+        ease: "power2.inOut",
+        delay: 1,
+        onComplete: () => {
+          looping();
+        },
+      });
+
+      gsap.to(ref.current.rotation, {
+        y: rotationY,
+        duration: 1.75,
+        ease: "elastic.out",
+        delay: 2.25,
+      });
+    }
+  }, [scene]);
+
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    const speed = 12;
+
+    // Battery position update
+    batteries.forEach((battery, index) => {
+      const offset = index * 3;
+      const y = Math.cos(time * speed + offset) * 0.02 - 0.13;
+      battery.position.y = y;
+    });
+  });
   return { dance, spin, excited, looping, wiggleAntennas, wiggleWings, zoom };
 }

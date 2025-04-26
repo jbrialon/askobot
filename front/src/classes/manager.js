@@ -35,8 +35,8 @@ export default class Manager extends EventTarget {
       this.dispatchEvent(new CustomEvent("history", { detail: history }));
     });
 
-    this.socket.on("voice-data", (data) => {
-      this.dispatchEvent(new CustomEvent("voice-data", { detail: data }));
+    this.socket.on("audio-voice", (data) => {
+      this.dispatchEvent(new CustomEvent("audio-voice", { detail: data }));
     });
   }
 

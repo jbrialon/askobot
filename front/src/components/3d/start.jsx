@@ -25,7 +25,7 @@ export default function Start() {
 
   useFrame(() => {
     if (analysis) {
-      manager.trigger("start-audio", analysis);
+      manager.trigger("audio-startScene", analysis);
     }
   });
 
