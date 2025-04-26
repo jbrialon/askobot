@@ -20,12 +20,17 @@ export default class TwitchBot extends EventEmitter {
    */
   constructor() {
     super();
+
+    // Variables
     this.config = config;
     this.chatHistory = {};
     this.lastCommandTime = {};
     this.hostname = os.hostname();
     this.lastBotActivity = Date.now();
     this.isOBS = false;
+    this.idleInterval = null;
+
+    // Setup
     this.openAI = createOpenAI();
     this.client = new tmi.Client({
       options: { debug: true },
@@ -53,6 +58,7 @@ export default class TwitchBot extends EventEmitter {
     // Bind the handleMessage method to ensure correct context
     this.client.on("message", this.handleMessage.bind(this));
 
+    // Init Bot
     this.connect();
     this.startIdleMonitor();
   }
@@ -88,10 +94,14 @@ export default class TwitchBot extends EventEmitter {
    * If no user activity is detected within a set time, it triggers an idle event.
    */
   startIdleMonitor() {
-    setInterval(() => {
+    if (this.idleInterval) {
+      clearInterval(this.idleInterval);
+    }
+
+    this.idleInterval = setInterval(() => {
       const now = Date.now();
       const idleTime = now - this.lastBotActivity;
-      const idleLimit = 2 * 60 * 1000; // 2 minutes
+      const idleLimit = 2 * 60 * 1000; // 2 minutes TODO -> if the chat is busy increase the value
 
       if (idleTime >= idleLimit) {
         this.handleIdle();
@@ -100,10 +110,19 @@ export default class TwitchBot extends EventEmitter {
   }
 
   /**
+   * Stops the idle activity monitor by clearing the active interval.
+   */
+  stopIdleMonitor() {
+    if (this.idleInterval) {
+      clearInterval(this.idleInterval);
+      this.idleInterval = null;
+    }
+  }
+
+  /**
    * Handles the idle event when no activity is detected.
    * Sends a random idle message to the channel.
    */
-
   async handleIdle() {
     console.log("Twitch Bot : handleIdle Event");
     // ideas
