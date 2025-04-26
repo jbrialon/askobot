@@ -31,9 +31,13 @@ const createOpenAI = () => {
       ...history,
       {
         role: "user",
-        content: `@${promptVars.username}: ${promptVars.message}`,
+        content: promptVars.username
+          ? `@${promptVars.username}: ${promptVars.message}`
+          : promptVars.message,
       },
     ];
+
+    console.log(messages);
 
     const options = {
       model,

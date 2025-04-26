@@ -37,6 +37,8 @@ export default class Socket {
       } else {
         console.log("New client connected");
       }
+      // inform the Twitch Bot we are connected to OBS
+      this.twitchBot.setIsOBS(this.isOBS);
 
       // Send current chat history to the connected client
       socket.emit("chat-history", this.chatHistory);
@@ -47,6 +49,10 @@ export default class Socket {
 
       socket.on("bot-askAskobot", (user, message) => {
         this.twitchBot.askAskobot("#askowbol", user, message);
+      });
+
+      socket.on("bot-reactToEvent", (eventType, data) => {
+        this.twitchBot.reactToEvent("#askowbol", eventType, data);
       });
     });
   }
@@ -68,7 +74,6 @@ export default class Socket {
           channel: data.channel,
           content: data.result,
           audioBuffer: audioBuffer ? audioBuffer.toString("base64") : null,
-          user: data.user,
         });
       }
     });

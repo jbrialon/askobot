@@ -47,6 +47,15 @@ function App() {
               disabled: !isDev,
             },
           ),
+          fakeEvent: button(() => {
+            const data = {
+              sceneName: "live",
+            };
+            manager.trigger("bot-reactToEvent", {
+              eventType: "scene-change",
+              data,
+            });
+          }),
         },
         {
           collapsed: true,

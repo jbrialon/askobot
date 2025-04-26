@@ -31,6 +31,12 @@ export default class Manager extends EventTarget {
       this.socket.emit("bot-askAskobot", user, message);
     });
 
+    this.addEventListener("bot-reactToEvent", (e) => {
+      const { eventType, data } = e.detail;
+
+      this.socket.emit("bot-reactToEvent", eventType, data);
+    });
+
     this.socket.on("chat-history", (history) => {
       this.dispatchEvent(new CustomEvent("chat-history", { detail: history }));
     });
@@ -48,7 +54,18 @@ export default class Manager extends EventTarget {
   initOBSEvents() {
     if (this.isOBS) {
       window.addEventListener("obsSceneChanged", (event) => {
-        useStore.getState().setScene(event.detail.name);
+        const data = {
+          sceneName: event.detail.name,
+        };
+
+        // emit event to bot so he can react to
+        this.socket.emit("bot-reactToEvent", {
+          eventType: "scene-change",
+          data,
+        });
+
+        // update store
+        useStore.getState().setScene(data.sceneName);
       });
     } else {
       // dev mode
