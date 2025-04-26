@@ -1,47 +1,26 @@
 import "dotenv/config";
 import express from "express";
 import path from "path";
-import http from "http";
 import cors from "cors";
-import { Server as SocketIOServer } from "socket.io";
+import http from "http";
 import { fileURLToPath } from "url";
 
-import config from "./config.js";
+// Classes
+import Socket from "./app/classes/socket.js";
 import Voice from "./app/classes/voice.js";
-
 import TwitchBot from "./app/classes/twitch-bot.js";
+
+// Config
+import config from "./config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const chatHistory = [];
 
-const voice = new Voice();
 const twitchBot = new TwitchBot();
-twitchBot.connect();
+const voice = new Voice();
 
-twitchBot.on("chat", (data) => {
-  chatHistory.push(data);
-  io.emit("history", chatHistory);
-});
-
-twitchBot.on("voice", async (data) => {
-  if (data.channel === "#askowbol") {
-    const audioBuffer = await voice.convertAsStream({
-      text: data.result.response,
-      emotion: data.result.emotion,
-    });
-
-    io.emit("audio-voice", {
-      channel: data.channel,
-      content: data.result,
-      audioBuffer: audioBuffer ? audioBuffer.toString("base64") : null,
-      user: data.user,
-    });
-  }
-});
-
+// init express server
 const app = express();
-
 if (process.env.APP_ENV === "development") {
   app.use(
     cors({
@@ -54,35 +33,7 @@ if (process.env.APP_ENV === "development") {
 // Serve static files from the front-end build directory
 const distPath = path.join(__dirname, "front", "dist");
 app.use(express.static(distPath));
-
 const server = http.createServer(app);
-const io = new SocketIOServer(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
-
-io.on("connection", (socket) => {
-  const isOBS = socket.handshake.query.isOBS === "true";
-  if (isOBS) {
-    console.log("New client connected running on OBS");
-  } else {
-    console.log("New client connected");
-  }
-
-  // Send current chat history to the connected client
-  socket.emit("history", chatHistory);
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
-
-  socket.on("ask-askobot", (user, message) => {
-    twitchBot.askAskobot("#askowbol", user, message);
-  });
-});
 
 server.listen(config.port, () => {
   console.log(
@@ -94,3 +45,6 @@ server.listen(config.port, () => {
 app.get("/", (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
+
+// init Socket IO Server
+new Socket({ server, twitchBot, voice });

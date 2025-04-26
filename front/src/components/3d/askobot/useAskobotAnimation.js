@@ -2,6 +2,7 @@ import { gsap } from "gsap";
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
+import { curve, curvePoints } from "../splines/curves";
 import { ASKOBOT_TRANSFORMS } from "./constants";
 
 export default function useAskobotAnimation(
@@ -354,7 +355,7 @@ export default function useAskobotAnimation(
     tl.to(
       lens[1].scale,
       {
-        y: 0.7,
+        y: 1.55,
         duration: 0.5,
         ease: "power1.inOut",
       },
@@ -388,6 +389,20 @@ export default function useAskobotAnimation(
       z: originZ,
       duration: 0.5,
       ease: "power1.inOut",
+    });
+  };
+
+  const followCurve = () => {
+    const values = { property: 0 };
+
+    gsap.to(values, {
+      property: 1,
+      duration: 1.5,
+      onUpdate: () => {
+        const point = curve.getPointAt(values.property);
+        ref.current.position.copy(point);
+      },
+      ease: "none",
     });
   };
 
@@ -437,5 +452,14 @@ export default function useAskobotAnimation(
       battery.position.y = y;
     });
   });
-  return { dance, spin, excited, looping, wiggleAntennas, wiggleWings, zoom };
+  return {
+    dance,
+    spin,
+    excited,
+    looping,
+    wiggleAntennas,
+    wiggleWings,
+    zoom,
+    followCurve,
+  };
 }

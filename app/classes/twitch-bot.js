@@ -52,6 +52,8 @@ export default class TwitchBot extends EventEmitter {
 
     // Bind the handleMessage method to ensure correct context
     this.client.on("message", this.handleMessage.bind(this));
+
+    this.connect();
   }
 
   /**
@@ -91,7 +93,7 @@ export default class TwitchBot extends EventEmitter {
 
     tags.timestamp = Date.now();
 
-    this.emit("chat", {
+    this.emit("bot-chat", {
       channel,
       tags,
       message,
@@ -286,7 +288,7 @@ export default class TwitchBot extends EventEmitter {
         });
         this.logToDiscord(channel, "Askowbot", result.response);
         this.client.say(channel, `🤖 ${result.response} 🤖`);
-        this.emit("voice", {
+        this.emit("bot-voice", {
           channel,
           result,
           user,

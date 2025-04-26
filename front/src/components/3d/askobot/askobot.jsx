@@ -5,15 +5,15 @@ import { useEffect, useRef, useMemo } from "react";
 import { Float, useGLTF } from "@react-three/drei";
 
 // App
-import Manager from "../../classes/manager";
-import useAskobotModel from "./askobot/useAskobotModel";
-import useAskobotMaterials from "./askobot/useAskobotMaterials";
-import useAskobotAnimation from "./askobot/useAskobotAnimation";
-import useAskobotAudio from "./askobot/useAskobotAudio";
-import useAskobotControls from "./askobot/useAskobotControls";
+import Manager from "../../../classes/manager";
+import useAskobotModel from "./useAskobotModel";
+import useAskobotMaterials from "./useAskobotMaterials";
+import useAskobotAnimation from "./useAskobotAnimation";
+import useAskobotAudio from "./useAskobotAudio";
+import useAskobotControls from "./useAskobotControls";
 
 // Store
-import { useStore } from "../../store/store";
+import { useStore } from "../../../store/store";
 
 export default function Askobot() {
   const manager = useMemo(() => new Manager(), []);
@@ -52,7 +52,7 @@ export default function Askobot() {
     equilizer.material = equalizerMaterial;
   }, [equilizer, lensMaterial, equalizerMaterial]);
 
-  // Dance Intro animation (TODO: Enhanceand move logic)
+  // Dance Intro animation (TODO: Enhance and move logic)
   useEffect(() => {
     let rotationTween = null;
 

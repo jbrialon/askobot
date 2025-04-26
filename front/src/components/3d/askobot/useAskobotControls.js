@@ -1,8 +1,16 @@
 import { useControls, folder, button } from "leva";
 
 export default function useAskobotControls(animations) {
-  const { spin, dance, excited, looping, wiggleAntennas, wiggleWings, zoom } =
-    animations;
+  const {
+    spin,
+    dance,
+    excited,
+    looping,
+    wiggleAntennas,
+    wiggleWings,
+    zoom,
+    followCurve,
+  } = animations;
 
   const controls = useControls("Bot", {
     Animations: folder({
@@ -13,6 +21,7 @@ export default function useAskobotControls(animations) {
       "Wiggle Antennas": button(() => wiggleAntennas()),
       "Wiggle Wings": button(() => wiggleWings()),
       zoom: button(() => zoom()),
+      followCurve: button(() => followCurve()),
     }),
     Equilizer: folder(
       {
