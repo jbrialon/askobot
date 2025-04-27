@@ -38,7 +38,7 @@ function App() {
             (get) => {
               const username = get("Bot.Ask.username");
               const message = get("Bot.Ask.message");
-              manager.trigger("ask-askobot", {
+              manager.trigger("bot-askAskobot", {
                 username,
                 message,
               });
@@ -47,6 +47,15 @@ function App() {
               disabled: !isDev,
             },
           ),
+          fakeEvent: button(() => {
+            const data = {
+              sceneName: "live",
+            };
+            manager.trigger("bot-reactToEvent", {
+              eventType: "scene-change",
+              data,
+            });
+          }),
         },
         {
           collapsed: true,

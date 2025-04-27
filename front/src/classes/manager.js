@@ -22,21 +22,27 @@ export default class Manager extends EventTarget {
   }
 
   initSocketEvents() {
-    this.addEventListener("ask-askobot", (e) => {
+    this.addEventListener("bot-askAskobot", (e) => {
       const { username, message } = e.detail;
       const user = {
         name: username,
         color: "#ff00ff",
       };
-      this.socket.emit("ask-askobot", user, message);
+      this.socket.emit("bot-askAskobot", user, message);
     });
 
-    this.socket.on("history", (history) => {
-      this.dispatchEvent(new CustomEvent("history", { detail: history }));
+    this.addEventListener("bot-reactToEvent", (e) => {
+      const { eventType, data } = e.detail;
+
+      this.socket.emit("bot-reactToEvent", eventType, data);
     });
 
-    this.socket.on("voice-data", (data) => {
-      this.dispatchEvent(new CustomEvent("voice-data", { detail: data }));
+    this.socket.on("chat-history", (history) => {
+      this.dispatchEvent(new CustomEvent("chat-history", { detail: history }));
+    });
+
+    this.socket.on("audio-voice", (data) => {
+      this.dispatchEvent(new CustomEvent("audio-voice", { detail: data }));
     });
   }
 
@@ -48,7 +54,18 @@ export default class Manager extends EventTarget {
   initOBSEvents() {
     if (this.isOBS) {
       window.addEventListener("obsSceneChanged", (event) => {
-        useStore.getState().setScene(event.detail.name);
+        const data = {
+          sceneName: event.detail.name,
+        };
+
+        // emit event to bot so he can react to
+        // this.socket.emit("bot-reactToEvent", {
+        //   eventType: "scene-change",
+        //   data,
+        // });
+
+        // update store
+        useStore.getState().setScene(data.sceneName);
       });
     } else {
       // dev mode

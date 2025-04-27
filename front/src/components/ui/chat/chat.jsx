@@ -46,8 +46,8 @@ const Chat = () => {
       setChatHistory(parsed);
     };
 
-    manager.on("history", handler);
-    return () => manager.off("history", handler);
+    manager.on("chat-history", handler);
+    return () => manager.off("chat-history", handler);
   }, []);
 
   return (
