@@ -8,7 +8,7 @@ import Camera from "./camera";
 import Environment from "./environment";
 import Askobot from "./askobot/askobot";
 import Start from "./start";
-import Splines from "./splines/splines";
+
 // Store
 import { useStore } from "../../store/store";
 
@@ -68,7 +68,6 @@ export default function Experience() {
         <Suspense>
           <Askobot />
         </Suspense>
-        <Splines></Splines>
         <Start />
         <Grid
           position-y={gridPosition}

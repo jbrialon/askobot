@@ -6,12 +6,13 @@ import {
   DoubleSide,
   Uniform,
   Color,
+  MeshStandardMaterial,
 } from "three";
 import vertexShader from "./../../../shaders/vertex.glsl";
 import fragmentShader from "./../../../shaders/fragment.glsl";
 
 export default function useAskobotMaterials(barNumber, barColor) {
-  const { lensMaterial, equalizerMaterial } = useMemo(() => {
+  const { lensMaterial, equalizerMaterial, ledMaterial } = useMemo(() => {
     const lensMaterial = new MeshPhysicalMaterial({
       metalness: 0.9,
       roughness: 0.05,
@@ -38,7 +39,11 @@ export default function useAskobotMaterials(barNumber, barColor) {
       fragmentShader,
     });
 
-    return { lensMaterial, equalizerMaterial };
+    const ledMaterial = new MeshStandardMaterial({
+      transparent: true,
+      color: [0.21994854509830475, 0.013376367278397083, 0.004396415781229734],
+    });
+    return { lensMaterial, equalizerMaterial, ledMaterial };
   }, []);
 
   useEffect(() => {
@@ -49,5 +54,5 @@ export default function useAskobotMaterials(barNumber, barColor) {
     equalizerMaterial.uniforms.uBarColor.value.set(barColor);
   }, [barColor, equalizerMaterial]);
 
-  return { lensMaterial, equalizerMaterial };
+  return { lensMaterial, equalizerMaterial, ledMaterial };
 }

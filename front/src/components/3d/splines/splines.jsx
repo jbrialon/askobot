@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Line } from "@react-three/drei";
-import { curve, curvePoints } from "../splines/curves";
+import * as THREE from "three";
 
-export default function Splines() {
-  const [showSplines, setShowSplines] = useState(false);
+export default function Splines({ curvePoints, curve }) {
+  const [showSplines, setShowSplines] = useState(true);
+  // if (!position) return null;
+
   return (
     <>
       {showSplines && curvePoints.length > 0 && (
@@ -11,7 +13,7 @@ export default function Splines() {
       )}
       {showSplines &&
         curvePoints.map((point, index) => (
-          <mesh position={point} scale={0.05} key={index}>
+          <mesh position={point} scale={0.005} key={index}>
             <sphereGeometry />
             <meshStandardMaterial color="orange" />
           </mesh>

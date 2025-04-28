@@ -10,6 +10,7 @@ export default function useAskobotControls(animations) {
     wiggleWings,
     zoom,
     followCurve,
+    blink,
   } = animations;
 
   const controls = useControls("Bot", {
@@ -22,6 +23,7 @@ export default function useAskobotControls(animations) {
       "Wiggle Wings": button(() => wiggleWings()),
       zoom: button(() => zoom()),
       followCurve: button(() => followCurve()),
+      blink: button(() => blink()),
     }),
     Equilizer: folder(
       {
@@ -30,13 +32,18 @@ export default function useAskobotControls(animations) {
       },
       { collapsed: true },
     ),
+    Led: folder({
+      ledColor: {
+        value: "#6ac4f2",
+      },
+    }),
   });
 
-  const { barNumber, barColor, power } = controls;
+  const { barNumber, barColor, ledColor } = controls;
 
   return {
     barNumber,
     barColor,
-    power,
+    ledColor,
   };
 }

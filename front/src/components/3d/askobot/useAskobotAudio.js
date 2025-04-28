@@ -24,8 +24,8 @@ export default function useAskobotAudio(
         volume: 0.3,
         loop: false,
         trim: 0,
-        detune: Math.floor(Math.random() * 121) - 60, // between 60 and -60
         onPlay: () => {
+          animations.blink();
           switch (animation) {
             case "dance":
               return animations.dance();
@@ -41,6 +41,7 @@ export default function useAskobotAudio(
         },
         onEnded: () => {
           currentAnimation.current = null;
+          animations.blink();
           animations.wiggleAntennas();
         },
       });

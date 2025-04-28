@@ -8,7 +8,8 @@ import { ASKOBOT_TRANSFORMS } from "./constants";
 export default function useAskobotAnimation(
   ref,
   scene,
-  { wings, antennas, lens, batteries },
+  curve,
+  { wings, antennas, lens, batteries, led },
 ) {
   const isFirstLoad = useRef(true);
 
@@ -395,9 +396,26 @@ export default function useAskobotAnimation(
   const followCurve = () => {
     const values = { property: 0 };
 
+    const origin = {
+      position: ref.current.position,
+      rotX: ref.current.rotation.x,
+    };
+
+    const totalTime = 1;
+    gsap.to(ref.current.rotation, {
+      x: origin.rotX + Math.PI * -2,
+      duration: totalTime,
+      ease: "sine.inOut",
+      onComplete: () => {
+        gsap.set(ref.current.rotation, {
+          x: origin.rotX,
+        });
+      },
+    });
+
     gsap.to(values, {
       property: 1,
-      duration: 1.5,
+      duration: totalTime,
       onUpdate: () => {
         const point = curve.getPointAt(values.property);
         ref.current.position.copy(point);
@@ -406,6 +424,23 @@ export default function useAskobotAnimation(
     });
   };
 
+  const blink = () => {
+    const tl = new gsap.timeline({
+      repeat: 1,
+    });
+    console.log(led);
+    tl.to(led.material, {
+      opacity: 0.25,
+      duration: 0.25,
+      ease: "power4.inOut",
+    });
+
+    tl.to(led.material, {
+      opacity: 1,
+      duration: 0.25,
+      ease: "power4.inOut",
+    });
+  };
   // update Askobot position based on Scene
   useEffect(() => {
     if (!ref.current) return;
@@ -461,5 +496,6 @@ export default function useAskobotAnimation(
     wiggleWings,
     zoom,
     followCurve,
+    blink,
   };
 }
