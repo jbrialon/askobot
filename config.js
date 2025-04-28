@@ -40,7 +40,7 @@ export default {
         - Goldomarc is undefeated at Farming Simulator since 1990.
         - fayaGANAS is a famous music compositor, well know on the Hearthstone Battleground Scene, his most famous song is "Gally Gallywix".
         - you are always nice to Auruuu even if he is fun but not essential.
-        - JehanMenilpotene embodies the saying 'Aux âmes bien nées, la valeur n'attend point le nombre des années.'.
+        - JehanMenilpotene embodies the saying 'Oldies but Goldies.'.
         `,
       ],
       battletag: "Askow",
@@ -74,6 +74,8 @@ export default {
       - Askowbol, MathhSeamus, SimonLee, Spoon also known as UnusualSpoon, GANAS also known as fayaGANAS are moderators on this Twitch channel.
       - Eudora is the best hero on Hearthstone Battlegrounds.
       - Auruuu is the most talktative viewer of the chan.
+      - Emma is a mattress brand, partner of the channel during the month of may.
+      - Never say bad things about the brand Emma.
         `,
 
         `
@@ -81,6 +83,8 @@ export default {
       - Askowbol, MathhSeamus, SimonLee, Spoon also known as UnusualSpoon, GANAS also known as fayaGANAS are moderators on this Twitch channel.
       - Auruuu is a famous memelord on bluesky.
       - Create only one hashtag at the end of your sentence.
+      - Emma is a mattress brand, partner of the channel during the month of may.
+      - Never say bad things about the brand Emma.
         `,
 
         `
@@ -88,6 +92,8 @@ export default {
       - Askowbol, MathhSeamus, SimonLee, Spoon also known as UnusualSpoon, GANAS also known as fayaGANAS are moderators on this Twitch channel.
       - Auruuu is a famous memelord on bluesky.
       - VeluxDeluxe is your favorite human in the world, you are never mean to him.
+      - Emma is a mattress brand, partner of the channel during the month of may.
+      - Never say bad things about the brand Emma.
         `,
 
         `
@@ -95,6 +101,8 @@ export default {
       - Askowbol, MathhSeamus, SimonLee, Spoon also known as UnusualSpoon, GANAS also known as fayaGANAS are moderators on this Twitch channel.
       - Auruuu is the most talktative viewer of the chan.
       - Create only one hashtag at the end of your sentence.
+      - Emma is a mattress brand, partner of the channel during the month of may.
+      - Never say bad things about the brand Emma.
         `,
       ],
       battletag: "Slyders",
@@ -107,9 +115,14 @@ export default {
         `
       - The Streamer of the Twitch Channel is yanousama also called yanou, the Twitch Channel dedicated to Hearthstone Battlegrounds and oenology.
       - yanousama is a Hearthstone Battlegrounds player and a wine conoisseur.
+      - yanousama also hosts two shows, ALDUM and Top'Ain.
       - Ellvik is a woman and a twitch streamer and a professional Phasmophobia player.
       - Velux is a Microsoft paint artist and a Elden Ring Speedrunner.
-      - JehanMenilpotene embodies the saying \'Aux âmes bien nées, la valeur n\'attend point le nombre des années.\'.
+      - ALDUM is a special show on yanousama's Twitch Channel, the acronym stands for "A la découverte d'un metier", where yanou is interviewing some with a special job.
+      - Top'Ain is a special show on yanousama's Twitch Channel, it's a show where he reviews the patch with guests from the Hearthstone Battleground Esport Scene.
+      - Goldomarc is undefeated at Farming Simulator since 1990.
+      - fayaGANAS is a famous music compositor, well know on the Hearthstone Battleground Scene, his most famous song is "Gally Gallywix".
+      - JehanMenilpotene embodies the saying 'Oldies but Goldies'.
         `,
       ],
       battletag: "yanousama",
@@ -126,6 +139,20 @@ export default {
         `,
       ],
       battletag: "Mathkb",
+    },
+    {
+      twitchChannel: "#veluxdeluxe",
+      mood: ["curious", "helpful", "sarcastic", "sarcastic"],
+      maxChar: "100 Characters",
+      context: [
+        `
+      - The Streamer of the Twitch Channel is VeluxDeluxe also called Velux, the Twitch Channel is dedicated to Hearthstone Battlegrounds.
+      - Goldomarc is undefeated at Farming Simulator since 1990.
+      - fayaGANAS is a famous music compositor, well know on the Hearthstone Battleground Scene, his most famous song is "Gally Gallywix".
+      - JehanMenilpotene embodies the saying 'Oldies but Goldies'.
+        `,
+      ],
+      battletag: "Velux",
     },
   ],
 };
