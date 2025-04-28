@@ -40,17 +40,20 @@ export default function Askobot() {
   //     ]
   //   : [];
   const curvePoints = [];
-  const radius = 0.6;
-
+  const radius = 0.4;
+  const step = 15; // every 15 degrees
   if (position) {
     for (let i = 0; i <= 360; i++) {
-      curvePoints.push(
-        new Vector3(
-          position.x,
-          position.y + Math.sin(i * (Math.PI / 180)) * radius,
-          position.z + Math.cos(i * (Math.PI / 180)) * radius,
-        ),
-      );
+      if (i % step === 0) {
+        const angle = (i * Math.PI) / 180 - Math.PI / 2; // Offset by -90 degrees, we want the circle to start at the lowest point
+        curvePoints.push(
+          new Vector3(
+            position.x,
+            position.y + Math.sin(angle) * radius + radius, // + radius so the lowest point is at the center of the model
+            position.z + Math.cos(angle) * radius,
+          ),
+        );
+      }
     }
   }
   const curve = new CatmullRomCurve3(curvePoints);

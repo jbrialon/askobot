@@ -401,7 +401,7 @@ export default function useAskobotAnimation(
       rotX: ref.current.rotation.x,
     };
 
-    const totalTime = 1;
+    const totalTime = 0.6;
     gsap.to(ref.current.rotation, {
       x: origin.rotX + Math.PI * -2,
       duration: totalTime,

@@ -102,7 +102,7 @@ export default class TwitchBot extends EventEmitter {
     this.idleInterval = setInterval(() => {
       const now = Date.now();
       const idleTime = now - this.lastBotActivity;
-      const idleLimit = 10 * 60 * 1000; // 5 minutes TODO -> if the chat is busy increase the value
+      const idleLimit = 10 * 60 * 1000; // 10 minutes TODO -> if the chat is busy increase the value
 
       if (idleTime >= idleLimit) {
         this.handleIdle();
@@ -176,7 +176,7 @@ export default class TwitchBot extends EventEmitter {
     //   });
     // }
 
-    if (tags["first-msg"] === true) {
+    if (tags["first-msg"] === true && channel === "#askowbol") {
       await this.reactToEvent("#askowbol", {
         eventType: "first-message",
         data: { username: tags["display-name"] },
