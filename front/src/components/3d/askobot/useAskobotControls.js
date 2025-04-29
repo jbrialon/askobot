@@ -32,11 +32,14 @@ export default function useAskobotControls(animations) {
       },
       { collapsed: true },
     ),
-    Led: folder({
-      ledColor: {
-        value: "#6ac4f2",
+    Led: folder(
+      {
+        ledColor: {
+          value: "#2cb4f8",
+        },
       },
-    }),
+      { collapsed: true },
+    ),
   });
 
   const { barNumber, barColor, ledColor } = controls;

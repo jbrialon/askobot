@@ -2,21 +2,24 @@ import { gsap } from "gsap";
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
-import { curve, curvePoints } from "../splines/curves";
+import {
+  looping as loopingCurves,
+  intro as introCurves,
+} from "../spline/curves";
 import { ASKOBOT_TRANSFORMS } from "./constants";
 
 export default function useAskobotAnimation(
   ref,
+  groupRef,
   scene,
-  curve,
   { wings, antennas, lens, batteries, led },
 ) {
   const isFirstLoad = useRef(true);
 
   const dance = () => {
     const origin = {
-      x: ref.current.position.x,
-      y: ref.current.position.y,
+      x: 0,
+      y: 0,
       rotY: ref.current.rotation.y,
       rotZ: ref.current.rotation.z,
     };
@@ -32,7 +35,7 @@ export default function useAskobotAnimation(
     tl.to(
       ref.current.position,
       {
-        x: origin.x - 0.2,
+        x: -0.2,
         duration: 0.3,
         ease: "sine.inOut",
       },
@@ -40,7 +43,7 @@ export default function useAskobotAnimation(
     );
 
     tl.to(ref.current.position, {
-      y: origin.y - 0.05,
+      y: -0.05,
       duration: 0.15,
       yoyo: true,
       repeat: 3,
@@ -57,8 +60,8 @@ export default function useAskobotAnimation(
     tl.to(
       ref.current.position,
       {
-        x: origin.x + 0.2,
-        y: origin.y,
+        x: 0.2,
+        y: 0,
         duration: 0.5,
       },
       "<",
@@ -66,7 +69,7 @@ export default function useAskobotAnimation(
 
     // Bounce again
     tl.to(ref.current.position, {
-      y: origin.y - 0.05,
+      y: -0.05,
       duration: 0.15,
       yoyo: true,
       repeat: 3,
@@ -83,8 +86,8 @@ export default function useAskobotAnimation(
     tl.to(
       ref.current.position,
       {
-        x: origin.x,
-        y: origin.y,
+        x: 0,
+        y: 0,
         duration: 0.5,
       },
       "<",
@@ -100,7 +103,7 @@ export default function useAskobotAnimation(
 
     // Step 1: Move slightly down
     tl.to(ref.current.position, {
-      y: origin.y - 0.04,
+      y: 0.04,
       duration: 0.25,
       ease: "power1.out",
     });
@@ -109,7 +112,7 @@ export default function useAskobotAnimation(
     tl.to(
       ref.current.position,
       {
-        y: origin.y,
+        y: 0,
         duration: 0.6,
         ease: "bounce.out",
       },
@@ -169,10 +172,9 @@ export default function useAskobotAnimation(
     );
 
     // Step 4: Move back to position
-    const { position } =
-      ASKOBOT_TRANSFORMS[scene] ?? ASKOBOT_TRANSFORMS.default;
+
     tl.to(ref.current.position, {
-      y: position.y,
+      y: 0,
       duration: 1,
       ease: "power1.out",
     });
@@ -189,11 +191,6 @@ export default function useAskobotAnimation(
   };
 
   const excited = () => {
-    const origin = {
-      y: ref.current.position.y,
-      scaleY: ref.current.scale.y,
-    };
-
     const tl = gsap.timeline({
       repeat: 1,
     });
@@ -211,7 +208,7 @@ export default function useAskobotAnimation(
     tl.to(
       ref.current.position,
       {
-        y: origin.y + 0.25,
+        y: 0.25,
         duration: 0.25,
         ease: "power2.out",
       },
@@ -233,7 +230,7 @@ export default function useAskobotAnimation(
 
     // Step 4: Fall back down
     tl.to(ref.current.position, {
-      y: origin.y,
+      y: 0,
       duration: 0.3,
       ease: "power2.out",
     });
@@ -257,52 +254,40 @@ export default function useAskobotAnimation(
   const looping = () => {
     if (!ref.current) return;
 
+    const speed = 0.6;
+    const values = { property: 0 };
     const origin = {
-      position: ref.current.position,
       rotX: ref.current.rotation.x,
     };
 
-    const amplitude = 3.5;
-    const totalTime = 0.5;
-    gsap.to(ref.current.rotation, {
-      x: origin.rotX + Math.PI * -2,
-      duration: totalTime,
-      ease: "sine.inOut",
+    const tl = gsap.timeline({
       onComplete: () => {
         gsap.set(ref.current.rotation, {
           x: origin.rotX,
         });
+        wiggleAntennas();
+        wiggleWings();
+        zoom();
       },
     });
-
-    const tl = gsap.timeline();
-    tl.to(ref.current.position, {
-      y: origin.position.y + 0.1 * amplitude,
-      z: origin.position.z + 0.1 * amplitude,
-      duration: totalTime / 4,
-      ease: "power1.in",
+    tl.to(ref.current.rotation, {
+      x: origin.rotX + Math.PI * -2,
+      duration: speed,
+      ease: "sine.inOut",
     });
-
-    tl.to(ref.current.position, {
-      y: origin.position.y + 0.2 * amplitude,
-      z: origin.position.z,
-      duration: totalTime / 4,
-      ease: "none",
-    });
-
-    tl.to(ref.current.position, {
-      y: origin.position.y + 0.1 * amplitude,
-      z: origin.position.z - 0.2 * amplitude,
-      duration: totalTime / 4,
-      ease: "none",
-    });
-
-    tl.to(ref.current.position, {
-      y: origin.position.y,
-      z: origin.position.z,
-      duration: totalTime / 4,
-      ease: "power1.out",
-    });
+    tl.to(
+      values,
+      {
+        property: 1,
+        duration: speed,
+        onUpdate: () => {
+          const point = loopingCurves.curve.getPointAt(values.property);
+          ref.current.position.copy(point);
+        },
+        ease: "sine.inOut",
+      },
+      "<",
+    );
   };
 
   const wiggleAntennas = () => {
@@ -393,42 +378,79 @@ export default function useAskobotAnimation(
     });
   };
 
+  // use to debug
   const followCurve = () => {
+    animateIntro("live");
+  };
+
+  const animateIntro = (scene) => {
+    const transform = ASKOBOT_TRANSFORMS[scene] ?? ASKOBOT_TRANSFORMS.default;
+    const { rotationY } = transform;
+
     const values = { property: 0 };
+    const speed = 1.0;
 
-    const origin = {
-      position: ref.current.position,
-      rotX: ref.current.rotation.x,
-    };
+    const isForward = scene === "live";
 
-    const totalTime = 0.6;
-    gsap.to(ref.current.rotation, {
-      x: origin.rotX + Math.PI * -2,
-      duration: totalTime,
-      ease: "sine.inOut",
+    const tl = gsap.timeline({
       onComplete: () => {
-        gsap.set(ref.current.rotation, {
-          x: origin.rotX,
-        });
+        looping();
+        //groupRef.current.position.set(position);
       },
     });
 
-    gsap.to(values, {
-      property: 1,
-      duration: totalTime,
-      onUpdate: () => {
-        const point = curve.getPointAt(values.property);
-        ref.current.position.copy(point);
+    // Animate along curve
+    tl.to(
+      values,
+      {
+        property: 1,
+        duration: speed,
+        onUpdate: () => {
+          const t = values.property;
+          const point = isForward
+            ? introCurves.curve.getPointAt(t)
+            : introCurves.curve.getPointAt(1 - t); // reverse direction
+          groupRef.current.position.copy(point);
+        },
+        ease: "sine.in",
       },
-      ease: "none",
+      ">-0.15",
+    );
+
+    // Dip again AFTER the curve ends
+    tl.to(
+      ref.current.position,
+      {
+        y: -0.05,
+        duration: 0.25,
+        ease: "sine.inOut",
+      },
+      ">-0.1",
+    );
+
+    // Return to final Y position
+    tl.to(ref.current.position, {
+      y: 0,
+      duration: 0.25,
+      ease: "sine.out",
     });
+
+    tl.to(
+      groupRef.current.rotation,
+      {
+        y: rotationY,
+        duration: 1,
+        ease: "sine.out",
+      },
+      ">-1",
+    );
   };
 
   const blink = () => {
     const tl = new gsap.timeline({
       repeat: 1,
     });
-    console.log(led);
+
     tl.to(led.material, {
       opacity: 0.25,
       duration: 0.25,
@@ -441,9 +463,10 @@ export default function useAskobotAnimation(
       ease: "power4.inOut",
     });
   };
+
   // update Askobot position based on Scene
   useEffect(() => {
-    if (!ref.current) return;
+    if (!groupRef.current) return;
 
     const { position, rotationY } =
       ASKOBOT_TRANSFORMS[scene] ?? ASKOBOT_TRANSFORMS.default;
@@ -451,28 +474,11 @@ export default function useAskobotAnimation(
     // we set the initial position and rotation of the bot depending on the scene on first load,
     // we want to animate it after
     if (isFirstLoad.current) {
-      ref.current.position.set(position.x, position.y, position.z);
-      ref.current.rotation.y = rotationY;
+      groupRef.current.position.set(position.x, position.y, position.z);
+      groupRef.current.rotation.y = rotationY;
       isFirstLoad.current = false;
     } else {
-      gsap.to(ref.current.position, {
-        x: position.x,
-        y: position.y,
-        z: position.z,
-        duration: 1.5,
-        ease: "power2.inOut",
-        delay: 1,
-        onComplete: () => {
-          looping();
-        },
-      });
-
-      gsap.to(ref.current.rotation, {
-        y: rotationY,
-        duration: 1.75,
-        ease: "elastic.out",
-        delay: 2.25,
-      });
+      animateIntro(scene);
     }
   }, [scene]);
 

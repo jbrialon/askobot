@@ -1,8 +1,8 @@
 import { gsap } from "gsap";
-import { Color, CatmullRomCurve3, Vector3 } from "three";
+import { Color } from "three";
 
 // React
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { Float, useGLTF } from "@react-three/drei";
 
 // App
@@ -16,53 +16,23 @@ import useAskobotControls from "./useAskobotControls";
 // Store
 import { useStore } from "../../../store/store";
 
+// Curves
+import { looping, intro } from "../spline/curves";
+
 // Components
-import Splines from "../splines/splines";
+import Spline from "../spline/spline";
 
 export default function Askobot() {
   const manager = useMemo(() => new Manager(), []);
   const scene = useStore((state) => state.scene);
+  const groupRef = useRef();
   const askobotRef = useRef();
-
-  const position = askobotRef.current?.position;
-
-  // const curvePoints = position
-  //   ? [
-  //       new Vector3(position.x, position.y, position.z),
-  //       new Vector3(position.x, position.y + 0.35, position.z + 0.5),
-  //       new Vector3(position.x, position.y + 0.7, position.z + 1),
-  //       new Vector3(position.x, position.y + 1.05, position.z + 0.5),
-  //       new Vector3(position.x, position.y + 1.4, position.z),
-  //       new Vector3(position.x, position.y + 1.05, position.z - 0.5),
-  //       new Vector3(position.x, position.y + 0.7, position.z - 1),
-  //       new Vector3(position.x, position.y + 0.35, position.z - 0.5),
-  //       new Vector3(position.x, position.y, position.z),
-  //     ]
-  //   : [];
-  const curvePoints = [];
-  const radius = 0.4;
-  const step = 15; // every 15 degrees
-  if (position) {
-    for (let i = 0; i <= 360; i++) {
-      if (i % step === 0) {
-        const angle = (i * Math.PI) / 180 - Math.PI / 2; // Offset by -90 degrees, we want the circle to start at the lowest point
-        curvePoints.push(
-          new Vector3(
-            position.x,
-            position.y + Math.sin(angle) * radius + radius, // + radius so the lowest point is at the center of the model
-            position.z + Math.cos(angle) * radius,
-          ),
-        );
-      }
-    }
-  }
-  const curve = new CatmullRomCurve3(curvePoints);
 
   // Model
   const { model, batteries, lens, lensMesh, wings, antennas, led, equilizer } =
     useAskobotModel();
   // Animations
-  const animations = useAskobotAnimation(askobotRef, scene, curve, {
+  const animations = useAskobotAnimation(askobotRef, groupRef, scene, {
     wings,
     antennas,
     lens,
@@ -121,9 +91,20 @@ export default function Askobot() {
   return (
     <>
       <Float speed={5} rotationIntensity={0.05} floatIntensity={0.2}>
-        <primitive ref={askobotRef} object={model} />
+        <group ref={groupRef}>
+          <primitive ref={askobotRef} object={model} />
+          <Spline
+            curvePoints={looping.curvePoints}
+            curve={looping.curve}
+            showSpline={true}
+          ></Spline>
+        </group>
       </Float>
-      <Splines curvePoints={curvePoints} curve={curve}></Splines>
+      <Spline
+        curvePoints={intro.curvePoints}
+        curve={intro.curve}
+        showSpline={true}
+      ></Spline>
     </>
   );
 }
