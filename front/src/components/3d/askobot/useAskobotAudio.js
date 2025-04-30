@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { MathUtils } from "three";
 import { useFrame } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
 
+// Composables
 import { useAudioPlayer } from "../../../composables/useAudioPlayer";
 
-import { ASKOBOT_TRANSFORMS } from "./constants";
 export default function useAskobotAudio(
   manager,
   scene,
@@ -12,8 +13,10 @@ export default function useAskobotAudio(
   equalizerMaterial,
 ) {
   const currentAnimation = useRef(null);
+  const analysisRef = useRef(0);
   const { analysis, playAudio } = useAudioPlayer();
 
+  // Voice Event
   useEffect(() => {
     const handleVoiceData = (e) => {
       const { audioBuffer, content } = e.detail;
@@ -24,8 +27,8 @@ export default function useAskobotAudio(
         volume: 0.3,
         loop: false,
         trim: 0,
-        detune: Math.floor(Math.random() * 121) - 60, // between 60 and -60
         onPlay: () => {
+          animations.blink();
           switch (animation) {
             case "dance":
               return animations.dance();
@@ -41,6 +44,7 @@ export default function useAskobotAudio(
         },
         onEnded: () => {
           currentAnimation.current = null;
+          animations.blink();
           animations.wiggleAntennas();
         },
       });
@@ -50,6 +54,19 @@ export default function useAskobotAudio(
     return () => manager.off("audio-voice", handleVoiceData);
   }, [manager, playAudio, animations]);
 
+  // Start Scene song Event
+  useEffect(() => {
+    const handler = (e) => {
+      const raw = Math.pow(e.detail * 0.85, 15);
+      const strength = Math.min(1, Math.log10(raw * 1000 + 1));
+
+      analysisRef.current = strength;
+    };
+
+    manager.on("audio-startScene", handler);
+    return () => manager.off("audio-startScene", handler);
+  }, [manager]);
+
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
 
@@ -58,15 +75,38 @@ export default function useAskobotAudio(
       const raw = Math.pow(analysis * 0.85, 15);
       const strength = Math.min(1, Math.log10(raw * 1000 + 1));
 
-      const { position } =
-        ASKOBOT_TRANSFORMS[scene] ?? ASKOBOT_TRANSFORMS.default;
-
       const amp = 0.01;
       const rotAmp = 0.05;
+      const targetPositionY = Math.sin(time * 30) * amp * strength;
+      askobotRef.current.position.y = MathUtils.lerp(
+        askobotRef.current.position.y,
+        targetPositionY,
+        0.2,
+      );
+      const targetRotationX = Math.sin(time * 20) * rotAmp * strength;
+      askobotRef.current.position.y = MathUtils.lerp(
+        askobotRef.current.rotation.x,
+        targetRotationX,
+        0.2,
+      );
+    }
 
-      askobotRef.current.position.y =
-        position.y + Math.sin(time * 30) * amp * strength;
-      askobotRef.current.rotation.x = Math.sin(time * 20) * rotAmp * strength;
+    // Dancing Animation on start
+    if (askobotRef.current && analysisRef.current && scene === "start") {
+      const rotAmp = 0.2;
+
+      const targetRotationX =
+        Math.sin(time * 12.5) * rotAmp * analysisRef.current;
+
+      //smoothing factor
+      // 0.2 = smooth and responsive
+      // 0.05 = even smoother (more inertia)
+      // 1 = no smoothing (immediate jump)
+      askobotRef.current.rotation.x = MathUtils.lerp(
+        askobotRef.current.rotation.x,
+        targetRotationX,
+        0.2,
+      );
     }
 
     // Equilizer Mouth

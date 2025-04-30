@@ -7,24 +7,28 @@ export default function useAskobotModel(
 ) {
   const { scene: model } = useGLTF(url);
 
-  const { batteries, lens, lensMesh, wings, antennas, equilizer } =
+  const { batteries, lens, lensMesh, wings, antennas, led, equilizer } =
     useMemo(() => {
       const batteries = [];
       const lens = [];
       const wings = [];
       const antennas = [];
       const lensMesh = [];
-
+      let led = null;
       let equilizer = null;
       model.traverse((child) => {
         if (child instanceof Mesh) {
           if (child.name.includes("Lens00")) {
             lensMesh.push(child);
           } else if (child.name.includes("Equilizer")) {
+            child.position.y = child.position.y + 0.001;
+            child.position.z = child.position.z + 0.001;
+            child.scale.set(1, 0.95, 1);
             equilizer = child;
           } else if (child.material.name === "Lens") {
             lensMesh.push(child);
-          } else if (child.name === "LED001") {
+          } else if (child.name === "Cube019_1") {
+            led = child;
           } else if (child.name.includes("Battery")) {
             batteries.push(child);
           } else if (child.name === "Lens_Baked") {
@@ -56,10 +60,10 @@ export default function useAskobotModel(
         }
       });
 
-      return { batteries, lens, lensMesh, wings, antennas, equilizer };
+      return { batteries, lens, lensMesh, wings, antennas, led, equilizer };
     }, [model]);
 
-  return { model, batteries, lens, lensMesh, wings, antennas, equilizer };
+  return { model, batteries, lens, lensMesh, wings, antennas, led, equilizer };
 }
 
 useGLTF.preload("/models/askobot_compressed.glb");

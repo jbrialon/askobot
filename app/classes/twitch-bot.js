@@ -29,6 +29,7 @@ export default class TwitchBot extends EventEmitter {
     this.lastBotActivity = Date.now();
     this.isOBS = false;
     this.idleInterval = null;
+    this.chatters = [];
 
     // Setup
     this.openAI = createOpenAI();
@@ -101,7 +102,7 @@ export default class TwitchBot extends EventEmitter {
     this.idleInterval = setInterval(() => {
       const now = Date.now();
       const idleTime = now - this.lastBotActivity;
-      const idleLimit = 2 * 60 * 1000; // 2 minutes TODO -> if the chat is busy increase the value
+      const idleLimit = 10 * 60 * 1000; // 10 minutes TODO -> if the chat is busy increase the value
 
       if (idleTime >= idleLimit) {
         this.handleIdle();
@@ -124,7 +125,6 @@ export default class TwitchBot extends EventEmitter {
    * Sends a random idle message to the channel.
    */
   async handleIdle() {
-    console.log("Twitch Bot : handleIdle Event");
     // ideas
     const randomIdleMessages = [
       "It's quiet in here... anyone want to chat?",
@@ -137,6 +137,7 @@ export default class TwitchBot extends EventEmitter {
       randomIdleMessages[Math.floor(Math.random() * randomIdleMessages.length)];
 
     if (this.isOBS) {
+      console.log("Twitch Bot : handleIdle Event");
       await this.reactToEvent("#askowbol", {
         eventType: "idle",
         // data: { message: randomMessage },
@@ -154,7 +155,7 @@ export default class TwitchBot extends EventEmitter {
    * @param {string} message - The content of the chat message.
    * @param {boolean} self - Indicates if the message was sent by the bot itself.
    */
-  handleMessage(channel, tags, message, self) {
+  async handleMessage(channel, tags, message, self) {
     const user = tags.username;
     const isNotBot =
       user.toLowerCase() !== process.env.TWITCH_BOT_USERNAME.toLowerCase();
@@ -166,6 +167,21 @@ export default class TwitchBot extends EventEmitter {
       tags,
       message,
     });
+
+    // if (this.chatters.includes(tags.username) === false) {
+    //   this.chatters.push(tags.username);
+    //   await this.reactToEvent("#askowbol", {
+    //     eventType: "first-message-of-the-day",
+    //     data: { username: tags["display-name"] },
+    //   });
+    // }
+
+    if (tags["first-msg"] === true && channel === "#askowbol") {
+      await this.reactToEvent("#askowbol", {
+        eventType: "first-message",
+        data: { username: tags["display-name"] },
+      });
+    }
 
     // Process messages starting with "!" only
     if (self || (!message.startsWith("!") && isNotBot)) return;
@@ -383,6 +399,7 @@ export default class TwitchBot extends EventEmitter {
   async reactToEvent(channel, { eventType, data }) {
     this.lastBotActivity = Date.now();
 
+    console.log(eventType, data);
     let message;
     switch (eventType) {
       case "scene-change":
@@ -401,7 +418,8 @@ export default class TwitchBot extends EventEmitter {
         message = `A viewer just subscribed or resubscribed. Thank them warmly but with your classic sarcastic tone in a short sentence.`;
         break;
       case "idle":
-        message = `When the chat is inactive for a while, you say a short, friendly sentence to invite people to talk or ask you questions.`;
+        //message = `When the chat is inactive for a while, you say a short, friendly sentence to invite people to talk or ask you questions.`;
+        message = `You have been inactive for a while, you say a short, friendly sentence informing people that you are awake.`;
         break;
       default:
         message = "Nothing actually happened!";
