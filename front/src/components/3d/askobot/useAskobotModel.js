@@ -21,6 +21,9 @@ export default function useAskobotModel(
           if (child.name.includes("Lens00")) {
             lensMesh.push(child);
           } else if (child.name.includes("Equilizer")) {
+            child.position.y = child.position.y + 0.001;
+            child.position.z = child.position.z + 0.001;
+            child.scale.set(1, 0.95, 1);
             equilizer = child;
           } else if (child.material.name === "Lens") {
             lensMesh.push(child);

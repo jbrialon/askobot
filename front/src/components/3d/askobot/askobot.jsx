@@ -1,4 +1,3 @@
-import { gsap } from "gsap";
 import { Color } from "three";
 
 // React
@@ -55,38 +54,20 @@ export default function Askobot() {
   useEffect(() => {
     equalizerMaterial.uniforms.uBarNumber.value = barNumber;
     equalizerMaterial.uniforms.uBarColor.value.set(barColor);
-    led.material.color.set(new Color(ledColor));
-  }, [barNumber, barColor, equalizerMaterial, ledColor]);
+  }, [barNumber, barColor, equalizerMaterial]);
+
+  useEffect(() => {
+    if (led && ledMaterial) {
+      led.material = ledMaterial;
+      led.material.color.set(new Color(ledColor));
+    }
+  }, [ledMaterial, ledColor, led]);
 
   useEffect(() => {
     lensMesh.forEach((mesh) => (mesh.material = lensMaterial));
     equilizer.material = equalizerMaterial;
     led.material = ledMaterial;
   }, [lensMesh, equilizer, lensMaterial, equalizerMaterial, ledMaterial]);
-
-  // Dance Intro animation (TODO: Enhance and move logic)
-  useEffect(() => {
-    let rotationTween = null;
-
-    const handler = (e) => {
-      const analysis = Math.pow(e.detail * 0.85, 8);
-
-      if (analysis > 0.0225) {
-        if (rotationTween && rotationTween.isActive()) return;
-
-        rotationTween = gsap.to(askobotRef.current.rotation, {
-          x: Math.PI * analysis,
-          duration: 0.25,
-          repeat: 1,
-          yoyo: true,
-          ease: "power1.inOut",
-        });
-      }
-    };
-    manager.on("audio-startScene", handler);
-
-    return () => manager.off("audio-startScene", handler);
-  }, [manager]);
 
   return (
     <>
@@ -96,14 +77,14 @@ export default function Askobot() {
           <Spline
             curvePoints={looping.curvePoints}
             curve={looping.curve}
-            showSpline={true}
+            showSpline={false}
           ></Spline>
         </group>
       </Float>
       <Spline
         curvePoints={intro.curvePoints}
         curve={intro.curve}
-        showSpline={true}
+        showSpline={false}
       ></Spline>
     </>
   );
