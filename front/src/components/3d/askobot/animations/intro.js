@@ -1,11 +1,14 @@
 import { gsap } from "gsap";
 import { intro } from "../../spline/curves";
-import { ASKOBOT_TRANSFORMS } from "../constants";
 
-export const introAnimation = (scene, ref, groupRef) => {
-  const transform = ASKOBOT_TRANSFORMS[scene] ?? ASKOBOT_TRANSFORMS.default;
-  const { rotationY } = transform;
-
+import { Vector3 } from "three";
+export const introAnimation = (
+  scene,
+  botRef,
+  botGroupRef,
+  controlPointGroupRef,
+  controlPointRef,
+) => {
   const values = { property: 0 };
   const speed = 1.0;
 
@@ -15,6 +18,30 @@ export const introAnimation = (scene, ref, groupRef) => {
     paused: true,
   });
 
+  // Direction vector between current position and destination
+  const currentPosition = controlPointGroupRef.current.position;
+  const destinationPosition = isForward
+    ? intro.curve.getPointAt(1)
+    : intro.curve.getPointAt(0); // destination is depending on direction of movement
+  const direction = new Vector3().subVectors(
+    destinationPosition,
+    currentPosition,
+  );
+
+  // calculate the angle
+  const lookAtDestinationAngleY = Math.atan2(direction.x, direction.z);
+
+  const cameraDirection = new Vector3().subVectors(
+    new Vector3(1.5, 3.3, 3.5), // camera position TODO: get this dynamicly?
+    destinationPosition,
+  );
+  const lookAtCameraAngleY = Math.atan2(cameraDirection.x, cameraDirection.z);
+  // look at final destination
+  tl.to(botGroupRef.current.rotation, {
+    y: lookAtDestinationAngleY,
+    duration: 0.55,
+    ease: "sine.out",
+  });
   // Animate along curve
   tl.to(
     values,
@@ -26,40 +53,18 @@ export const introAnimation = (scene, ref, groupRef) => {
         const point = isForward
           ? intro.curve.getPointAt(progress)
           : intro.curve.getPointAt(1 - progress); // reverse direction
-        groupRef.current.position.copy(point);
+        controlPointGroupRef.current.position.copy(point);
       },
       ease: "sine.in",
     },
-    ">-0.15",
+    ">-0.5",
   );
-
-  // Dip AFTER the curve ends
-  tl.to(
-    ref.current.position,
-    {
-      y: -0.05,
-      duration: 0.25,
-      ease: "sine.inOut",
-    },
-    ">-0.1",
-  );
-
-  // Return to final Y position
-  tl.to(ref.current.position, {
-    y: 0,
-    duration: 0.25,
-    ease: "sine.out",
+  // look at camera
+  tl.to(botGroupRef.current.rotation, {
+    y: lookAtCameraAngleY,
+    duration: 0.75,
+    ease: "sine.inOut",
   });
-
-  tl.to(
-    groupRef.current.rotation,
-    {
-      y: rotationY,
-      duration: 1,
-      ease: "sine.out",
-    },
-    ">-1",
-  );
 
   return tl;
 };

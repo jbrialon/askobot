@@ -14,17 +14,20 @@ export default function useAskobotControls(animations) {
   } = animations;
 
   const controls = useControls("Bot", {
-    Animations: folder({
-      spin: button(() => spin()),
-      dance: button(() => dance()),
-      excited: button(() => excited()),
-      looping: button(() => looping()),
-      "Wiggle Antennas": button(() => wiggleAntennas()),
-      "Wiggle Wings": button(() => wiggleWings()),
-      zoom: button(() => zoom()),
-      followCurve: button(() => followCurve()),
-      blink: button(() => blink()),
-    }),
+    Animations: folder(
+      {
+        spin: button(() => spin()),
+        dance: button(() => dance()),
+        excited: button(() => excited()),
+        looping: button(() => looping()),
+        "Wiggle Antennas": button(() => wiggleAntennas()),
+        "Wiggle Wings": button(() => wiggleWings()),
+        zoom: button(() => zoom()),
+        followCurve: button(() => followCurve()),
+        blink: button(() => blink()),
+      },
+      { collapsed: true },
+    ),
     Equilizer: folder(
       {
         barNumber: { value: 10, step: 1, min: 2, max: 60 },

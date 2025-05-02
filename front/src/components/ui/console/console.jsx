@@ -2,8 +2,8 @@ import { useStore } from "../../../store/store";
 import styles from "./console.module.scss";
 
 const Console = () => {
-  const isOBS = useStore((state) => state.scene);
-  const scene = useStore((state) => state.isOBS);
+  const scene = useStore((state) => state.scene);
+  const isOBS = useStore((state) => state.isOBS);
   return (
     <div className={styles["ui-console"]}>
       {isOBS !== null && (

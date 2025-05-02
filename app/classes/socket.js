@@ -45,6 +45,7 @@ export default class Socket {
 
       socket.on("disconnect", () => {
         console.log("Client disconnected");
+        this.twitchBot.setIsOBS(false);
       });
 
       socket.on("bot-askAskobot", (user, message) => {
