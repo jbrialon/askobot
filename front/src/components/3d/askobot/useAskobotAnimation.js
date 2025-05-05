@@ -1,3 +1,4 @@
+import { gsap } from "gsap";
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -11,7 +12,9 @@ import { wingsAnimation } from "./animations/wings";
 import { zoomAnimation } from "./animations/zoom";
 import { introAnimation } from "./animations/intro";
 import { blinkAnimation } from "./animations/blink";
+import { talkToCameraAnimation } from "./animations/talkToCamera";
 
+import { talkToCamera } from "../spline/curves";
 // Constants
 import { ASKOBOT_TRANSFORMS } from "./constants";
 
@@ -22,6 +25,7 @@ export default function useAskobotAnimation(
   controlPointRef,
   scene,
   { wings, antennas, lens, batteries, led },
+  manager,
 ) {
   const isFirstLoad = useRef(true);
 
@@ -41,10 +45,10 @@ export default function useAskobotAnimation(
   };
 
   const looping = () => {
-    const loopingTimeline = loopingAnimation(botRef, controlPointRef);
+    const loopingTimeline = loopingAnimation(botRef, controlPointRef, wings);
     loopingTimeline.play().then(() => {
       wiggleAntennas();
-      // wiggleWings();
+      wiggleWings();
       zoom();
     });
   };
@@ -86,7 +90,7 @@ export default function useAskobotAnimation(
 
   // use to debug
   const followCurve = () => {
-    animateIntro("live");
+    talkToCameraAnimation(controlPointGroupRef, zoom, manager);
   };
 
   // update Askobot position based on Scene

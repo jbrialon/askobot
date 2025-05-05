@@ -10,13 +10,13 @@ export const wingsAnimation = (wings) => {
     const rotZ = wing.rotation.z;
 
     const wingsTimeline = gsap.timeline({
-      repeat: 3,
+      repeat: -1,
       yoyo: true,
     });
 
     wingsTimeline.to(wing.rotation, {
       z: rotZ + direction * Math.PI * 0.15,
-      duration: 0.15,
+      duration: 3,
       ease: "sine.inOut",
     });
 

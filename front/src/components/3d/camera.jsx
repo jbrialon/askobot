@@ -10,7 +10,10 @@ export default function Camera() {
         far={1000}
         position={[1.5, 3.3, 3.5]}
       />
-
+      <mesh position={[1.5, 3.3, 3.5]} scale={0.1}>
+        <sphereGeometry></sphereGeometry>
+        <meshBasicMaterial wireframe={true}></meshBasicMaterial>
+      </mesh>
       <OrbitControls makeDefault target={[0, 2.7, 0]} />
     </>
   );

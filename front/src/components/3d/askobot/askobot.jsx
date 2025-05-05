@@ -18,7 +18,7 @@ import useAskobotControls from "./useAskobotControls";
 import { useStore } from "../../../store/store";
 
 // Curves
-import { looping, intro } from "../spline/curves";
+import { looping, intro, talkToCamera } from "../spline/curves";
 
 // Components
 import Spline from "../spline/spline";
@@ -56,6 +56,7 @@ export default function Askobot() {
       batteries,
       led,
     },
+    manager,
   );
   // Leva Controls
   const { barNumber, barColor, ledColor } = useAskobotControls(animations);
@@ -150,21 +151,21 @@ export default function Askobot() {
         ref={controlPointGroupRef}
         position={controlPointGroupRef.current.position}
       >
-        <mesh ref={controlPointRef} scale={[0.5, 0.8, 0.5]} visible={false}>
+        <mesh ref={controlPointRef} scale={[0.5, 0.8, 0.5]} visible={true}>
           <octahedronGeometry args={[0.1, 0]} />
           <meshNormalMaterial />
         </mesh>
         <Spline
           curvePoints={looping.curvePoints}
           curve={looping.curve}
-          showSpline={false}
+          showSpline={true}
         ></Spline>
       </group>
 
       <Float
         speed={5}
         rotationIntensity={0.05}
-        floatIntensity={0.2}
+        floatIntensity={0.5}
         visible={true}
       >
         <group ref={botGroupRef}>
@@ -175,6 +176,11 @@ export default function Askobot() {
         curvePoints={intro.curvePoints}
         curve={intro.curve}
         showSpline={false}
+      ></Spline>
+      <Spline
+        curvePoints={talkToCamera.curvePoints}
+        curve={talkToCamera.curve}
+        showSpline={true}
       ></Spline>
     </>
   );
