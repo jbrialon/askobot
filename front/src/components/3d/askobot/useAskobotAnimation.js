@@ -44,7 +44,7 @@ export default function useAskobotAnimation(
     const loopingTimeline = loopingAnimation(botRef, controlPointRef);
     loopingTimeline.play().then(() => {
       wiggleAntennas();
-      wiggleWings();
+      // wiggleWings();
       zoom();
     });
   };

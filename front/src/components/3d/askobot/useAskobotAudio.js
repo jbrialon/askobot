@@ -97,7 +97,7 @@ export default function useAskobotAudio(
       // 0.2 = smooth and responsive
       // 0.05 = even smoother (more inertia)
       // 1 = no smoothing (immediate jump)
-      bot.rotation.x = MathUtils.lerp(bot.rotation.x, targetRotationX, 0.2);
+      bot.rotation.x = MathUtils.lerp(bot.rotation.x, targetRotationX, 0.01);
     }
 
     // Equilizer Mouth

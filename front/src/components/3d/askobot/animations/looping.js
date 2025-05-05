@@ -20,7 +20,7 @@ export const loopingAnimation = (botRef, controlPointRef) => {
   });
   tl.to(botRef.current.rotation, {
     x: origin.rotX + Math.PI * -2,
-    duration: speed,
+    duration: 1,
     ease: "sine.inOut",
   });
   tl.to(

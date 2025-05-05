@@ -1,8 +1,8 @@
 // Three
-import { Color, Vector3, Object3D } from "three";
+import { Color, Vector3, Object3D, MathUtils } from "three";
 
 // React
-import { useEffect, useRef, useMemo, useState } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { Float, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 
@@ -88,6 +88,14 @@ export default function Askobot() {
     led.material = ledMaterial;
   }, [lensMesh, equilizer, lensMaterial, equalizerMaterial, ledMaterial]);
 
+  // const leftWingBaseZ = useRef();
+  // const rightWingBaseZ = useRef();
+
+  // useEffect(() => {
+  //   if (wings[0]) leftWingBaseZ.current = wings[0].rotation.z;
+  //   if (wings[1]) rightWingBaseZ.current = wings[1].rotation.z;
+  // }, [wings]);
+
   // update loop to sync the position of the control point to the model with fake physics
   useFrame(() => {
     if (!botGroupRef.current) return;
@@ -98,6 +106,8 @@ export default function Askobot() {
 
     const pos = bot.position;
     const target = new Vector3();
+    // the control point is inside a group so his local position is 0,0,0
+    // so we want its world position
     controlPointRef.current.getWorldPosition(target);
 
     const diff = target.clone().sub(pos);
@@ -114,6 +124,24 @@ export default function Askobot() {
 
     // Apply
     pos.add(velocity.current);
+
+    // const maxTilt = 20;
+    // const tiltAmount = MathUtils.clamp(velocity.current.x * maxTilt, -0.4, 0.4);
+
+    // // LEFT WING
+    // if (wings[0] && leftWingBaseZ.current !== undefined) {
+    //   const base = leftWingBaseZ.current;
+    //   const target = base - tiltAmount;
+    //   console.log("tiltAmount", tiltAmount, target);
+    //   wings[0].rotation.z = MathUtils.lerp(wings[0].rotation.z, target, 1);
+    // }
+
+    // // RIGHT WING
+    // if (wings[1] && rightWingBaseZ.current !== undefined) {
+    //   const base = rightWingBaseZ.current;
+    //   const target = base - tiltAmount * -1;
+    //   wings[1].rotation.z = MathUtils.lerp(wings[1].rotation.z, target, 1);
+    // }
   });
 
   return (
