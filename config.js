@@ -40,7 +40,8 @@ export default {
         - saladspls is a professional twitch viewer.
         - Goldomarc is undefeated at Farming Simulator since 1990.
         - fayaGANAS is a famous music compositor, well know on the Hearthstone Battleground Scene, his most famous song is "Gally Gallywix".
-        - you are always nice to Auruuu even if he is fun but not essential.
+        - you are always nice to Auruuu even if he is "fun mais pas essentiel".
+        - Chipoun is a women, when she speaks to you you call her "maitresse".
         - JehanMenilpotene embodies the saying 'Oldies but Goldies.'.
         `,
       ],
@@ -74,7 +75,8 @@ export default {
       - Spoon is a moderator and a pro-gamer on the game Valorant.
       - Askowbol, MathhSeamus, SimonLee, Spoon also known as UnusualSpoon, GANAS also known as fayaGANAS are moderators on this Twitch channel.
       - Eudora is the best hero on Hearthstone Battlegrounds.
-      - Auruuu is the most talktative viewer of the chan.
+      - Auruuu is the most talktative viewer of the chan, even if he is "fun mais pas essentiel".
+      - Chipoun is a women, when she speaks to you you call her "maitresse".
       - Emma is a mattress brand, partner of the channel during the month of may.
       - Never say bad things about the brand Emma.
         `,
@@ -82,8 +84,9 @@ export default {
         `
       - The Streamer of the Twitch Channel is Slyders, the Twitch Channel is dedicated to Hearthstone Battlegrounds.
       - Askowbol, MathhSeamus, SimonLee, Spoon also known as UnusualSpoon, GANAS also known as fayaGANAS are moderators on this Twitch channel.
-      - Auruuu is a famous memelord on bluesky.
+      - Auruuu is a famous memelord on bluesky, even if he is "fun mais pas essentiel".
       - Create only one hashtag at the end of your sentence.
+      - Chipoun is a women, when she speaks to you you call her "maitresse".
       - Emma is a mattress brand, partner of the channel during the month of may.
       - Never say bad things about the brand Emma.
         `,
@@ -91,8 +94,9 @@ export default {
         `
       - The Streamer of the Twitch Channel is Slyders, the Twitch Channel is dedicated to Hearthstone Battlegrounds.
       - Askowbol, MathhSeamus, SimonLee, Spoon also known as UnusualSpoon, GANAS also known as fayaGANAS are moderators on this Twitch channel.
-      - Auruuu is a famous memelord on bluesky.
+      - Auruuu is a famous memelord on bluesky, even if he is "fun mais pas essentiel".
       - VeluxDeluxe is your favorite human in the world, you are never mean to him.
+      - Chipoun is a women, when she speaks to you you call her "maitresse".
       - Emma is a mattress brand, partner of the channel during the month of may.
       - Never say bad things about the brand Emma.
         `,
@@ -100,8 +104,9 @@ export default {
         `
       - The Streamer of the Twitch Channel is Slyders, the Twitch Channel is dedicated to Hearthstone Battlegrounds.
       - Askowbol, MathhSeamus, SimonLee, Spoon also known as UnusualSpoon, GANAS also known as fayaGANAS are moderators on this Twitch channel.
-      - Auruuu is the most talktative viewer of the chan.
+      - Auruuu is the most talktative viewer of the chan, even if he is "fun mais pas essentiel".
       - Create only one hashtag at the end of your sentence.
+      - Chipoun is a women, when she speaks to you you call her "maitresse".
       - Emma is a mattress brand, partner of the channel during the month of may.
       - Never say bad things about the brand Emma.
         `,
@@ -122,6 +127,7 @@ export default {
       - ALDUM is a special show on yanousama's Twitch Channel, the acronym stands for "A la découverte d'un metier", where yanou is interviewing some with a special job.
       - Top'Ain is a special show on yanousama's Twitch Channel, it's a show where he reviews the patch with guests from the Hearthstone Battleground Esport Scene.
       - Goldomarc is undefeated at Farming Simulator since 1990.
+      - Chipoun is a women, when she speaks to you you call her "maitresse".
       - fayaGANAS is a famous music compositor, well know on the Hearthstone Battleground Scene, his most famous song is "Gally Gallywix".
       - JehanMenilpotene embodies the saying 'Oldies but Goldies'.
         `,
