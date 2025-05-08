@@ -1,4 +1,5 @@
 import { gsap } from "gsap";
+import { talkToCamera } from "../../spline/curves";
 
 export const talkToCameraAnimation = (controlPointGroupRef, zoom, manager) => {
   if (!controlPointGroupRef.current) return;
@@ -18,9 +19,8 @@ export const talkToCameraAnimation = (controlPointGroupRef, zoom, manager) => {
     ease: "sine.inOut",
     onComplete: () => {
       zoom();
-      manager.trigger("bot-askAskobot", {
-        username: "Askow",
-        message: "tu peux nous dire boo! ou nous faire peur?",
+      manager.trigger("bot-reactToEvent", {
+        eventType: "action-talkToCamera",
       });
     },
   });

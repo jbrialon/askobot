@@ -53,7 +53,7 @@ export default class Socket {
       });
 
       socket.on("bot-reactToEvent", (eventType, data) => {
-        this.twitchBot.reactToEvent("#askowbol", eventType, data);
+        this.twitchBot.reactToEvent("#askowbol", { eventType, data });
       });
     });
   }

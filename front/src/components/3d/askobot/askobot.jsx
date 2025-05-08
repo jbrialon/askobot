@@ -1,5 +1,5 @@
 // Three
-import { Color, Vector3, Object3D, MathUtils } from "three";
+import { Color, Vector3, Object3D } from "three";
 
 // React
 import { useEffect, useRef, useMemo } from "react";
@@ -151,14 +151,14 @@ export default function Askobot() {
         ref={controlPointGroupRef}
         position={controlPointGroupRef.current.position}
       >
-        <mesh ref={controlPointRef} scale={[0.5, 0.8, 0.5]} visible={true}>
+        <mesh ref={controlPointRef} scale={[0.5, 0.8, 0.5]} visible={false}>
           <octahedronGeometry args={[0.1, 0]} />
           <meshNormalMaterial />
         </mesh>
         <Spline
           curvePoints={looping.curvePoints}
           curve={looping.curve}
-          showSpline={true}
+          showSpline={false}
         ></Spline>
       </group>
 
@@ -180,7 +180,7 @@ export default function Askobot() {
       <Spline
         curvePoints={talkToCamera.curvePoints}
         curve={talkToCamera.curve}
-        showSpline={true}
+        showSpline={false}
       ></Spline>
     </>
   );

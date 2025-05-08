@@ -58,12 +58,6 @@ export default class Manager extends EventTarget {
           sceneName: event.detail.name,
         };
 
-        // emit event to bot so he can react to
-        // this.socket.emit("bot-reactToEvent", {
-        //   eventType: "scene-change",
-        //   data,
-        // });
-
         // update store
         useStore.getState().setScene(data.sceneName);
       });

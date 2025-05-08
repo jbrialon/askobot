@@ -5,6 +5,9 @@ import { useEffect, useRef } from "react";
 // Composables
 import { useAudioPlayer } from "../../../composables/useAudioPlayer";
 
+// Audio
+import soundEvents from "../../../classes/sound-events";
+
 export default function useAskobotAudio(
   manager,
   scene,
@@ -66,6 +69,12 @@ export default function useAskobotAudio(
     manager.on("audio-startScene", handler);
     return () => manager.off("audio-startScene", handler);
   }, [manager]);
+
+  // on Mounted
+  useEffect(() => {
+    soundEvents.load("zoom");
+    soundEvents.load("whoosh", 4);
+  }, []);
 
   useFrame((state) => {
     if (!botRef.current) return;

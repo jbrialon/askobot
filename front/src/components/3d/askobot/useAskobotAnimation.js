@@ -1,4 +1,3 @@
-import { gsap } from "gsap";
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -14,7 +13,6 @@ import { introAnimation } from "./animations/intro";
 import { blinkAnimation } from "./animations/blink";
 import { talkToCameraAnimation } from "./animations/talkToCamera";
 
-import { talkToCamera } from "../spline/curves";
 // Constants
 import { ASKOBOT_TRANSFORMS } from "./constants";
 
@@ -90,7 +88,12 @@ export default function useAskobotAnimation(
 
   // use to debug
   const followCurve = () => {
-    talkToCameraAnimation(controlPointGroupRef, zoom, manager);
+    const talkToCameraTimeline = talkToCameraAnimation(
+      controlPointGroupRef,
+      zoom,
+      manager,
+    );
+    talkToCameraTimeline.play();
   };
 
   // update Askobot position based on Scene

@@ -1,11 +1,8 @@
 import { gsap } from "gsap";
 import { looping } from "../../spline/curves";
-
+import soundEvents from "../../../../classes/sound-events";
 export const loopingAnimation = (botRef, controlPointRef, wings) => {
   if (!botRef.current) return;
-
-  const speed = 0.6;
-  const random = Math.floor(1 + Math.random());
 
   const values = { property: 0 };
   const origin = {
@@ -14,6 +11,12 @@ export const loopingAnimation = (botRef, controlPointRef, wings) => {
 
   const tl = gsap.timeline({
     paused: true,
+    onStart: () => {
+      soundEvents.play("whoosh", {
+        volume: 0.5,
+        rate: 0.7,
+      });
+    },
     onComplete: () => {
       gsap.set(botRef.current.rotation, {
         x: origin.rotX,
@@ -22,14 +25,14 @@ export const loopingAnimation = (botRef, controlPointRef, wings) => {
   });
   tl.to(botRef.current.rotation, {
     x: origin.rotX + Math.PI * -2,
-    duration: 1 * random,
+    duration: 1,
     ease: "sine.inOut",
   });
   tl.to(
     values,
     {
       property: 1,
-      duration: speed * random,
+      duration: 0.6,
       onUpdate: () => {
         const point = looping.curve.getPointAt(values.property);
         controlPointRef.current.position.copy(point);
@@ -49,7 +52,7 @@ export const loopingAnimation = (botRef, controlPointRef, wings) => {
       wing.rotation,
       {
         z: rotZ + Math.PI * 0.3 * direction,
-        duration: (1 * random) / 2,
+        duration: 0.5,
         ease: "sine.inOut",
       },
       "<",
@@ -57,7 +60,7 @@ export const loopingAnimation = (botRef, controlPointRef, wings) => {
 
     wingsTimeline.to(wing.rotation, {
       z: rotZ,
-      duration: (1 * random) / 2,
+      duration: 0.5,
       ease: "sine.inOut",
     });
 

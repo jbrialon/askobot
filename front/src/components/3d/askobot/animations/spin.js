@@ -1,4 +1,5 @@
 import { gsap } from "gsap";
+import soundEvents from "../../../../classes/sound-events";
 
 export const spinAnimation = (ref, antennas) => {
   if (!ref.current) return;
@@ -9,6 +10,12 @@ export const spinAnimation = (ref, antennas) => {
   };
   const tl = gsap.timeline({
     paused: true,
+    onStart: () => {
+      soundEvents.play("whoosh", {
+        volume: 0.5,
+        rate: 1.3,
+      });
+    },
   });
 
   // Step 1: Move slightly down
