@@ -14,7 +14,8 @@ export const loopingAnimation = (botRef, controlPointRef, wings) => {
     onStart: () => {
       soundEvents.play("whoosh", {
         volume: 0.5,
-        rate: 0.7,
+        rate: 0.6,
+        delay: 0.1,
       });
     },
     onComplete: () => {

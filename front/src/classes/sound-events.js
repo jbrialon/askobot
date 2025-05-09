@@ -19,7 +19,7 @@ class SoundEvents {
       this.sounds[name].push(buffer);
     }
   }
-  play(name, { rate = 1, volume = 1 } = {}) {
+  play(name, { rate = 1, volume = 1, delay = 0 } = {}) {
     const buffers = this.sounds[name];
     if (!buffers || buffers.length === 0) return;
 
@@ -33,7 +33,7 @@ class SoundEvents {
 
     source.connect(gainNode);
     gainNode.connect(this.context.destination);
-    source.start();
+    source.start(this.context.currentTime + delay);
   }
 }
 

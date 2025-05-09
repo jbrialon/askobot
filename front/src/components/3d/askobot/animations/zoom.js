@@ -35,14 +35,14 @@ export const zoomAnimation = (lens) => {
   // Lens rotation
   lensTimeline.to(lens[0].rotation, {
     y: origin.rotY,
-    duration: 0.5,
+    duration: 0.4,
     ease: "power1.inOut",
   });
   lensTimeline.to(
     lens[1].scale,
     {
       y: 1,
-      duration: 0.5,
+      duration: 0.4,
       ease: "power1.inOut",
     },
     "<",
