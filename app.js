@@ -13,6 +13,9 @@ import TwitchBot from "./app/classes/twitch-bot.js";
 // Config
 import config from "./config.js";
 
+// New Twitch flow
+import { startChatBot } from "./app/twitch/chat-bot.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -48,3 +51,5 @@ app.get("/", (req, res) => {
 
 // init Socket IO Server
 new Socket({ server, twitchBot, voice });
+
+startChatBot();

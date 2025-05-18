@@ -15,6 +15,12 @@ import Start from "./components/ui/start/start.jsx";
 // Store
 import { useStore } from "./store/store.js";
 
+// Router
+import { createBrowserRouter, RouterProvider } from "react-router";
+
+// Oauth
+import { Oauth } from "./oauth.jsx";
+
 function App() {
   const manager = new Manager();
   const [showConsole, setShowConsole] = useState(false);
@@ -102,8 +108,19 @@ function App() {
   );
 }
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
+  {
+    path: "/oauth",
+    element: <Oauth />,
+  },
+]);
+
 createRoot(document.getElementById("app")).render(
   <StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </StrictMode>,
 );
