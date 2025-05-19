@@ -1,33 +1,13 @@
-import "./styles/oauth.scss";
+import "../../styles/oauth.scss";
 import { useLocation } from "react-router";
-
-const nonce = (length) => {
-  const charset =
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz+/";
-  let result = "";
-
-  while (length > 0) {
-    const bytes = new Uint8Array(16);
-    const random = window.crypto.getRandomValues(bytes);
-
-    random.forEach(function (c) {
-      if (length == 0) {
-        return;
-      }
-      if (c < charset.length) {
-        result += charset[c];
-        length--;
-      }
-    });
-  }
-  return result;
-};
+import { nonce } from "./oauth-utils";
 
 export const Oauth = () => {
   const { pathname } = useLocation();
 
   const handleOauth = () => {
     const state = nonce(32);
+    // save the unique state to verify integrity of the request/reply pair later
     window.sessionStorage.setItem(
       "oauth-state",
       JSON.stringify({ path: pathname, state }),
@@ -46,7 +26,7 @@ export const Oauth = () => {
   return (
     <div className="oauth-container">
       <button onClick={handleOauth} className="oauth-button">
-        Allow
+        Allow Askobot
       </button>
     </div>
   );

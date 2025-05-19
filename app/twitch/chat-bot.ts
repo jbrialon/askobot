@@ -1,4 +1,4 @@
-import { staticAuthProvider } from "./auth.js";
+import { staticAuthProvider } from "./auth-clients.js";
 import { ChatClient } from "@twurple/chat";
 
 const CHANNEL = "Askowbol";

@@ -54,7 +54,7 @@ async function subscribeToChannelFollow(accessToken) {
         },
         transport: {
           method: "webhook",
-          callback: `${process.env.TWITCH_REDIRECT_URL}/webhook`, // public webhook URL
+          callback: `${process.env.TWITCH_OAUTH_REDIRECT_URL}/webhook`, // public webhook URL
           secret: "YOUR_SECRET_KEY", // TODO: maybe something better
         },
       }),
