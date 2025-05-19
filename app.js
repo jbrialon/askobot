@@ -31,6 +31,8 @@ async function startServer() {
 
   // init express server
   const app = express();
+  app.use(express.json());
+
   if (process.env.APP_ENV === "development") {
     app.use(
       cors({

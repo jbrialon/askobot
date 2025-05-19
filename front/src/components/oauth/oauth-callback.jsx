@@ -44,7 +44,7 @@ export const OauthCallback = () => {
     };
 
     handleOauthCallback();
-  }, []);
+  }, [navigate]);
 
   return null;
 };

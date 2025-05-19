@@ -9,7 +9,8 @@ export async function setupDatabase() {
     CREATE TABLE IF NOT EXISTS user_tokens (
     id SERIAL NOT NULL PRIMARY KEY,
     access_token BYTEA NOT NULL,
-    refresh_token BYTEA NOT NULL);
+    refresh_token BYTEA NOT NULL,
+    expires_in INTEGER NOT NULL);
   `);
 
   console.log("Database setup complete");

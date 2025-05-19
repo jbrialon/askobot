@@ -22,11 +22,14 @@ export class oAuthTokensPersistentStorage {
 
   static async getTokens(
     userId: string,
-  ): Promise<{ access_token: string; refresh_token: string } | undefined> {
+  ): Promise<
+    | { access_token: string; refresh_token: string; expires_in: number }
+    | undefined
+  > {
     try {
       const { rows } = await dbPool.query(
         `
-        SELECT PGP_SYM_DECRYPT(access_token, $2) as access_token, PGP_SYM_DECRYPT(refresh_token, $2) as refresh_token FROM user_tokens WHERE id = $1;
+        SELECT PGP_SYM_DECRYPT(access_token, $2) as access_token, PGP_SYM_DECRYPT(refresh_token, $2) as refresh_token, expires_in FROM user_tokens WHERE id = $1;
         `,
         [userId, pgp_sym_encrypt],
       );
@@ -41,15 +44,16 @@ export class oAuthTokensPersistentStorage {
     {
       access_token,
       refresh_token,
-    }: { access_token: string; refresh_token: string },
+      expires_in,
+    }: { access_token: string; refresh_token: string; expires_in: number },
   ) {
     try {
       await dbPool.query(
         `
-        INSERT INTO user_tokens (id, access_token, refresh_token) VALUES ($1, PGP_SYM_ENCRYPT($2, $4), PGP_SYM_ENCRYPT($3, $4))
-        ON CONFLICT (id) DO UPDATE SET access_token = PGP_SYM_ENCRYPT($2, $4), refresh_token = PGP_SYM_ENCRYPT($3, $4);
+        INSERT INTO user_tokens (id, access_token, refresh_token, expires_in) VALUES ($1, PGP_SYM_ENCRYPT($2, $5), PGP_SYM_ENCRYPT($3, $5), $4)
+        ON CONFLICT (id) DO UPDATE SET access_token = PGP_SYM_ENCRYPT($2, $5), refresh_token = PGP_SYM_ENCRYPT($3, $5), expires_in = $4;
         `,
-        [userId, access_token, refresh_token, pgp_sym_encrypt],
+        [userId, access_token, refresh_token, expires_in, pgp_sym_encrypt],
       );
     } catch (err) {
       console.error(err);

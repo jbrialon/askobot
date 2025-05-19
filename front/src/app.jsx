@@ -109,7 +109,11 @@ function App() {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: (
+      <StrictMode>
+        <App />
+      </StrictMode>
+    ),
   },
   {
     path: "/oauth",
@@ -122,7 +126,5 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("app")).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
+  <RouterProvider router={router} />,
 );
