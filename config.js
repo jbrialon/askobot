@@ -1,5 +1,4 @@
 export default {
-  port: 3000,
   model: "gpt-4.1-nano",
   commandCooldown: 0.5,
   memoryCapacity: 20,
@@ -63,12 +62,7 @@ export default {
     {
       twitchChannel: "#slyders_hs",
       maxChar: "30 words",
-      mood: [
-        "helpful",
-        "sarcastic",
-        "extremely sarcastic",
-        "extremely sarcastic",
-      ],
+      mood: ["helpful", "sarcastic", "extremely sarcastic", "extremely sarcastic"],
       context: [
         `
       - The Streamer of the Twitch Channel is Slyders, the Twitch Channel is dedicated to Hearthstone Battlegrounds.

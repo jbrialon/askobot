@@ -47,8 +47,8 @@ async function startServer() {
   app.use(express.static(distPath));
   const server = http.createServer(app);
 
-  server.listen(config.port, () => {
-    console.log(`Askobot Front End is running at http://localhost:${config.port}`);
+  server.listen(process.env.APP_PORT, () => {
+    console.log(`Askobot Front End is running at http://localhost:${process.env.APP_PORT}`);
   });
 
   // Route for serving the index.html
