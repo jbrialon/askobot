@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "import": "node cron/fetch-data.js",
-    "build:server": "tsc --noCheck",
-    "start:server": "node dist/app.js",
-    "dev:server": "npm run build:server && npm run start:server"
+    "build": "tsc --noCheck",
+    "start": "node dist/app.js",
+    "dev": "npm run build && npm run start"
   },
   "author": "jbrialon",
   "license": "ISC",
