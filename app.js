@@ -43,14 +43,12 @@ async function startServer() {
   }
 
   // Serve static files from the front-end build directory
-  const distPath = path.join(__dirname, "front", "dist");
+  const distPath = path.join(__dirname, "..", "front", "dist");
   app.use(express.static(distPath));
   const server = http.createServer(app);
 
   server.listen(config.port, () => {
-    console.log(
-      `Askobot Front End is running at http://localhost:${config.port}`,
-    );
+    console.log(`Askobot Front End is running at http://localhost:${config.port}`);
   });
 
   // Route for serving the index.html
