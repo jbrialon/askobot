@@ -2,30 +2,23 @@ import "dotenv/config";
 import { dbPool } from "./index.js";
 
 if (!process.env["SYM_ENCRYPTION_KEY"]) {
-  throw Error("ENV variable SYM_ENCRYPTION_KEY missing");
+  throw Error("env variable SYM_ENCRYPTION_KEY must be set");
 }
 
 const pgp_sym_encrypt = process.env["SYM_ENCRYPTION_KEY"];
 
 export class oAuthTokensPersistentStorage {
-  static async hasTokens(userId: string): Promise<boolean | undefined> {
+  static async hasTokens(userId: string): Promise<boolean | null> {
     try {
-      const { rows } = await dbPool.query(
-        `SELECT EXISTS(SELECT 1 FROM user_tokens WHERE ID = $1);`,
-        [userId],
-      );
+      const { rows } = await dbPool.query(`SELECT EXISTS(SELECT 1 FROM user_tokens WHERE ID = $1);`, [userId]);
       return rows[0].exists;
     } catch (err) {
       console.error(err);
+      return null;
     }
   }
 
-  static async getTokens(
-    userId: string,
-  ): Promise<
-    | { access_token: string; refresh_token: string; expires_in: number }
-    | undefined
-  > {
+  static async getTokens(userId: string): Promise<{ access_token: string; refresh_token: string; expires_in: number } | null> {
     try {
       const { rows } = await dbPool.query(
         `
@@ -36,17 +29,11 @@ export class oAuthTokensPersistentStorage {
       return rows[0];
     } catch (err) {
       console.error(err);
+      return null;
     }
   }
 
-  static async setTokens(
-    userId: string,
-    {
-      access_token,
-      refresh_token,
-      expires_in,
-    }: { access_token: string; refresh_token: string; expires_in: number },
-  ) {
+  static async setTokens(userId: string, { access_token, refresh_token, expires_in }: { access_token: string; refresh_token: string; expires_in: number }) {
     try {
       await dbPool.query(
         `

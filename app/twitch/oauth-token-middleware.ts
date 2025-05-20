@@ -1,51 +1,34 @@
 import { NextFunction, Request, Response } from "express";
-import { oAuthTokensPersistentStorage } from "../database/twitch-tokens.js";
-import { getUserOauthTokens } from "./auth-clients.js";
+import { getUserOauthTokens, persistUserTokens } from "./auth-clients.js";
 import { getTokenInfo } from "@twurple/auth";
-// import { getUserOauthTokens, validateUserOauthToken } from "../apis/oauth-twitch";
 
-// do something twurple side
-
-export async function oAuthTokenMiddleWare(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  console.log(
-    "Received oAuth code from client, now validating the code with the Twitch API",
-  );
-
+export async function oAuthTokenMiddleWare(req: Request, res: Response, next: NextFunction) {
   try {
+    console.log("Received oAuth code from client, now validating the code with the Twitch API");
     const { code } = req.body;
+    const tokens = await getUserOauthTokens({ code });
 
-    const token = await getUserOauthTokens({ code });
-    if (!token) {
-      console.error(
-        "Unable to get user oauth tokens from Twitch API using oauth client code",
-      );
+    if (!tokens || !tokens.accessToken || !tokens.refreshToken || !tokens.expiresIn) {
+      const error = "Unable to get user oauth tokens from Twitch API using oauth client code";
+      console.error(error);
+      res.status(400).send(error);
       return;
     }
-    console.log(
-      "Sucessfully got Twitch access and refresh tokens for the user",
-    );
-    // do we have to do something here?
-    const tokenInfo = await getTokenInfo(token.accessToken);
+    console.log("Sucessfully got Twitch access and refresh tokens for the user");
+    const tokenInfo = await getTokenInfo(tokens.accessToken);
 
-    if (
-      !tokenInfo ||
-      !tokenInfo.userId ||
-      !token.refreshToken ||
-      !token.expiresIn
-    ) {
-      console.error("Unable to validate user oauth token with Twitch API");
+    if (!tokenInfo?.userId) {
+      const error = "Unable to validate user oauth token with Twitch API";
+      console.error(error);
+      res.status(400).send(error);
       return;
     }
 
     console.log(`Saving token for user_id ${tokenInfo.userId} in db`);
-    await oAuthTokensPersistentStorage.setTokens(tokenInfo.userId, {
-      access_token: token.accessToken,
-      refresh_token: token.refreshToken,
-      expires_in: token.expiresIn,
+    await persistUserTokens(tokenInfo.userId, {
+      access_token: tokens.accessToken,
+      refresh_token: tokens.refreshToken,
+      expires_in: tokens.expiresIn,
     });
   } catch (err) {
     console.error(err);
