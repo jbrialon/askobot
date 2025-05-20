@@ -10,9 +10,6 @@ import Socket from "./app/classes/socket.js";
 import Voice from "./app/classes/voice.js";
 import TwitchBot from "./app/classes/twitch-bot.js";
 
-// Config
-import config from "./config.js";
-
 // Database
 import { setupDatabase } from "./app/database/index.js";
 
@@ -45,6 +42,9 @@ async function startServer() {
   // Serve static files from the front-end build directory
   const distPath = path.join(__dirname, "..", "front", "dist");
   app.use(express.static(distPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
   const server = http.createServer(app);
 
   server.listen(process.env.APP_PORT, () => {
