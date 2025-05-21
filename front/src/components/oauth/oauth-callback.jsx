@@ -21,15 +21,13 @@ export const OauthCallback = () => {
       const urlState = new URLSearchParams(window.location.search).get("state");
 
       if (state !== urlState) {
-        console.error(
-          "State in session storage does not match state in URL, this smells fishy!",
-        );
+        console.error("State in session storage does not match state in URL, this smells fishy!");
         navigate("/oauth");
         return;
       }
       const code = new URLSearchParams(window.location.search).get("code");
-
-      await fetch(`${SERVER_ENDPOINT}/oauth-token`, {
+      console.log(code, `${TWITCH_OAUTH_REDIRECT_URL}/oauth-token`);
+      await fetch(`${TWITCH_OAUTH_REDIRECT_URL}/oauth-token`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,7 +38,7 @@ export const OauthCallback = () => {
 
       // does no matter what happens here, we retry loading the user scene
       // this.$router.push(path);
-      navigate("/");
+      // navigate("/");
     };
 
     handleOauthCallback();

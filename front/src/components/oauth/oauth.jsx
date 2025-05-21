@@ -8,13 +8,10 @@ export const Oauth = () => {
   const handleOauth = () => {
     const state = nonce(32);
     // save the unique state to verify integrity of the request/reply pair later
-    window.sessionStorage.setItem(
-      "oauth-state",
-      JSON.stringify({ path: pathname, state }),
-    );
+    window.sessionStorage.setItem("oauth-state", JSON.stringify({ path: pathname, state }));
 
     const params = new URLSearchParams({
-      redirect_uri: TWITCH_OAUTH_REDIRECT_URL,
+      redirect_uri: `${TWITCH_OAUTH_REDIRECT_URL}/oauth-callback`,
       client_id: APP_CLIENT_ID,
       response_type: "code",
       scope: "moderator:read:followers channel:read:subscriptions",

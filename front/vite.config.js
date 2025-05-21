@@ -30,9 +30,6 @@ export default defineConfig((mode) => {
     define: {
       APP_CLIENT_ID: JSON.stringify(env.TWITCH_CLIENT_ID),
       TWITCH_OAUTH_REDIRECT_URL: JSON.stringify(env.TWITCH_OAUTH_REDIRECT_URL),
-      SERVER_ENDPOINT: JSON.stringify(
-        env.APP_ENV === "production" ? "jerem.cool" : "http://localhost:3000",
-      ),
     },
   };
 });

@@ -23,8 +23,8 @@ const __dirname = path.dirname(__filename);
 async function startServer() {
   await setupDatabase();
 
-  const twitchBot = new TwitchBot();
-  const voice = new Voice();
+  // const twitchBot = new TwitchBot();
+  // const voice = new Voice();
 
   // init express server
   const app = express();
@@ -59,7 +59,7 @@ async function startServer() {
   app.post("/oauth-token", oAuthTokenMiddleWare);
 
   // init Socket IO Server
-  new Socket({ server, twitchBot, voice });
+  // new Socket({ server, twitchBot, voice });
 
   // New Twitch flow
   startChatBot();
