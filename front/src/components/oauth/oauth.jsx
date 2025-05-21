@@ -1,4 +1,4 @@
-import "../../styles/oauth.scss";
+import styles from "./oauth.module.scss";
 import { useLocation } from "react-router";
 import { nonce } from "./oauth-utils";
 
@@ -21,9 +21,9 @@ export const Oauth = () => {
   };
 
   return (
-    <div className="oauth-container">
-      <button onClick={handleOauth} className="oauth-button">
-        Allow Askobot
+    <div className={styles["page-oauth"]}>
+      <button onClick={handleOauth} className={styles["oauth-button"]}>
+        connect
       </button>
     </div>
   );

@@ -13,6 +13,7 @@ import Console from "./components/ui/console/console.jsx";
 import Start from "./components/ui/start/start.jsx";
 import { Oauth } from "./components/oauth/oauth.jsx";
 import { OauthCallback } from "./components/oauth/oauth-callback.jsx";
+
 // Store
 import { useStore } from "./store/store.js";
 
@@ -95,8 +96,6 @@ function App() {
 
   return (
     <>
-      <Leva collapsed={true} />
-      <Experience />
       <div className="ui">
         <Start />
         {showConsole && <Console />}
@@ -123,6 +122,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("app")).render(
   <StrictMode>
+    <Leva collapsed={true} />
+    <Experience />
     <RouterProvider router={router} />,
   </StrictMode>,
 );
