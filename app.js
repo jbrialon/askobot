@@ -15,7 +15,7 @@ import { setupDatabase } from "./app/database/index.js";
 
 // New Twitch flow
 import { oAuthTokenMiddleWare } from "./app/twitch/oauth-token-middleware.js";
-import { startChatBot } from "./app/twitch/chat-bot.js";
+// import { startChatBot } from "./app/twitch/chat-bot.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,14 +23,14 @@ const __dirname = path.dirname(__filename);
 async function startServer() {
   await setupDatabase();
 
-  // const twitchBot = new TwitchBot();
-  // const voice = new Voice();
+  const twitchBot = new TwitchBot();
+  const voice = new Voice();
 
   // init express server
   const app = express();
   app.use(express.json());
 
-  if (process.env.APP_ENV === "development") {
+  if (process.env["APP_ENV"] === "development") {
     app.use(
       cors({
         origin: "http://localhost:5173",
@@ -47,8 +47,8 @@ async function startServer() {
   });
   const server = http.createServer(app);
 
-  server.listen(process.env.APP_PORT, () => {
-    console.log(`Askobot Front End is running at http://localhost:${process.env.APP_PORT}`);
+  server.listen(process.env["APP_PORT"], () => {
+    console.log(`Askobot Front End is running at http://localhost:${process.env["APP_PORT"]}`);
   });
 
   // Route for serving the index.html
@@ -59,10 +59,10 @@ async function startServer() {
   app.post("/oauth-token", oAuthTokenMiddleWare);
 
   // init Socket IO Server
-  // new Socket({ server, twitchBot, voice });
+  new Socket({ server, twitchBot, voice });
 
   // New Twitch flow
-  startChatBot();
+  // startChatBot();
 }
 
 startServer();
