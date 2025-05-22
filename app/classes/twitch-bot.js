@@ -29,7 +29,6 @@ export default class TwitchBot extends EventEmitter {
     this.lastBotActivity = Date.now();
     this.isOBS = false;
     this.idleInterval = null;
-    this.chatters = [];
 
     // Setup
     this.openAI = createOpenAI();
@@ -61,7 +60,7 @@ export default class TwitchBot extends EventEmitter {
 
     // Init Bot
     this.connect();
-    this.startIdleMonitor();
+    // this.startIdleMonitor();
   }
 
   setIsOBS(isOBS) {
@@ -155,7 +154,7 @@ export default class TwitchBot extends EventEmitter {
    * @param {string} message - The content of the chat message.
    * @param {boolean} self - Indicates if the message was sent by the bot itself.
    */
-  async handleMessage(channel, tags, message, self) {
+  handleMessage(channel, tags, message, self) {
     const user = tags.username;
     const isNotBot =
       user.toLowerCase() !== process.env.TWITCH_BOT_USERNAME.toLowerCase();
@@ -176,12 +175,12 @@ export default class TwitchBot extends EventEmitter {
     //   });
     // }
 
-    if (tags["first-msg"] === true && channel === "#askowbol") {
-      await this.reactToEvent("#askowbol", {
-        eventType: "first-message",
-        data: { username: tags["display-name"] },
-      });
-    }
+    // if (tags["first-msg"] === true && channel === "#askowbol") {
+    //   await this.reactToEvent("#askowbol", {
+    //     eventType: "first-message",
+    //     data: { username: tags["display-name"] },
+    //   });
+    // }
 
     // Process messages starting with "!" only
     if (self || (!message.startsWith("!") && isNotBot)) return;
@@ -399,7 +398,6 @@ export default class TwitchBot extends EventEmitter {
   async reactToEvent(channel, { eventType, data }) {
     this.lastBotActivity = Date.now();
 
-    console.log(eventType, data);
     let message;
     switch (eventType) {
       case "scene-change":

@@ -8,7 +8,7 @@ import cards from "../../db/db.json" with { type: "json" };
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
 const TOP_PAGES = 8;
-const CURRENT_SEASON = 14;
+const CURRENT_SEASON = 15;
 const cache = new MemoryCache();
 
 const findRankByAccountId = (allPlayers, accountId) => {
