@@ -37,8 +37,6 @@ const createOpenAI = () => {
       },
     ];
 
-    console.log(messages);
-
     const options = {
       model,
       messages,

@@ -11,35 +11,39 @@ import { wingsAnimation } from "./animations/wings";
 import { zoomAnimation } from "./animations/zoom";
 import { introAnimation } from "./animations/intro";
 import { blinkAnimation } from "./animations/blink";
+import { talkToCameraAnimation } from "./animations/talkToCamera";
 
 // Constants
 import { ASKOBOT_TRANSFORMS } from "./constants";
 
 export default function useAskobotAnimation(
-  ref,
-  groupRef,
+  botRef,
+  botGroupRef,
+  controlPointGroupRef,
+  controlPointRef,
   scene,
   { wings, antennas, lens, batteries, led },
+  manager,
 ) {
   const isFirstLoad = useRef(true);
 
   const dance = () => {
-    const danceTimeline = danceAnimation(ref);
+    const danceTimeline = danceAnimation(botRef);
     danceTimeline.play();
   };
 
   const spin = () => {
-    const spinTimeline = spinAnimation(ref, antennas);
+    const spinTimeline = spinAnimation(botRef, antennas);
     spinTimeline.play();
   };
 
   const excited = () => {
-    const excitedTimeline = excitedAnimation(ref);
+    const excitedTimeline = excitedAnimation(botRef);
     excitedTimeline.play();
   };
 
   const looping = () => {
-    const loopingTimeline = loopingAnimation(ref);
+    const loopingTimeline = loopingAnimation(botRef, controlPointRef, wings);
     loopingTimeline.play().then(() => {
       wiggleAntennas();
       wiggleWings();
@@ -63,7 +67,13 @@ export default function useAskobotAnimation(
   };
 
   const animateIntro = (scene) => {
-    const introTimeline = introAnimation(scene, ref, groupRef);
+    const introTimeline = introAnimation(
+      scene,
+      botRef,
+      botGroupRef,
+      controlPointGroupRef,
+      controlPointRef,
+    );
     introTimeline.play().then(() => {
       wiggleAntennas();
       wiggleWings();
@@ -78,21 +88,31 @@ export default function useAskobotAnimation(
 
   // use to debug
   const followCurve = () => {
-    animateIntro("live");
+    const talkToCameraTimeline = talkToCameraAnimation(
+      controlPointGroupRef,
+      zoom,
+      manager,
+    );
+    talkToCameraTimeline.play();
   };
 
   // update Askobot position based on Scene
   useEffect(() => {
-    if (!groupRef.current) return;
+    if (!controlPointGroupRef.current) return;
 
     const { position, rotationY } =
       ASKOBOT_TRANSFORMS[scene] ?? ASKOBOT_TRANSFORMS.default;
 
     // we set the initial position and rotation of the bot depending on the scene on first load,
     // we want to animate it after
+    // TODO : I think we don't need the rotation anymore
     if (isFirstLoad.current) {
-      groupRef.current.position.set(position.x, position.y, position.z);
-      groupRef.current.rotation.y = rotationY;
+      controlPointGroupRef.current.position.set(
+        position.x,
+        position.y,
+        position.z,
+      );
+      botGroupRef.current.rotation.y = rotationY;
       isFirstLoad.current = false;
     } else {
       animateIntro(scene);

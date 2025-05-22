@@ -45,6 +45,7 @@ export default class Socket {
 
       socket.on("disconnect", () => {
         console.log("Client disconnected");
+        this.twitchBot.setIsOBS(false);
       });
 
       socket.on("bot-askAskobot", (user, message) => {
@@ -52,7 +53,7 @@ export default class Socket {
       });
 
       socket.on("bot-reactToEvent", (eventType, data) => {
-        this.twitchBot.reactToEvent("#askowbol", eventType, data);
+        this.twitchBot.reactToEvent("#askowbol", { eventType, data });
       });
     });
   }

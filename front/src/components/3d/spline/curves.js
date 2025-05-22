@@ -36,3 +36,22 @@ export const intro = {
   curvePoints: [start, control1, control2, end],
   curve: new CubicBezierCurve3(start, control1, control2, end),
 };
+
+const cameraPos = new Vector3(1.5, 3.3, 3.5);
+const endCameraPos = new Vector3(
+  cameraPos.x,
+  cameraPos.y - 0.25,
+  cameraPos.z - 1,
+);
+const controlTalkToCamera1 = new Vector3(0.5, position.y - 0.5, 0);
+const controlTalkToCamera2 = new Vector3(1.5, position.y - 0.7, 0);
+
+export const talkToCamera = {
+  curvePoints: [end, cameraPos],
+  curve: new CubicBezierCurve3(
+    end,
+    controlTalkToCamera1,
+    controlTalkToCamera2,
+    endCameraPos,
+  ),
+};

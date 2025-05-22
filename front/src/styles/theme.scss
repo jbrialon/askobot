@@ -1,0 +1,11 @@
+@use "./vars.scss" as *;
+
+.background-dot {
+  --dot-color: rgba(255, 255, 255, 0.1);
+  --dot-size: 1px;
+  --dot-space: 32px;
+  background:
+    linear-gradient(90deg, $c-bg calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+    linear-gradient($c-bg calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+    var(--dot-color);
+}

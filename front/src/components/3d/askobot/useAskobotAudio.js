@@ -5,11 +5,14 @@ import { useEffect, useRef } from "react";
 // Composables
 import { useAudioPlayer } from "../../../composables/useAudioPlayer";
 
+// Audio
+import soundEvents from "../../../classes/sound-events";
+
 export default function useAskobotAudio(
   manager,
   scene,
   animations,
-  askobotRef,
+  botRef,
   equalizerMaterial,
 ) {
   const currentAnimation = useRef(null);
@@ -67,46 +70,43 @@ export default function useAskobotAudio(
     return () => manager.off("audio-startScene", handler);
   }, [manager]);
 
+  // on Mounted
+  useEffect(() => {
+    soundEvents.load("zoom");
+    soundEvents.load("whoosh", 4);
+  }, []);
+
   useFrame((state) => {
+    if (!botRef.current) return;
+
     const time = state.clock.getElapsedTime();
+    const bot = botRef.current;
 
     // Talking Animation
-    if (askobotRef.current && currentAnimation.current === "talk") {
+    if (currentAnimation.current === "talk") {
       const raw = Math.pow(analysis * 0.85, 15);
       const strength = Math.min(1, Math.log10(raw * 1000 + 1));
 
       const amp = 0.01;
       const rotAmp = 0.05;
       const targetPositionY = Math.sin(time * 30) * amp * strength;
-      askobotRef.current.position.y = MathUtils.lerp(
-        askobotRef.current.position.y,
-        targetPositionY,
-        0.2,
-      );
+      bot.position.y = MathUtils.lerp(bot.position.y, targetPositionY, 0.2);
       const targetRotationX = Math.sin(time * 20) * rotAmp * strength;
-      askobotRef.current.position.y = MathUtils.lerp(
-        askobotRef.current.rotation.x,
-        targetRotationX,
-        0.2,
-      );
+      bot.position.y = MathUtils.lerp(bot.rotation.x, targetRotationX, 0.2);
     }
 
     // Dancing Animation on start
-    if (askobotRef.current && analysisRef.current && scene === "start") {
+    if (analysisRef.current && scene === "start") {
       const rotAmp = 0.2;
 
       const targetRotationX =
         Math.sin(time * 12.5) * rotAmp * analysisRef.current;
 
-      //smoothing factor
+      // smoothing factor
       // 0.2 = smooth and responsive
       // 0.05 = even smoother (more inertia)
       // 1 = no smoothing (immediate jump)
-      askobotRef.current.rotation.x = MathUtils.lerp(
-        askobotRef.current.rotation.x,
-        targetRotationX,
-        0.2,
-      );
+      bot.rotation.x = MathUtils.lerp(bot.rotation.x, targetRotationX, 0.01);
     }
 
     // Equilizer Mouth

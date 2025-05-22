@@ -101,7 +101,7 @@ export default class TwitchBot extends EventEmitter {
     this.idleInterval = setInterval(() => {
       const now = Date.now();
       const idleTime = now - this.lastBotActivity;
-      const idleLimit = 10 * 60 * 1000; // 10 minutes TODO -> if the chat is busy increase the value
+      const idleLimit = 2 * 60 * 1000; // 2 minutes TODO -> if the chat is busy increase the value
 
       if (idleTime >= idleLimit) {
         this.handleIdle();
@@ -124,6 +124,7 @@ export default class TwitchBot extends EventEmitter {
    * Sends a random idle message to the channel.
    */
   async handleIdle() {
+    console.log("Twitch Bot : handleIdle Event");
     // ideas
     const randomIdleMessages = [
       "It's quiet in here... anyone want to chat?",
@@ -136,7 +137,6 @@ export default class TwitchBot extends EventEmitter {
       randomIdleMessages[Math.floor(Math.random() * randomIdleMessages.length)];
 
     if (this.isOBS) {
-      console.log("Twitch Bot : handleIdle Event");
       await this.reactToEvent("#askowbol", {
         eventType: "idle",
         // data: { message: randomMessage },
@@ -416,8 +416,10 @@ export default class TwitchBot extends EventEmitter {
         message = `A viewer just subscribed or resubscribed. Thank them warmly but with your classic sarcastic tone in a short sentence.`;
         break;
       case "idle":
-        //message = `When the chat is inactive for a while, you say a short, friendly sentence to invite people to talk or ask you questions.`;
         message = `You have been inactive for a while, you say a short, friendly sentence informing people that you are awake.`;
+        break;
+      case "action-talkToCamera":
+        message = `can you say "boo!"`;
         break;
       default:
         message = "Nothing actually happened!";

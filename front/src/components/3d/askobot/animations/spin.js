@@ -1,14 +1,22 @@
 import { gsap } from "gsap";
+import soundEvents from "../../../../classes/sound-events";
 
 export const spinAnimation = (ref, antennas) => {
   if (!ref.current) return;
 
+  const direction = Math.pow(-1, Math.round(Math.random()));
   const origin = {
     y: ref.current.position.y,
     rotY: ref.current.rotation.y,
   };
   const tl = gsap.timeline({
     paused: true,
+    onStart: () => {
+      soundEvents.play("whoosh", {
+        volume: 0.5,
+        rate: 1.3,
+      });
+    },
   });
 
   // Step 1: Move slightly down
@@ -33,7 +41,7 @@ export const spinAnimation = (ref, antennas) => {
   tl.to(
     ref.current.rotation,
     {
-      y: origin.rotY + Math.PI * 2,
+      y: origin.rotY + Math.PI * 2 * direction,
       duration: 0.75,
       ease: "power2.out",
     },
@@ -43,7 +51,7 @@ export const spinAnimation = (ref, antennas) => {
   tl.to(
     antennas[0].rotation,
     {
-      z: Math.PI * -0.15,
+      z: Math.PI * -0.15 * direction,
       duration: 0.25,
       ease: "power2.out",
     },
@@ -52,7 +60,7 @@ export const spinAnimation = (ref, antennas) => {
   tl.to(
     antennas[1].rotation,
     {
-      z: Math.PI * -0.15,
+      z: Math.PI * -0.15 * direction,
       duration: 0.25,
       ease: "power2.out",
     },
