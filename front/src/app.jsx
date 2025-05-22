@@ -11,9 +11,14 @@ import Experience from "./components/3d/experience.jsx";
 import Chat from "./components/ui/chat/chat.jsx";
 import Console from "./components/ui/console/console.jsx";
 import Start from "./components/ui/start/start.jsx";
+import { Oauth } from "./components/oauth/oauth.jsx";
+import { OauthCallback } from "./components/oauth/oauth-callback.jsx";
 
 // Store
 import { useStore } from "./store/store.js";
+
+// Router
+import { createBrowserRouter, RouterProvider } from "react-router";
 
 function App() {
   const manager = new Manager();
@@ -91,8 +96,6 @@ function App() {
 
   return (
     <>
-      <Leva collapsed={true} />
-      <Experience />
       <div className="ui">
         <Start />
         {showConsole && <Console />}
@@ -102,8 +105,25 @@ function App() {
   );
 }
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
+  {
+    path: "/oauth",
+    element: <Oauth />,
+  },
+  {
+    path: "/oauth-callback",
+    element: <OauthCallback />,
+  },
+]);
+
 createRoot(document.getElementById("app")).render(
   <StrictMode>
-    <App />
+    <Leva collapsed={true} />
+    <Experience />
+    <RouterProvider router={router} />,
   </StrictMode>,
 );

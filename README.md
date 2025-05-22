@@ -30,6 +30,35 @@ askobot/
    - Create a `.env` file at the root with your API keys.
    - Create a `db.json` in the `db/` folder containing just `[]` inside.
 
+### Databse Setup
+
+1. Create local_db and if you do not have one already, create a superuser role for your local user
+
+```shell
+createdb local_db
+sudo -u postgres psql
+```
+
+In psql create superuser role for your local user (replace %USERNAME% by your local unix user):
+
+```sql
+CREATE ROLE %USERNAME% SUPERUSER LOGIN;
+```
+
+2. Connect to local_db and create local_user
+
+```shell
+psql -U %USERNAME% -d local_db
+```
+
+In psql:
+
+```sql
+CREATE USER local_user WITH PASSWORD 'local_password';
+GRANT CREATE ON SCHEMA public TO local_user;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+```
+
 ---
 
 ## 🔧 Usage

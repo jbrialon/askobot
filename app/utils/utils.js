@@ -20,9 +20,7 @@ const getValidToken = async () => {
 
 const getOAuthToken = async () => {
   const tokenUrl = "https://oauth.battle.net/token";
-  const authString = Buffer.from(
-    `${process.env.BLIZZARD_CLIENT_ID}:${process.env.BLIZZARD_CLIENT_SECRET}`,
-  ).toString("base64");
+  const authString = Buffer.from(`${process.env.BLIZZARD_CLIENT_ID}:${process.env.BLIZZARD_CLIENT_SECRET}`).toString("base64");
 
   try {
     const response = await fetch(tokenUrl, {
@@ -35,9 +33,7 @@ const getOAuthToken = async () => {
     });
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to fetch token: ${response.status} ${response.statusText}`,
-      );
+      throw new Error(`Failed to fetch token: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -68,7 +64,8 @@ const getCurrentTimeOfDay = () => {
   }
 };
 
-const log = new DiscordNotification(os.hostname(), process.env.DISCORD_WEBHOOK);
+const env = `${os.hostname()}:${process.env.APP_PORT} -> env: ${process.env.APP_ENV}`;
+const log = new DiscordNotification(env, process.env.DISCORD_WEBHOOK);
 
 // Function to add French ordinal suffixes
 const getFrenchOrdinal = (rank) => {
