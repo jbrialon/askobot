@@ -167,6 +167,21 @@ export default class TwitchBot extends EventEmitter {
       message,
     });
 
+    // if (this.chatters.includes(tags.username) === false) {
+    //   this.chatters.push(tags.username);
+    //   await this.reactToEvent("#askowbol", {
+    //     eventType: "first-message-of-the-day",
+    //     data: { username: tags["display-name"] },
+    //   });
+    // }
+
+    // if (tags["first-msg"] === true && channel === "#askowbol") {
+    //   await this.reactToEvent("#askowbol", {
+    //     eventType: "first-message",
+    //     data: { username: tags["display-name"] },
+    //   });
+    // }
+
     // Process messages starting with "!" only
     if (self || (!message.startsWith("!") && isNotBot)) return;
 
