@@ -56,10 +56,10 @@ async function startServer() {
     res.sendFile(path.join(distPath, "index.html"));
   });
 
+  // Route for oAuth token
   app.post("/oauth-token", oAuthTokenMiddleWare);
 
-  // Initialize the chat bot with your channels
-  const chatBot = new ChatBot(); // Add more channels as needed
+  const chatBot = new ChatBot();
   chatBot.connect();
 
   // init Socket IO Server

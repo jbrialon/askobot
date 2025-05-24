@@ -1,9 +1,6 @@
 export default {
   model: "gpt-4.1-nano",
-  commandCooldown: 0.5,
   memoryCapacity: 20,
-  gptCardTriggerWords: ["carte", "crea"],
-  gptHeroTriggerWords: ["hero", "hp", "pouvoir", "hero power"],
   genericContext: `
     <current_time>\${time}</current_time>
     <role_definition>
