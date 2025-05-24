@@ -7,6 +7,8 @@ import { z } from "zod";
 
 import { createOpenAI, buildPromptVars } from "../utils/ai-functions.js";
 import { getChannelInfo } from "../utils/twitch-data.js";
+import { fetchLeaderboardData } from "../utils/battleground.js";
+import { getFrenchOrdinal } from "../utils/utils.js";
 
 export class ChatBot extends EventEmitter {
   private config: typeof config;
@@ -15,13 +17,15 @@ export class ChatBot extends EventEmitter {
   private botName: string;
   private chatHistory: Record<string, { role: string; content: string }[]>;
   private openAI: ReturnType<typeof createOpenAI>;
-  private commandHandlers: Record<string, (channel: string, user: string, params: string[], msg: ChatMessage) => void>;
+  private commandHandlers: Record<string, (channel: string, user: string, params: string[], msg: ChatMessage, commandName: string) => void>;
+  private lastCommandTime: Record<string, number>;
 
   constructor() {
     super();
     this.config = config;
     this.botName = process.env["TWITCH_BOT_USERNAME"] as string;
     this.chatHistory = {};
+    this.lastCommandTime = {};
     this.channels = this.config.channels
       .filter((channel) => {
         return process.env["APP_ENV"] === "development"
@@ -37,8 +41,8 @@ export class ChatBot extends EventEmitter {
     });
 
     this.commandHandlers = {
-      // bgrank: this.handleBGRank,
-      // bgrankduo: this.handleBGRank,
+      bgrank: this.handleBGRank,
+      bgrankduo: this.handleBGRank,
       askowbot: this.handleAskobot,
       askobot: this.handleAskobot,
     };
@@ -48,6 +52,17 @@ export class ChatBot extends EventEmitter {
 
   private setupEventHandlers() {
     this.chatClient.onMessage(this.handleMessage.bind(this));
+  }
+
+  isOnCooldown(channel: string) {
+    const currentTime = Date.now();
+    const cooldownTime = this.config.commandCooldown * 60 * 1000;
+    if (this.lastCommandTime[channel] && currentTime - this.lastCommandTime[channel] < cooldownTime) {
+      return true;
+    }
+    // Update the last command time for the channel
+    this.lastCommandTime[channel] = currentTime;
+    return false;
   }
 
   private handleMessage(channel: string, user: string, text: string, msg: ChatMessage) {
@@ -66,13 +81,13 @@ export class ChatBot extends EventEmitter {
       if (!commandName) return;
       const command = this.commandHandlers[commandName.toLowerCase()];
       if (command) {
-        command.call(this, channel, user, params, msg);
+        command.call(this, channel, user, params, msg, commandName);
       }
     }
   }
 
   // https://twurple.js.org/reference/chat/classes/ChatMessage.html
-  private handleAskobot(channel: string, user: string, params: string[], msg: ChatMessage) {
+  private handleAskobot(channel: string, user: string, params: string[]) {
     const message = params.join(" ");
     this.askAskobot(channel, user, message);
   }
@@ -128,6 +143,43 @@ export class ChatBot extends EventEmitter {
         this.say(channel, `🤖 ${fallbackMessage} 🤖`);
         // this.logToDiscord(channel, "Askowbot", `❌ ERROR: ${error.message} ❌`);
       });
+  }
+
+  async handleBGRank({ channel, user, params, commandName }: { channel: string; user: string; params: string[]; commandName: string }) {
+    const isDuo = commandName === "bgrankduo";
+
+    if (this.isOnCooldown(channel)) {
+      return;
+    }
+
+    try {
+      if (!params || params.length === 0) {
+        // Use the channel's battletag from config if no parameter provided
+        const channelConfig = this.config.channels.find((c) => c.twitchChannel === channel);
+        params[0] = channelConfig ? channelConfig.battletag : "";
+      }
+
+      const player = await fetchLeaderboardData(params, isDuo);
+
+      if (player) {
+        const rankEmojis = {
+          1: "🥇",
+          2: "🥈",
+          3: "🥉",
+          4: "🍫",
+        };
+        const emoji = rankEmojis[player.rank] || "🤖";
+        const messageToSend = `${emoji} ${player.accountid} : ${getFrenchOrdinal(
+          player.rank,
+        )} (${player.rating}) ${isDuo ? "(duo)" : ""} ${emoji}  [📛⏳ ${this.config.commandCooldown}m]`;
+        this.say(channel, messageToSend);
+      } else {
+        const fallbackMessage = `invente un message comme quoi le joueur ${params[0]} n'a pas été trouvé dans le classement`;
+        this.askAskobot(channel, user, fallbackMessage);
+      }
+    } catch (error) {
+      console.error("Error fetching leaderboard data:", error);
+    }
   }
 
   public connect() {

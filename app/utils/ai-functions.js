@@ -24,7 +24,6 @@ const createOpenAI = () => {
         content: promptVars.username ? `@${promptVars.username}: ${promptVars.message}` : promptVars.message,
       },
     ];
-    console.log(messages);
     const options = {
       model,
       messages,

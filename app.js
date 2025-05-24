@@ -59,7 +59,7 @@ async function startServer() {
   app.post("/oauth-token", oAuthTokenMiddleWare);
 
   // Initialize the chat bot with your channels
-  const chatBot = new ChatBot(["Askowbol"]); // Add more channels as needed
+  const chatBot = new ChatBot(); // Add more channels as needed
   chatBot.connect();
 
   // init Socket IO Server
