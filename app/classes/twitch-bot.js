@@ -78,10 +78,7 @@ export default class TwitchBot extends EventEmitter {
   isOnCooldown(channel) {
     const currentTime = Date.now();
     const cooldownTime = this.config.commandCooldown * 60 * 1000;
-    if (
-      this.lastCommandTime[channel] &&
-      currentTime - this.lastCommandTime[channel] < cooldownTime
-    ) {
+    if (this.lastCommandTime[channel] && currentTime - this.lastCommandTime[channel] < cooldownTime) {
       return true;
     }
     // Update the last command time for the channel
@@ -133,8 +130,7 @@ export default class TwitchBot extends EventEmitter {
       "Who's up for a question?",
     ];
 
-    const randomMessage =
-      randomIdleMessages[Math.floor(Math.random() * randomIdleMessages.length)];
+    const randomMessage = randomIdleMessages[Math.floor(Math.random() * randomIdleMessages.length)];
 
     if (this.isOBS) {
       await this.reactToEvent("#askowbol", {
@@ -156,8 +152,7 @@ export default class TwitchBot extends EventEmitter {
    */
   handleMessage(channel, tags, message, self) {
     const user = tags.username;
-    const isNotBot =
-      user.toLowerCase() !== process.env.TWITCH_BOT_USERNAME.toLowerCase();
+    const isNotBot = user.toLowerCase() !== process.env.TWITCH_BOT_USERNAME.toLowerCase();
 
     tags.timestamp = Date.now();
 
@@ -217,9 +212,7 @@ export default class TwitchBot extends EventEmitter {
     try {
       if (!args || args.length === 0) {
         // Use the channel's battletag from config if no parameter provided
-        const channelConfig = this.config.channels.find(
-          (c) => c.twitchChannel === channel,
-        );
+        const channelConfig = this.config.channels.find((c) => c.twitchChannel === channel);
         args[0] = channelConfig ? channelConfig.battletag : "";
       }
 
@@ -235,9 +228,7 @@ export default class TwitchBot extends EventEmitter {
         const emoji = rankEmojis[player.rank] || "🤖";
         const messageToSend = `${emoji} ${player.accountid} : ${getFrenchOrdinal(
           player.rank,
-        )} (${player.rating}) ${isDuo ? "(duo)" : ""} ${emoji}  [📛⏳ ${
-          this.config.commandCooldown
-        }m]`;
+        )} (${player.rating}) ${isDuo ? "(duo)" : ""} ${emoji}  [📛⏳ ${this.config.commandCooldown}m]`;
         this.client.say(channel, messageToSend);
       } else {
         const fallbackMessage = `invente un message comme quoi le joueur ${args[0]} n'a pas été trouvé dans le classement`;
@@ -280,18 +271,14 @@ export default class TwitchBot extends EventEmitter {
     this.lastBotActivity = Date.now();
 
     const channelInfo = await getChannelInfo(channel);
-    const channelConfig = this.config.channels.find(
-      (c) => c.twitchChannel === channel,
-    );
+    const channelConfig = this.config.channels.find((c) => c.twitchChannel === channel);
 
     if (!this.chatHistory[channel]) {
       this.chatHistory[channel] = [];
     }
 
     if (this.chatHistory[channel].length > this.config.memoryCapacity) {
-      this.chatHistory[channel] = this.chatHistory[channel].slice(
-        -this.config.memoryCapacity,
-      );
+      this.chatHistory[channel] = this.chatHistory[channel].slice(-this.config.memoryCapacity);
     }
 
     // TODO
@@ -300,20 +287,17 @@ export default class TwitchBot extends EventEmitter {
         type: "function",
         function: {
           name: "get_card_info",
-          description:
-            "Fetch Hearthstone Battlegrounds card details. Use this tool when a user asks about a specific card.",
+          description: "Fetch Hearthstone Battlegrounds card details. Use this tool when a user asks about a specific card.",
           parameters: {
             type: "object",
             properties: {
               card_name: {
                 type: "string",
-                description:
-                  "The name of the Hearthstone Battlegrounds card to fetch information about.",
+                description: "The name of the Hearthstone Battlegrounds card to fetch information about.",
               },
               golden: {
                 type: "boolean",
-                description:
-                  "Whether to fetch information about the golden version of the card.",
+                description: "Whether to fetch information about the golden version of the card.",
               },
             },
             required: ["card_name"],
@@ -335,8 +319,7 @@ export default class TwitchBot extends EventEmitter {
             properties: {
               hero_name: {
                 type: "string",
-                description:
-                  "The name of the Hearthstone Battlegrounds hero to fetch the hero power information for.",
+                description: "The name of the Hearthstone Battlegrounds hero to fetch the hero power information for.",
               },
             },
             required: ["hero_name"],
@@ -381,8 +364,7 @@ export default class TwitchBot extends EventEmitter {
       })
       .catch((error) => {
         console.error("Error in askAskobot:", error);
-        const fallbackMessage =
-          "Erreur : J'ai oublié comment parler poliment, désolé !";
+        const fallbackMessage = "Erreur : J'ai oublié comment parler poliment, désolé !";
         this.client.say(channel, `🤖 ${fallbackMessage} 🤖`);
         this.logToDiscord(channel, "Askowbot", `❌ ERROR: ${error.message} ❌`);
       });
@@ -426,9 +408,7 @@ export default class TwitchBot extends EventEmitter {
     }
 
     const channelInfo = await getChannelInfo(channel);
-    const channelConfig = this.config.channels.find(
-      (c) => c.twitchChannel === channel,
-    );
+    const channelConfig = this.config.channels.find((c) => c.twitchChannel === channel);
 
     await this.openAI({
       model: config.model,
@@ -479,9 +459,6 @@ export default class TwitchBot extends EventEmitter {
    */
   connect() {
     this.client.connect();
-    log
-      .sucessfulMessage()
-      .addTitle("🚀 Askowbot Launch success 🚀")
-      .sendMessage();
+    log.sucessfulMessage().addTitle("🚀 Askowbot Launch success 🚀").sendMessage();
   }
 }

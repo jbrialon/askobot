@@ -27,7 +27,7 @@ export default {
   animations: ["talk", "dance", "excited", "spin", "looping"],
   channels: [
     {
-      twitchChannel: "#askowbol",
+      twitchChannel: "askowbol",
       mood: ["excited", "helpful", "sarcastic", "extremely sarcastic"],
       maxChar: "200 Characters",
       context: [
@@ -47,7 +47,7 @@ export default {
       battletag: "Askow",
     },
     {
-      twitchChannel: "#lbineau",
+      twitchChannel: "lbineau",
       mood: ["curious", "helpful", "sarcastic", "extremely sarcastic"],
       maxChar: "120 Characters",
       context: [
@@ -60,7 +60,7 @@ export default {
       battletag: "lbineau",
     },
     {
-      twitchChannel: "#slyders_hs",
+      twitchChannel: "slyders_hs",
       maxChar: "30 words",
       mood: ["helpful", "sarcastic", "extremely sarcastic", "extremely sarcastic"],
       context: [
@@ -108,7 +108,7 @@ export default {
       battletag: "Slyders",
     },
     {
-      twitchChannel: "#yanousama",
+      twitchChannel: "yanousama",
       mood: ["curious", "helpful", "sarcastic", "sarcastic"],
       maxChar: "100 Characters",
       context: [
@@ -129,7 +129,7 @@ export default {
       battletag: "yanousama",
     },
     {
-      twitchChannel: "#mat_hkb",
+      twitchChannel: "mat_hkb",
       mood: ["curious", "helpful", "sarcastic", "sarcastic"],
       maxChar: "100 Characters",
       context: [
@@ -142,7 +142,7 @@ export default {
       battletag: "Mathkb",
     },
     {
-      twitchChannel: "#veluxdeluxe",
+      twitchChannel: "veluxdeluxe",
       mood: ["curious", "helpful", "sarcastic", "sarcastic"],
       maxChar: "100 Characters",
       context: [

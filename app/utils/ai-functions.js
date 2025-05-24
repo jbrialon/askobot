@@ -9,41 +9,27 @@ const createOpenAI = () => {
     apiKey: process.env.APIKEY,
   });
 
-  return async function aiFunction({
-    model = "gpt-4.1-nano",
-    prompt,
-    promptVars = {},
-    history = [],
-    tools = [],
-    outputSchema,
-  }) {
+  return async function aiFunction({ model = "gpt-4.1-nano", prompt, promptVars = {}, history = [], tools = [], outputSchema }) {
     const zodSchema = outputSchema || null;
 
     promptVars.prompt = prompt;
 
-    const context = Object.entries(promptVars).reduce(
-      (p, [key, value]) => p.replace(`\${${key}}`, value),
-      config.genericContext,
-    );
+    const context = Object.entries(promptVars).reduce((p, [key, value]) => p.replace(`\${${key}}`, value), config.genericContext);
 
     const messages = [
       ...(context ? [{ role: "system", content: context }] : []),
       ...history,
       {
         role: "user",
-        content: promptVars.username
-          ? `@${promptVars.username}: ${promptVars.message}`
-          : promptVars.message,
+        content: promptVars.username ? `@${promptVars.username}: ${promptVars.message}` : promptVars.message,
       },
     ];
-
+    console.log(messages);
     const options = {
       model,
       messages,
       tools: tools.length > 0 ? tools : undefined, // TODO
-      response_format: zodSchema
-        ? zodResponseFormat(zodSchema, "structured_output")
-        : undefined,
+      response_format: zodSchema ? zodResponseFormat(zodSchema, "structured_output") : undefined,
     };
     try {
       const response = await openai.chat.completions.create(options);
@@ -58,12 +44,8 @@ const createOpenAI = () => {
 };
 
 const buildPromptVars = ({ user, message, channelConfig, channelInfo }) => {
-  const randomMood =
-    channelConfig.mood[Math.floor(Math.random() * channelConfig.mood.length)];
-  const randomContext =
-    channelConfig.context[
-      Math.floor(Math.random() * channelConfig.context.length)
-    ];
+  const randomMood = channelConfig.mood[Math.floor(Math.random() * channelConfig.mood.length)];
+  const randomContext = channelConfig.context[Math.floor(Math.random() * channelConfig.context.length)];
 
   return {
     time: new Date().toLocaleString(),
