@@ -30,7 +30,6 @@ export class ChatBot extends EventEmitter {
       })
       .map((channel) => channel.twitchChannel); // remove the # from the channel name
 
-    console.log(this.channels);
     this.openAI = createOpenAI();
     this.chatClient = new ChatClient({
       authProvider: staticAuthProvider,
@@ -74,13 +73,11 @@ export class ChatBot extends EventEmitter {
 
   // https://twurple.js.org/reference/chat/classes/ChatMessage.html
   private handleAskobot(channel: string, user: string, params: string[], msg: ChatMessage) {
-    console.log(`handleAskobot: ${channel}: ${user}: ${params.join(" ")}`);
     const message = params.join(" ");
     this.askAskobot(channel, user, message);
   }
 
   private async askAskobot(channel: string, user: string, message: string) {
-    console.log(channel);
     const channelInfo = await getChannelInfo(channel);
     const channelConfig = this.config.channels.find((c) => c.twitchChannel === channel);
 

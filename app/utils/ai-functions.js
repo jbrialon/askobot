@@ -50,7 +50,7 @@ const buildPromptVars = ({ user, message, channelConfig, channelInfo }) => {
   return {
     time: new Date().toLocaleString(),
     mood: randomMood,
-    username: user.name,
+    username: user,
     message,
     channelContext: randomContext,
     title: channelInfo.title,
