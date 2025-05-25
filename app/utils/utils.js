@@ -64,8 +64,65 @@ const getCurrentTimeOfDay = () => {
   }
 };
 
-const env = `${os.hostname()}:${process.env.APP_PORT} -> env: ${process.env.APP_ENV}`;
-const log = new DiscordNotification(env, process.env.DISCORD_WEBHOOK);
+const discordLog = new DiscordNotification(os.hostname(), process.env.DISCORD_WEBHOOK);
+
+const log = {
+  info: ({ user, message, channel }) => {
+    console.log(`[INFO] ${user}: ${message} (${channel})`);
+    discordLog
+      .infoMessage()
+      .addTitle(user)
+      .addDescription(message)
+      .addField({ name: "env", value: process.env.APP_ENV })
+      .addField({ name: "port", value: process.env.APP_PORT })
+      .addFooter(`channel: ${channel}`)
+      .sendMessage();
+  },
+  warn: ({ user, message, channel }) => {
+    console.warn(`[WARN] ${user}: ${message} (${channel})`);
+    discordLog
+      .warningMessage()
+      .addTitle(user)
+      .addDescription(message)
+      .addField({ name: "env", value: process.env.APP_ENV })
+      .addField({ name: "port", value: process.env.APP_PORT })
+      .addFooter(`channel: ${channel}`)
+      .sendMessage();
+  },
+  error: ({ user, message, channel }) => {
+    console.error(`[ERROR] ${user}: ${message} (${channel})`);
+    discordLog
+      .errorMessage()
+      .addTitle(user)
+      .addDescription(message)
+      .addField({ name: "env", value: process.env.APP_ENV })
+      .addField({ name: "port", value: process.env.APP_PORT })
+      .addFooter(`channel: ${channel}`)
+      .sendMessage();
+  },
+  success: ({ user, message, channel }) => {
+    console.log(`[SUCCESS] ${user}: ${message} (${channel})`);
+    discordLog
+      .sucessfulMessage()
+      .addTitle(user)
+      .addDescription(message)
+      .addField({ name: "env", value: process.env.APP_ENV })
+      .addField({ name: "port", value: process.env.APP_PORT })
+      .addFooter(`channel: ${channel}`)
+      .sendMessage();
+  },
+  command: ({ user, channel, question, response }) => {
+    console.log(`[COMMAND] ${user} asked: "${question}"\nResponse: "${response}" (${channel})`);
+    discordLog
+      .infoMessage()
+      .addTitle("🤖 Askobot Interaction 🤖")
+      .addDescription(`**${user}:** ${question}\n**Response:** ${response.slice(1, -1)}`)
+      .addField({ name: "env", value: process.env.APP_ENV })
+      .addField({ name: "port", value: process.env.APP_PORT })
+      .addFooter(`channel: ${channel}`)
+      .sendMessage();
+  },
+};
 
 // Function to add French ordinal suffixes
 const getFrenchOrdinal = (rank) => {

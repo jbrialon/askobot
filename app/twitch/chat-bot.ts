@@ -87,8 +87,13 @@ export class ChatBot extends EventEmitter {
 
           if (response) {
             this.say(channel, response.message);
-            // TODO: improve logs & events
-            this.logToDiscord(channel, user, response.message);
+            log.command({
+              user: user,
+              channel: channel,
+              question: params.join(" "),
+              response: response.message,
+            });
+
             this.emit("bot-voice", {
               channel,
               response,
@@ -97,21 +102,23 @@ export class ChatBot extends EventEmitter {
           }
         } catch (error) {
           console.error(`Error executing command ${commandName}:`, error);
-          // TODO: improve logs
-          this.logToDiscord(channel, user, `❌ ERROR: ${error.message} ❌`);
+          log.error({
+            user: user,
+            message: error.message,
+            channel: channel,
+          });
         }
       }
     }
   }
-  // TODO: improve logs
-  private logToDiscord(channel: string, user: string, message: string) {
-    log.message().addField({ name: user, value: message }).addFooter(`channel: ${channel}`).sendMessage();
-  }
 
   public connect() {
     this.chatClient.connect();
-    // TODO: improve logs
-    log.sucessfulMessage().addTitle("🚀 Askowbot Launch success 🚀").sendMessage();
+    log.success({
+      user: "System",
+      message: "🚀 Askowbot Launch success 🚀",
+      channel: "System",
+    });
   }
 
   public say(channel: string, message: string) {
