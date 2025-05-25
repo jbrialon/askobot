@@ -29,7 +29,7 @@ export const bgRankCommand: CommandHandler = {
           3: "🥉",
           4: "🍫",
         } as const;
-        const emoji = rankEmojis[player.rank as keyof typeof rankEmojis] || "🤖";
+        const emoji = rankEmojis[player.rank as keyof typeof rankEmojis] || "⚔";
         const messageToSend = `${emoji} ${player.accountid} : ${getFrenchOrdinal(
           player.rank,
         )} (${player.rating}) ${isDuo ? "(duo)" : ""} ${emoji}  [📛⏳ 30s]`;

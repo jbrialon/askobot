@@ -86,7 +86,7 @@ export class ChatBot extends EventEmitter {
           const response = await command.execute(channel, user, params, msg);
 
           if (response) {
-            this.say(channel, `🤖 ${response.message} 🤖`);
+            this.say(channel, response.message);
             // TODO: improve logs & events
             this.logToDiscord(channel, user, response.message);
             this.emit("bot-voice", {

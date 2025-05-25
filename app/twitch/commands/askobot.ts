@@ -5,7 +5,6 @@ import { CommandHandler, CommandResponse } from "./types.js";
 import { createOpenAI, buildPromptVars } from "../../utils/ai-functions.js";
 import { getChannelInfo } from "../../utils/twitch-data.js";
 import config from "../../../config.js";
-import { response } from "express";
 interface ChatHistory {
   [channel: string]: { role: string; content: string }[];
 }
@@ -70,10 +69,13 @@ export class AskobotCommand implements CommandHandler {
       // Manage chat history after successful response
       this.manageHistory(channel, user, message, result.message);
 
-      return result;
+      return {
+        ...result,
+        message: `🤖 ${result.message} 🤖`,
+      };
     } catch (error) {
       console.error("Error in askobot:", error);
-      const fallbackMessage = "Erreur : J'ai oublié comment parler poliment, désolé !";
+      const fallbackMessage = "🤖 Erreur : J'ai oublié comment parler poliment, désolé ! 🤖";
       return {
         message: fallbackMessage,
         emotion: undefined,
