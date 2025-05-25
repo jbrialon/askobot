@@ -7,12 +7,11 @@ import { log } from "../app/utils/utils.js";
 
 const saveDataToFile = async (outputFilePath) => {
   try {
-    console.log("Fetching data for cards");
-    log
-      .infoMessage()
-      .addTitle("Import")
-      .addDescription("Fetching data for cards")
-      .sendMessage();
+    log.info({
+      user: "System",
+      message: "Fetching data for cards",
+      channel: "System",
+    });
     const cardsData = await fetchAllCardData();
     if (cardsData) {
       // Create the output directory if it doesn't exist
@@ -24,26 +23,24 @@ const saveDataToFile = async (outputFilePath) => {
       // Save the card data to a JSON file
       fs.writeFileSync(outputFilePath, JSON.stringify(cardsData, null, 2));
 
-      console.log(`Cards data saved to: ${outputFilePath}`);
-      log
-        .sucessfulMessage()
-        .addTitle("Import Success")
-        .addDescription(`Cards data saved to: ${outputFilePath}`)
-        .sendMessage();
+      log.success({
+        user: "System",
+        message: `Cards data saved to: ${outputFilePath}`,
+        channel: "System",
+      });
     } else {
-      console.log(`No data found for cards: "${cardName}"`);
-      log
-        .warningMessage()
-        .addTitle("Import Fail")
-        .addDescription(`No data found for cards: "${cardName}"`)
-        .sendMessage();
+      log.info({
+        user: "System",
+        message: `No data found for cards: "${cardName}"`,
+        channel: "System",
+      });
     }
   } catch (error) {
-    log
-      .errorMessage()
-      .addTitle("Import Error")
-      .addDescription(`Error saving card data: "${error}"`)
-      .sendMessage();
+    log.error({
+      user: "System",
+      message: `Error saving card data: "${error}"`,
+      channel: "System",
+    });
   }
 };
 
