@@ -10,6 +10,7 @@ export const bgRankCommand: CommandHandler = {
   name: "bgrank",
   aliases: ["bgrankduo"],
   cooldown: 0.5,
+  excludedChannels: ["lbineau"],
   execute: async (channel: string, user: string, params: string[], msg: ChatMessage) => {
     const isDuo = msg.text.startsWith("!bgrankduo");
 

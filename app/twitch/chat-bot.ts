@@ -25,6 +25,7 @@ export class ChatBot extends EventEmitter {
       .map((channel) => channel.twitchChannel);
 
     this.chatClient = new ChatClient({
+      webSocket: true,
       authProvider: staticAuthProvider,
       channels: this.channels,
     });
@@ -70,6 +71,11 @@ export class ChatBot extends EventEmitter {
 
       if (command) {
         try {
+          // Check if command is excluded from this channel
+          if (command.excludedChannels?.includes(channel)) {
+            return;
+          }
+
           // Check cooldown only if the command has one
           if (command.cooldown && this.isOnCooldown(channel, command.name, command.cooldown)) {
             return;
