@@ -1,18 +1,130 @@
 import { staticAuthProvider } from "./auth-clients.js";
-import { ChatClient } from "@twurple/chat";
+import { ChatClient, ChatMessage } from "@twurple/chat";
+import { EventEmitter } from "events";
 
-const CHANNEL = "Askowbol";
+import config from "../../config.js";
+import { commands } from "./commands/index.js";
+import { log } from "../utils/utils.js";
 
-export const startChatBot = () => {
-  const chatClient = new ChatClient({
-    authProvider: staticAuthProvider,
-    channels: [CHANNEL],
-  });
+export class ChatBot extends EventEmitter {
+  private config: typeof config;
+  private channels: string[];
+  private chatClient: ChatClient;
+  private botName: string;
+  private lastCommandTime: Record<string, Record<string, number>>;
 
-  chatClient.connect();
+  constructor() {
+    super();
+    this.config = config;
+    this.botName = process.env["TWITCH_BOT_USERNAME"] as string;
+    this.lastCommandTime = {};
+    this.channels = this.config.channels
+      .filter((channel) => {
+        return process.env["APP_ENV"] === "development"
+          ? channel.twitchChannel === "askowbol" // Only include #askowbol in development
+          : channel.twitchChannel !== "askowbol"; // Exclude #askowbol in production
+      })
+      .map((channel) => channel.twitchChannel);
 
-  chatClient.onMessage((channel, user, text) => {
-    console.log(`${channel}: ${user}: ${text}`);
-    chatClient.say(CHANNEL, "Hello! SamyZ");
-  });
-};
+    this.chatClient = new ChatClient({
+      webSocket: true,
+      authProvider: staticAuthProvider,
+      channels: this.channels,
+    });
+
+    this.setupEventHandlers();
+  }
+
+  private setupEventHandlers() {
+    this.chatClient.onMessage(this.handleMessage.bind(this));
+  }
+
+  isOnCooldown(channel: string, commandName: string, cooldownMinutes: number): boolean {
+    const currentTime = Date.now();
+    const cooldownTime = cooldownMinutes * 60 * 1000;
+
+    if (!this.lastCommandTime[channel]) {
+      this.lastCommandTime[channel] = {};
+    }
+
+    if (this.lastCommandTime[channel][commandName] && currentTime - this.lastCommandTime[channel][commandName] < cooldownTime) {
+      return true;
+    }
+
+    // Update the last command time for the channel and command
+    this.lastCommandTime[channel][commandName] = currentTime;
+    return false;
+  }
+
+  // https://twurple.js.org/reference/chat/classes/ChatMessage.html
+  private async handleMessage(channel: string, user: string, text: string, msg: ChatMessage) {
+    // Skip messages from the bot itself
+    if (user.toLowerCase() === this.botName.toLowerCase()) {
+      return;
+    }
+
+    if (text.startsWith("!")) {
+      const [commandName, ...params] = text.slice(1).split(" ");
+      if (!commandName) {
+        return;
+      }
+
+      const command = commands.find((cmd) => cmd.name === commandName.toLowerCase() || cmd.aliases?.includes(commandName.toLowerCase()));
+
+      if (command) {
+        try {
+          // Check if command is excluded from this channel
+          if (command.excludedChannels?.includes(channel)) {
+            return;
+          }
+
+          // Check cooldown only if the command has one
+          if (command.cooldown && this.isOnCooldown(channel, command.name, command.cooldown)) {
+            return;
+          }
+
+          const response = await command.execute(channel, user, params, msg);
+
+          if (response) {
+            this.say(channel, response.message);
+            // TODO: improve logs & events
+            this.logToDiscord(channel, user, response.message);
+            this.emit("bot-voice", {
+              channel,
+              response,
+              user,
+            });
+          }
+        } catch (error) {
+          console.error(`Error executing command ${commandName}:`, error);
+          // TODO: improve logs
+          this.logToDiscord(channel, user, `❌ ERROR: ${error.message} ❌`);
+        }
+      }
+    }
+  }
+  // TODO: improve logs
+  private logToDiscord(channel: string, user: string, message: string) {
+    log.message().addField({ name: user, value: message }).addFooter(`channel: ${channel}`).sendMessage();
+  }
+
+  public connect() {
+    this.chatClient.connect();
+    // TODO: improve logs
+    log.sucessfulMessage().addTitle("🚀 Askowbot Launch success 🚀").sendMessage();
+  }
+
+  public say(channel: string, message: string) {
+    this.chatClient.say(channel, message);
+  }
+
+  public addChannel(channel: string) {
+    this.channels.push(channel);
+    this.chatClient.join(channel);
+  }
+
+  public removeChannel(channel: string) {
+    this.channels = this.channels.filter((c) => c !== channel);
+    this.chatClient.part(channel);
+  }
+}

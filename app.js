@@ -8,23 +8,20 @@ import { fileURLToPath } from "url";
 // Classes
 import Socket from "./app/classes/socket.js";
 import Voice from "./app/classes/voice.js";
-import TwitchBot from "./app/classes/twitch-bot.js";
+// import TwitchBot from "./app/classes/twitch-bot.js";
 
 // Database
 import { setupDatabase } from "./app/database/index.js";
 
 // New Twitch flow
 import { oAuthTokenMiddleWare } from "./app/twitch/oauth-token-middleware.js";
-// import { startChatBot } from "./app/twitch/chat-bot.js";
+import { ChatBot } from "./app/twitch/chat-bot.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function startServer() {
   await setupDatabase();
-
-  const twitchBot = new TwitchBot();
-  const voice = new Voice();
 
   // init express server
   const app = express();
@@ -56,13 +53,15 @@ async function startServer() {
     res.sendFile(path.join(distPath, "index.html"));
   });
 
+  // Route for oAuth token
   app.post("/oauth-token", oAuthTokenMiddleWare);
 
-  // init Socket IO Server
-  new Socket({ server, twitchBot, voice });
+  const voice = new Voice();
+  const chatBot = new ChatBot();
+  chatBot.connect();
 
-  // New Twitch flow
-  // startChatBot();
+  // init Socket IO Server
+  const socket = new Socket({ server, chatBot, voice });
 }
 
 startServer();

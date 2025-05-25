@@ -8,13 +8,7 @@ import { useAudioPlayer } from "../../../composables/useAudioPlayer";
 // Audio
 import soundEvents from "../../../classes/sound-events";
 
-export default function useAskobotAudio(
-  manager,
-  scene,
-  animations,
-  botRef,
-  equalizerMaterial,
-) {
+export default function useAskobotAudio(manager, scene, animations, botRef, equalizerMaterial) {
   const currentAnimation = useRef(null);
   const analysisRef = useRef(0);
   const { analysis, playAudio } = useAudioPlayer();
@@ -99,8 +93,7 @@ export default function useAskobotAudio(
     if (analysisRef.current && scene === "start") {
       const rotAmp = 0.2;
 
-      const targetRotationX =
-        Math.sin(time * 12.5) * rotAmp * analysisRef.current;
+      const targetRotationX = Math.sin(time * 12.5) * rotAmp * analysisRef.current;
 
       // smoothing factor
       // 0.2 = smooth and responsive
