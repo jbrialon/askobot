@@ -6,8 +6,8 @@ import http from "http";
 import { fileURLToPath } from "url";
 
 // Classes
-// import Socket from "./app/classes/socket.js";
-// import Voice from "./app/classes/voice.js";
+import Socket from "./app/classes/socket.js";
+import Voice from "./app/classes/voice.js";
 // import TwitchBot from "./app/classes/twitch-bot.js";
 
 // Database
@@ -22,9 +22,6 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   await setupDatabase();
-
-  // const twitchBot = new TwitchBot();
-  // const voice = new Voice();
 
   // init express server
   const app = express();
@@ -59,11 +56,12 @@ async function startServer() {
   // Route for oAuth token
   app.post("/oauth-token", oAuthTokenMiddleWare);
 
+  const voice = new Voice();
   const chatBot = new ChatBot();
   chatBot.connect();
 
   // init Socket IO Server
-  // const socket = new Socket({ server, twitchBot, voice });
+  const socket = new Socket({ server, chatBot, voice });
 }
 
 startServer();

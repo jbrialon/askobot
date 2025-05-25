@@ -2,7 +2,7 @@ import { Server as SocketIOServer } from "socket.io";
 
 let instance = null;
 export default class Socket {
-  constructor({ server, twitchBot, voice }) {
+  constructor({ server, chatBot, voice }) {
     // Singleton
     if (instance) {
       return instance;
@@ -11,7 +11,7 @@ export default class Socket {
 
     // Setup
     this.isOBS = false;
-    this.twitchBot = twitchBot;
+    this.chatBot = chatBot;
     this.voice = voice;
     this.chatHistory = [];
 
@@ -26,7 +26,7 @@ export default class Socket {
 
     // init Events
     this.initIOEvents();
-    this.initTwichBotEvents();
+    this.initChatBotEvents();
   }
 
   initIOEvents() {
@@ -37,43 +37,46 @@ export default class Socket {
       } else {
         console.log("New client connected");
       }
-      // inform the Twitch Bot we are connected to OBS
-      this.twitchBot.setIsOBS(this.isOBS);
+      // inform the Chat Bot we are connected to OBS
+      // this.chatBot.setIsOBS(this.isOBS);
 
       // Send current chat history to the connected client
       socket.emit("chat-history", this.chatHistory);
 
+      // TODO: finish this
       socket.on("disconnect", () => {
         console.log("Client disconnected");
-        this.twitchBot.setIsOBS(false);
+        // this.chatBot.setIsOBS(false);
       });
 
+      // TODO: finish this
       socket.on("bot-askAskobot", (user, message) => {
-        this.twitchBot.askAskobot("#askowbol", user, message);
+        // this.chatBot.askAskobot("#askowbol", user, message);
       });
 
+      // TODO: finish this
       socket.on("bot-reactToEvent", (eventType, data) => {
-        this.twitchBot.reactToEvent("#askowbol", { eventType, data });
+        // this.chatBot.reactToEvent("#askowbol", { eventType, data });
       });
     });
   }
 
-  initTwichBotEvents() {
-    this.twitchBot.on("bot-chat", (data) => {
+  initChatBotEvents() {
+    this.chatBot.on("bot-chat", (data) => {
       this.chatHistory.push(data);
       this.io.emit("chat-history", this.chatHistory);
     });
 
-    this.twitchBot.on("bot-voice", async (data) => {
-      if (data.channel === "#askowbol") {
+    this.chatBot.on("bot-voice", async (data) => {
+      if (data.channel === "askowbol") {
         const audioBuffer = await this.voice.convertAsStream({
-          text: data.result.response,
-          emotion: data.result.emotion,
+          text: data.response.message,
+          emotion: data.response.emotion,
         });
 
         this.io.emit("audio-voice", {
           channel: data.channel,
-          content: data.result,
+          content: data.response,
           audioBuffer: audioBuffer ? audioBuffer.toString("base64") : null,
         });
       }

@@ -17,7 +17,7 @@ export default {
     <output_instructions>
     - Mention the user naturally (e.g. "@\${username}, great question...") when it adds flavor.
     - Return a JSON with:
-      - response
+      - message
       - emotion: \${moods}.
       - animation: \${animations}.
     </output_instructions>

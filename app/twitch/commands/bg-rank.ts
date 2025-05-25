@@ -1,6 +1,5 @@
 import { ChatMessage } from "@twurple/chat";
-
-import { CommandHandler } from "./types.js";
+import { CommandHandler, CommandResponse } from "./types.js";
 import { fetchLeaderboardData } from "../../utils/battleground.js";
 import { getFrenchOrdinal } from "../../utils/utils.js";
 import config from "../../../config.js";
@@ -11,7 +10,7 @@ export const bgRankCommand: CommandHandler = {
   aliases: ["bgrankduo"],
   cooldown: 0.5,
   excludedChannels: ["lbineau"],
-  execute: async (channel: string, user: string, params: string[], msg: ChatMessage) => {
+  execute: async (channel: string, user: string, params: string[], msg: ChatMessage): Promise<CommandResponse> => {
     const isDuo = msg.text.startsWith("!bgrankduo");
 
     try {
@@ -34,9 +33,14 @@ export const bgRankCommand: CommandHandler = {
         const messageToSend = `${emoji} ${player.accountid} : ${getFrenchOrdinal(
           player.rank,
         )} (${player.rating}) ${isDuo ? "(duo)" : ""} ${emoji}  [📛⏳ 30s]`;
-        return messageToSend;
+
+        return {
+          message: messageToSend,
+          emotion: "",
+          animation: "",
+        };
       } else {
-        // if Player is not found, we to generate a creative message
+        // if Player is not found, we generate a creative message
         return await askobotCommand.execute(
           channel,
           user,

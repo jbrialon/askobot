@@ -4,6 +4,8 @@ import { EventEmitter } from "events";
 
 import config from "../../config.js";
 import { commands } from "./commands/index.js";
+import { log } from "../utils/utils.js";
+
 export class ChatBot extends EventEmitter {
   private config: typeof config;
   private channels: string[];
@@ -82,19 +84,34 @@ export class ChatBot extends EventEmitter {
           }
 
           const response = await command.execute(channel, user, params, msg);
+
           if (response) {
-            this.say(channel, response);
+            this.say(channel, `🤖 ${response.message} 🤖`);
+            // TODO: improve logs & events
+            this.logToDiscord(channel, user, response.message);
+            this.emit("bot-voice", {
+              channel,
+              response,
+              user,
+            });
           }
         } catch (error) {
           console.error(`Error executing command ${commandName}:`, error);
-          // TODO: log
+          // TODO: improve logs
+          this.logToDiscord(channel, user, `❌ ERROR: ${error.message} ❌`);
         }
       }
     }
   }
+  // TODO: improve logs
+  private logToDiscord(channel: string, user: string, message: string) {
+    log.message().addField({ name: user, value: message }).addFooter(`channel: ${channel}`).sendMessage();
+  }
 
   public connect() {
     this.chatClient.connect();
+    // TODO: improve logs
+    log.sucessfulMessage().addTitle("🚀 Askowbot Launch success 🚀").sendMessage();
   }
 
   public say(channel: string, message: string) {
