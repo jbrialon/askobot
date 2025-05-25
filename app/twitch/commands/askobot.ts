@@ -39,11 +39,12 @@ export class AskobotCommand implements CommandHandler {
     }
   }
 
-  async execute(channel: string, user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> {
+  async execute(channel: string, user: string, params: string[], msg: ChatMessage): Promise<CommandResponse> {
     const message = params.join(" ");
     const channelInfo = await getChannelInfo(channel);
     const channelConfig = config.channels.find((c) => c.twitchChannel === channel);
     const openAI = createOpenAI();
+    const displayName = msg.userInfo.displayName || user;
 
     if (!channelConfig) {
       throw new Error("Channel configuration not found");
@@ -52,9 +53,9 @@ export class AskobotCommand implements CommandHandler {
     try {
       const result = await openAI({
         model: config.model,
-        prompt: `The user "${user}" just asked: "${message}".`,
+        prompt: `The user "${displayName}" just asked: "${message}".`,
         promptVars: buildPromptVars({
-          user,
+          user: displayName,
           message,
           channelConfig,
           channelInfo,
