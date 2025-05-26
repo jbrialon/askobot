@@ -13,9 +13,7 @@ const cache = new MemoryCache();
 
 const findRankByAccountId = (allPlayers, accountId) => {
   // Find the player object that matches the accountId
-  const player = allPlayers.find(
-    (player) => player.accountid.toLowerCase() === accountId.toLowerCase(),
-  );
+  const player = allPlayers.find((player) => player.accountid.toLowerCase() === accountId.toLowerCase());
 
   // If a player is found, return the player object, otherwise return null
   return player ? player : null;
@@ -76,8 +74,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
       const playerPageData = await fetchData(playerPageUrl);
 
       const playerIndexInPage = playerIndex % PLAYERS_PER_PAGE;
-      const player =
-        playerPageData?.leaderboard?.rows?.[playerIndexInPage] || null; // Return null if index is out of range
+      const player = playerPageData?.leaderboard?.rows?.[playerIndexInPage] || null; // Return null if index is out of range
 
       if (player) {
         if (paramOne === "Sheupluh" && player) {
@@ -132,11 +129,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
     const firstPageData = await fetchData(firstPageUrl);
 
     // Update MAX_PAGES based on the totalPages in the API response
-    if (
-      firstPageData &&
-      firstPageData.leaderboard &&
-      firstPageData.leaderboard.pagination
-    ) {
+    if (firstPageData && firstPageData.leaderboard && firstPageData.leaderboard.pagination) {
       MAX_PAGES = firstPageData.leaderboard.pagination.totalPages;
     }
 
@@ -182,9 +175,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
       }
       return leaderboardData;
     } else {
-      console.error(
-        "Invalid paramOne type. Must be a string (account ID) or a number (index).",
-      );
+      console.error("Invalid paramOne type. Must be a string (account ID) or a number (index).");
       return null;
     }
   } catch (error) {
@@ -200,12 +191,9 @@ const fetchCardData = (cardName, hero) => {
   };
 
   const dataset = cards.filter(
-    (card) =>
-      card.battlegrounds.hero === hero &&
-      card.battlegrounds.quest === false &&
-      card.battlegrounds.reward === false,
+    (card) => card.battlegrounds.hero === hero && card.battlegrounds.quest === false && card.battlegrounds.reward === false,
   );
-  // // Initialize Fuse.js
+  // Initialize Fuse.js
   const fuse = new Fuse(dataset, options);
 
   // Perform the search
@@ -242,31 +230,54 @@ const fetchAllCardData = async () => {
         ),
       );
 
-      const data = await Promise.all(
-        responses.map((response) => response.json()),
-      );
+      const data = await Promise.all(responses.map((response) => response.json()));
       const localeResults = await Promise.all(
         data.map(async (localeData, localeIndex) => {
           const localeCards = localeData.cards || [];
           return Promise.all(
-            localeCards.map(
-              async ({ slug, name, text, childIds, battlegrounds }) => {
-                const cleanedBattlegrounds = battlegrounds
-                  ? {
-                      hero: battlegrounds.hero,
-                      quest: battlegrounds.quest,
-                      reward: battlegrounds.reward,
-                      duosOnly: battlegrounds.duosOnly,
-                      solosOnly: battlegrounds.solosOnly,
-                    }
-                  : undefined;
+            localeCards.map(async ({ slug, name, text, childIds, battlegrounds }) => {
+              const cleanedBattlegrounds = battlegrounds
+                ? {
+                    hero: battlegrounds.hero,
+                    quest: battlegrounds.quest,
+                    reward: battlegrounds.reward,
+                    duosOnly: battlegrounds.duosOnly,
+                    solosOnly: battlegrounds.solosOnly,
+                  }
+                : undefined;
 
-                // get golden text
-                let upgradeText;
-                if (battlegrounds?.upgradeId && localeIndex === 0) {
+              // get golden text
+              let upgradeText;
+              if (battlegrounds?.upgradeId && localeIndex === 0) {
+                try {
+                  const upgradeResponse = await fetch(
+                    `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.upgradeId}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                      },
+                    },
+                  );
+
+                  if (upgradeResponse.ok) {
+                    const upgradeData = await upgradeResponse.json();
+                    const upgradeCard = upgradeData.cards?.[0];
+                    if (upgradeCard && upgradeCard.text) {
+                      upgradeText = cleanText(upgradeCard.text);
+                    }
+                  }
+                } catch (upgradeError) {
+                  console.error("Failed to fetch upgrade card data:", upgradeError);
+                }
+              }
+
+              // get hero power text
+              if (battlegrounds?.hero && Array.isArray(childIds) && localeIndex === 0) {
+                for (const childId of childIds) {
                   try {
-                    const upgradeResponse = await fetch(
-                      `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.upgradeId}`,
+                    const childResponse = await fetch(
+                      `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${childId}`,
                       {
                         headers: {
                           Authorization: `Bearer ${token}`,
@@ -275,108 +286,60 @@ const fetchAllCardData = async () => {
                       },
                     );
 
-                    if (upgradeResponse.ok) {
-                      const upgradeData = await upgradeResponse.json();
-                      const upgradeCard = upgradeData.cards?.[0];
-                      if (upgradeCard && upgradeCard.text) {
-                        upgradeText = cleanText(upgradeCard.text);
+                    if (childResponse.ok) {
+                      const childData = await childResponse.json();
+                      const childCard = childData.cards?.[0];
+                      if (childCard && childCard.cardTypeId === 10 && childCard.text) {
+                        text = cleanText(childCard.text);
+                        break; // Update the text and stop searching
                       }
                     }
-                  } catch (upgradeError) {
-                    console.error(
-                      "Failed to fetch upgrade card data:",
-                      upgradeError,
-                    );
+                  } catch (childError) {
+                    console.error("Failed to fetch child card data:", childError);
                   }
                 }
+              }
 
-                // get hero power text
-                if (
-                  battlegrounds?.hero &&
-                  Array.isArray(childIds) &&
-                  localeIndex === 0
-                ) {
-                  for (const childId of childIds) {
-                    try {
-                      const childResponse = await fetch(
-                        `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${childId}`,
-                        {
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                          },
-                        },
-                      );
-
-                      if (childResponse.ok) {
-                        const childData = await childResponse.json();
-                        const childCard = childData.cards?.[0];
-                        if (
-                          childCard &&
-                          childCard.cardTypeId === 10 &&
-                          childCard.text
-                        ) {
-                          text = cleanText(childCard.text);
-                          break; // Update the text and stop searching
-                        }
-                      }
-                    } catch (childError) {
-                      console.error(
-                        "Failed to fetch child card data:",
-                        childError,
-                      );
-                    }
-                  }
-                }
-
-                // get companion data
-                let companion;
-                if (battlegrounds?.companionId) {
-                  try {
-                    const companionResponse = await fetch(
-                      `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.companionId}`,
-                      {
-                        headers: {
-                          Authorization: `Bearer ${token}`,
-                          "Content-Type": "application/json",
-                        },
+              // get companion data
+              let companion;
+              if (battlegrounds?.companionId) {
+                try {
+                  const companionResponse = await fetch(
+                    `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.companionId}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
                       },
-                    );
+                    },
+                  );
 
-                    if (companionResponse.ok) {
-                      const companionData = await companionResponse.json();
-                      const companionCard = companionData.cards?.[0];
-                      if (
-                        companionCard &&
-                        companionCard.name &&
-                        companionCard.text
-                      ) {
-                        companion = {
-                          name: companionCard.name,
-                          text: cleanText(companionCard.text),
-                        };
-                      }
+                  if (companionResponse.ok) {
+                    const companionData = await companionResponse.json();
+                    const companionCard = companionData.cards?.[0];
+                    if (companionCard && companionCard.name && companionCard.text) {
+                      companion = {
+                        name: companionCard.name,
+                        text: cleanText(companionCard.text),
+                      };
                     }
-                  } catch (companionError) {
-                    console.error(
-                      "Failed to fetch companion card data:",
-                      companionError,
-                    );
                   }
+                } catch (companionError) {
+                  console.error("Failed to fetch companion card data:", companionError);
                 }
+              }
 
-                return {
-                  slug,
-                  name: {
-                    [localeIndex === 0 ? "fr" : "en"]: name,
-                  },
-                  text: localeIndex === 0 ? cleanText(text) : undefined, // Keep only French text
-                  upgradeText,
-                  companion,
-                  battlegrounds: cleanedBattlegrounds,
-                };
-              },
-            ),
+              return {
+                slug,
+                name: {
+                  [localeIndex === 0 ? "fr" : "en"]: name,
+                },
+                text: localeIndex === 0 ? cleanText(text) : undefined, // Keep only French text
+                upgradeText,
+                companion,
+                battlegrounds: cleanedBattlegrounds,
+              };
+            }),
           );
         }),
       );
@@ -385,9 +348,7 @@ const fetchAllCardData = async () => {
       allCards = allCards.concat(localeResults.flat());
 
       // Increment pages for locales
-      currentPages = currentPages.map((page, index) =>
-        page < data[index].pageCount ? page + 1 : page,
-      );
+      currentPages = currentPages.map((page, index) => (page < data[index].pageCount ? page + 1 : page));
 
       // Break the loop if all pages for both locales are fetched
       if (currentPages.every((page, index) => page >= data[index].pageCount)) {

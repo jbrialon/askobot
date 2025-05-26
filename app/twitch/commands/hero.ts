@@ -1,0 +1,32 @@
+import { ChatMessage } from "@twurple/chat";
+import { CommandHandler, CommandResponse } from "./types.js";
+import { fetchCardData } from "../../utils/battleground.js";
+
+export const heroCommand: CommandHandler = {
+  name: "hero",
+  aliases: ["hp", "héro"],
+  cooldown: 0,
+  excludedChannels: ["lbineau"],
+  execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
+    try {
+      const heroData = fetchCardData(params[0], true);
+
+      if (!heroData) {
+        return {
+          message: "Aucun hero trouvé portant ce nom 🤔",
+          emotion: "",
+          animation: "",
+        };
+      }
+
+      return {
+        message: `${heroData.name.fr} - ${heroData.text}`,
+        emotion: "",
+        animation: "",
+      };
+    } catch (error) {
+      console.error("Error fetching hero data:", error);
+      throw error;
+    }
+  },
+};
