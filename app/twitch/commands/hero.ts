@@ -9,18 +9,19 @@ export const heroCommand: CommandHandler = {
   excludedChannels: ["lbineau"],
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
-      const heroData = fetchCardData(params[0], true);
+      const heroName = params.join(" ");
+      const heroData = fetchCardData(heroName, true);
 
       if (!heroData) {
         return {
-          message: "Aucun hero trouvé portant ce nom 🤔",
+          message: "🤖 Aucun hero trouvé portant ce nom 🤔 🤖",
           emotion: "",
           animation: "",
         };
       }
 
       return {
-        message: `${heroData.name.fr} - ${heroData.text}`,
+        message: `🤖 ${heroData.name.fr} - ${heroData.text} 🤖`,
         emotion: "",
         animation: "",
       };
