@@ -9,18 +9,19 @@ export const cardCommand: CommandHandler = {
   excludedChannels: ["lbineau"],
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
-      const cardData = fetchCardData(params[0], false);
+      const cardName = params.join(" ");
+      const cardData = fetchCardData(cardName, false);
 
       if (!cardData) {
         return {
-          message: "Aucune carte trouvée portant ce nom 🤔",
+          message: "🤖 Aucune carte trouvée portant ce nom 🤔 🤖",
           emotion: "",
           animation: "",
         };
       }
 
       return {
-        message: `${cardData.name.fr} - ${cardData.text}`,
+        message: `🤖 ${cardData.name.fr} - ${cardData.text} 🤖`,
         emotion: "",
         animation: "",
       };
