@@ -208,6 +208,15 @@ const fetchCardData = (cardName, hero) => {
 };
 
 const fetchAllCardData = async () => {
+  // Battlegrounds Card Type:
+  // 3  - Hero
+  // 4  - Minion
+  // 10 - Hero Power
+  // 42 - Spell
+  // 43 - Anomaly
+  // 44 - Trinket
+  // 45 - Companion
+
   const token = await getValidToken();
   const baseUrls = [
     `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds`,
@@ -235,7 +244,7 @@ const fetchAllCardData = async () => {
         data.map(async (localeData, localeIndex) => {
           const localeCards = localeData.cards || [];
           return Promise.all(
-            localeCards.map(async ({ slug, name, text, childIds, battlegrounds }) => {
+            localeCards.map(async ({ slug, name, text, childIds, battlegrounds, cardTypeId }) => {
               const cleanedBattlegrounds = battlegrounds
                 ? {
                     hero: battlegrounds.hero,
@@ -243,6 +252,9 @@ const fetchAllCardData = async () => {
                     reward: battlegrounds.reward,
                     duosOnly: battlegrounds.duosOnly,
                     solosOnly: battlegrounds.solosOnly,
+                    spell: cardTypeId === 42,
+                    anomaly: cardTypeId === 43,
+                    trinket: cardTypeId === 44,
                   }
                 : undefined;
 
@@ -337,6 +349,7 @@ const fetchAllCardData = async () => {
                 text: localeIndex === 0 ? cleanText(text) : undefined, // Keep only French text
                 upgradeText,
                 companion,
+                cardTypeId,
                 battlegrounds: cleanedBattlegrounds,
               };
             }),
