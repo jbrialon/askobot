@@ -11,6 +11,16 @@ const TOP_PAGES = 8;
 const CURRENT_SEASON = 15;
 const cache = new MemoryCache();
 
+export const CARD_TYPES = {
+  HERO: 3,
+  MINION: 4,
+  HERO_POWER: 10,
+  SPELL: 42,
+  ANOMALY: 43,
+  TRINKET: 44,
+  COMPANION: 45,
+};
+
 const findRankByAccountId = (allPlayers, accountId) => {
   // Find the player object that matches the accountId
   const player = allPlayers.find((player) => player.accountid.toLowerCase() === accountId.toLowerCase());
@@ -183,16 +193,40 @@ const fetchLeaderboardData = async (args, isDuo) => {
   }
 };
 
-const fetchCardData = (cardName, hero) => {
+const fetchCardData = (cardName, type) => {
   const options = {
     keys: ["name.en", "name.fr"], // Fields to search
     threshold: 0.3, // Lower threshold means stricter matches
     includeScore: true, // Include match score for sorting
   };
 
-  const dataset = cards.filter(
-    (card) => card.battlegrounds.hero === hero && card.battlegrounds.quest === false && card.battlegrounds.reward === false,
-  );
+  // Filter cards based on type
+  let dataset;
+  switch (type) {
+    case CARD_TYPES.HERO:
+      dataset = cards.filter((card) => card.battlegrounds?.hero === true && !card.battlegrounds?.quest && !card.battlegrounds?.reward);
+      break;
+    case CARD_TYPES.TRINKET:
+      dataset = cards.filter((card) => card.battlegrounds?.trinket === true);
+      break;
+    case CARD_TYPES.ANOMALY:
+      dataset = cards.filter((card) => card.battlegrounds?.anomaly === true);
+      break;
+    case CARD_TYPES.SPELL:
+      dataset = cards.filter((card) => card.battlegrounds?.spell === true);
+      break;
+    default: // Normal tavern card
+      dataset = cards.filter(
+        (card) =>
+          !card.battlegrounds?.hero &&
+          !card.battlegrounds?.quest &&
+          !card.battlegrounds?.reward &&
+          !card.battlegrounds?.trinket &&
+          !card.battlegrounds?.anomaly &&
+          !card.battlegrounds?.spell,
+      );
+  }
+
   // Initialize Fuse.js
   const fuse = new Fuse(dataset, options);
 

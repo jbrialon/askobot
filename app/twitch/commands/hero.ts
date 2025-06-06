@@ -1,6 +1,6 @@
 import { ChatMessage } from "@twurple/chat";
 import { CommandHandler, CommandResponse } from "./types.js";
-import { fetchCardData } from "../../utils/battleground.js";
+import { fetchCardData, CARD_TYPES } from "../../utils/battleground.js";
 
 export const heroCommand: CommandHandler = {
   name: "hero",
@@ -10,7 +10,7 @@ export const heroCommand: CommandHandler = {
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const heroName = params.join(" ");
-      const heroData = fetchCardData(heroName, true);
+      const heroData = fetchCardData(heroName, CARD_TYPES.HERO);
 
       if (!heroData) {
         return {
