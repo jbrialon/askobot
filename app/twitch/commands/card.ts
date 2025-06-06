@@ -1,16 +1,16 @@
 import { ChatMessage } from "@twurple/chat";
 import { CommandHandler, CommandResponse } from "./types.js";
-import { fetchCardData } from "../../utils/battleground.js";
+import { fetchCardData, CARD_TYPES } from "../../utils/battleground.js";
 
 export const cardCommand: CommandHandler = {
   name: "card",
-  aliases: ["carte", "crea"],
+  aliases: ["carte"],
   cooldown: 0,
   excludedChannels: ["lbineau"],
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const cardName = params.join(" ");
-      const cardData = fetchCardData(cardName, false);
+      const cardData = fetchCardData(cardName, CARD_TYPES.MINION);
 
       if (!cardData) {
         return {
