@@ -1,13 +1,13 @@
 import { ChatMessage } from "@twurple/chat";
 import { CommandHandler, CommandResponse } from "./types.js";
-import { fetchLeaderboardData } from "../../utils/battleground.js";
+import { fetchLeaderboardData, LEADERBOARD_TYPES } from "../../utils/battleground.js";
 import { getFrenchOrdinal } from "../../utils/utils.js";
 import config from "../../../config.js";
 import { askobotCommand } from "./askobot.js";
 
 export const bgRankCommand: CommandHandler = {
   name: "bgrank",
-  aliases: ["bgrankduo"],
+  aliases: ["bgrankduo", "bg", "bgduo"],
   cooldown: 0.5,
   excludedChannels: ["lbineau"],
   execute: async (channel: string, user: string, params: string[], msg: ChatMessage): Promise<CommandResponse> => {
@@ -20,7 +20,7 @@ export const bgRankCommand: CommandHandler = {
         params[0] = channelConfig ? channelConfig.battletag : "";
       }
 
-      const player = await fetchLeaderboardData(params, isDuo);
+      const player = await fetchLeaderboardData(params, isDuo ? LEADERBOARD_TYPES.BATTLEGROUNDS_DUO : LEADERBOARD_TYPES.BATTLEGROUNDS);
 
       if (player) {
         const rankEmojis = {
