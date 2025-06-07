@@ -8,7 +8,8 @@ import cards from "../../db/db.json" with { type: "json" };
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
 const TOP_PAGES = 8;
-const CURRENT_SEASON = 15;
+const CURRENT_BG_SEASON = 15;
+const CURRENT_ARENA_SEASON = 1;
 const cache = new MemoryCache();
 
 export const CARD_TYPES = {
@@ -19,6 +20,12 @@ export const CARD_TYPES = {
   ANOMALY: 43,
   TRINKET: 44,
   COMPANION: 45,
+};
+
+export const LEADERBOARD_TYPES = {
+  BATTLEGROUNDS: "battlegrounds",
+  BATTLEGROUNDS_DUO: "battlegroundsduo",
+  ARENA: "undergroundarena",
 };
 
 const findRankByAccountId = (allPlayers, accountId) => {
@@ -45,11 +52,11 @@ const fetchData = async (url) => {
 };
 
 // Main function to fetch leaderboard data for the first 100 players
-const fetchLeaderboardData = async (args, isDuo) => {
+const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_TYPES.BATTLEGROUNDS) => {
   const paramOne = args[0];
   let paramTwo = args[1];
 
-  const cacheKey = [paramOne, paramTwo];
+  const cacheKey = [paramOne, paramTwo, leaderboardType];
   // Alias mode (Cheat Mode) when we search for "Sheupluh" we display the results for "oliech"
   const overrideName = paramOne === "Sheupluh" ? "oliech" : paramOne;
   const cachedLeaderboardData = cache.get(cacheKey);
@@ -69,7 +76,8 @@ const fetchLeaderboardData = async (args, isDuo) => {
   // Check if paramTwo is a valid region, otherwise default to 'EU'
   const region = VALID_REGIONS.includes(paramTwo) ? paramTwo : "EU";
 
-  const leaderboardId = isDuo ? "battlegroundsduo" : "battlegrounds";
+  // Get the correct season ID based on leaderboard type
+  const seasonId = leaderboardType === LEADERBOARD_TYPES.ARENA ? CURRENT_ARENA_SEASON : CURRENT_BG_SEASON;
 
   // Attempt to parse paramOne as a number
   const playerRankNumber = Number(overrideName);
@@ -80,7 +88,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
       const playerIndex = playerRankNumber - 1; // Adjust for 1-based indexing
       const playerPage = Math.ceil(playerRankNumber / PLAYERS_PER_PAGE);
 
-      const playerPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&seasonId=${CURRENT_SEASON}&page=${playerPage}`;
+      const playerPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardType}&seasonId=${seasonId}&page=${playerPage}`;
       const playerPageData = await fetchData(playerPageUrl);
 
       const playerIndexInPage = playerIndex % PLAYERS_PER_PAGE;
@@ -97,45 +105,44 @@ const fetchLeaderboardData = async (args, isDuo) => {
       console.error("Error finding player by rank number:", error);
       return null;
     }
-  } else if (typeof overrideName === "string") {
-    // paramOne is an account ID (string), find the rank by account ID
-    try {
-      let pageIndex = 1;
-      let pagesRemaining = true;
-      // we only fetch the first 8 pages as it's in the top 200 players, the rest we will go through the slow method
-      while (pageIndex <= TOP_PAGES && pagesRemaining) {
-        const pageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&seasonId=${CURRENT_SEASON}&page=${pageIndex}`;
-        const pageData = await fetchData(pageUrl);
+  }
+  // paramOne is an account ID (string), find the rank by account ID
+  try {
+    let pageIndex = 1;
+    let pagesRemaining = true;
+    // we only fetch the first 8 pages as it's in the top 200 players, the rest we will go through the slow method
+    while (pageIndex <= TOP_PAGES && pagesRemaining) {
+      const pageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardType}&seasonId=${seasonId}&page=${pageIndex}`;
+      const pageData = await fetchData(pageUrl);
 
-        const players = pageData?.leaderboard?.rows || [];
-        const leaderboardData = findRankByAccountId(players, overrideName);
-        if (leaderboardData) {
-          if (paramOne === "Sheupluh" && leaderboardData) {
-            leaderboardData.accountid = "Sheupluh";
-          }
-          cache.set(cacheKey, leaderboardData);
-          return leaderboardData;
+      const players = pageData?.leaderboard?.rows || [];
+      const leaderboardData = findRankByAccountId(players, overrideName);
+      if (leaderboardData) {
+        if (paramOne === "Sheupluh" && leaderboardData) {
+          leaderboardData.accountid = "Sheupluh";
         }
-        // we have not found the player, so we need to fetch the next pages, checking if there are some
-        const totalPages = pageData?.leaderboard?.pagination?.totalPages || 1;
-        if (totalPages <= pageIndex) {
-          pagesRemaining = false;
-        }
-        pageIndex++;
+        cache.set(cacheKey, leaderboardData);
+        return leaderboardData;
       }
-    } catch (error) {
-      console.error("Error finding player by account ID:", error);
+      // we have not found the player, so we need to fetch the next pages, checking if there are some
+      const totalPages = pageData?.leaderboard?.pagination?.totalPages || 1;
+      if (totalPages <= pageIndex) {
+        pagesRemaining = false;
+      }
+      pageIndex++;
     }
+  } catch (error) {
+    console.error("Error finding player by account ID:", error);
   }
 
-  // manual method, we sohuld never reach this for a call by rannk number
+  // manual method, we should never reach this for a call by rank number
   console.log("Fallback method, fetching all pages");
   let allPlayers = [];
   let MAX_PAGES = 1; // Default value before the first API call
 
   try {
     // Fetch the first page to determine the total number of pages
-    const firstPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&seasonId=${CURRENT_SEASON}&page=1`;
+    const firstPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardType}&seasonId=${seasonId}&page=1`;
     const firstPageData = await fetchData(firstPageUrl);
 
     // Update MAX_PAGES based on the totalPages in the API response
@@ -151,7 +158,7 @@ const fetchLeaderboardData = async (args, isDuo) => {
     // Generate promises for remaining pages, if any
     const promises = [];
     for (let page = 2; page <= MAX_PAGES; page++) {
-      const url = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardId}&page=${page}`;
+      const url = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardType}&seasonId=${seasonId}&page=${page}`;
       promises.push(fetchData(url));
     }
 
