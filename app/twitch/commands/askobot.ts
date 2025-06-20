@@ -5,37 +5,56 @@ import { CommandHandler, CommandResponse } from "./types.js";
 import { createOpenAI, buildPromptVars } from "../../utils/ai-functions.js";
 import { getChannelInfo } from "../../utils/twitch-data.js";
 import config from "../../../config.js";
+
 interface ChatHistory {
-  [channel: string]: { role: string; content: string }[];
+  [channel: string]: {
+    messages: { role: string; content: string }[];
+    lastActivity: number;
+  };
 }
 
 export class AskobotCommand implements CommandHandler {
   name = "askowbot";
   aliases = ["askobot"];
   excludedChannels = [];
-  cooldown = undefined;
+  cooldown = 0;
   private chatHistory: ChatHistory = {};
 
   private manageHistory(channel: string, user: string, message: string, response: string) {
     if (!this.chatHistory[channel]) {
-      this.chatHistory[channel] = [];
+      this.chatHistory[channel] = {
+        messages: [],
+        lastActivity: Date.now(),
+      };
+    }
+
+    const now = Date.now();
+    const fifteenMinutesAgo = now - config.memoryDuration * 60 * 1000;
+
+    // Check if last activity was more than 15 minutes ago
+    if (this.chatHistory[channel].lastActivity < fifteenMinutesAgo) {
+      // Clear history if too old
+      this.chatHistory[channel].messages = [];
     }
 
     // Add user message
-    this.chatHistory[channel].push({
+    this.chatHistory[channel].messages.push({
       role: "user",
       content: `@${user}: ${message}`,
     });
 
     // Add bot response
-    this.chatHistory[channel].push({
+    this.chatHistory[channel].messages.push({
       role: "assistant",
       content: response,
     });
 
+    // Update last activity timestamp
+    this.chatHistory[channel].lastActivity = now;
+
     // Trim history if it exceeds capacity
-    if (this.chatHistory[channel].length > config.memoryCapacity) {
-      this.chatHistory[channel] = this.chatHistory[channel].slice(-config.memoryCapacity);
+    if (this.chatHistory[channel].messages.length > config.memoryCapacity) {
+      this.chatHistory[channel].messages = this.chatHistory[channel].messages.slice(-config.memoryCapacity);
     }
   }
 
@@ -53,14 +72,14 @@ export class AskobotCommand implements CommandHandler {
     try {
       const result = await openAI({
         model: config.model,
-        prompt: `The user "${displayName}" just asked: "${message}".`,
+        prompt: `The user "${displayName}" asked: "${message}".`,
         promptVars: buildPromptVars({
           user: displayName,
           message,
           channelConfig,
           channelInfo,
         }),
-        history: this.chatHistory[channel] || [],
+        history: this.chatHistory[channel]?.messages || [],
         outputSchema: z.object({
           message: z.string(),
           emotion: z.enum(channelConfig.mood),
@@ -79,8 +98,8 @@ export class AskobotCommand implements CommandHandler {
       const fallbackMessage = "🤖 Erreur : J'ai oublié comment parler poliment, désolé ! 🤖";
       return {
         message: fallbackMessage,
-        emotion: undefined,
-        animation: undefined,
+        emotion: "",
+        animation: "",
       };
     }
   }
