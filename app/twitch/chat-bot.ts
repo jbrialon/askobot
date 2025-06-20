@@ -88,10 +88,11 @@ export class ChatBot extends EventEmitter {
           if (response) {
             this.say(channel, response.message);
             log.command({
-              user: user,
+              user: msg.userInfo.displayName,
               channel: channel,
               question: params.join(" "),
               response: response.message,
+              command: commandName,
             });
 
             this.emit("bot-voice", {
