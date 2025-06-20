@@ -1,5 +1,5 @@
 export default {
-  model: "gpt-4.1-nano",
+  model: "gpt-4o-mini-2024-07-18",
   memoryCapacity: 20,
   genericContext: `
     <current_time>\${time}</current_time>

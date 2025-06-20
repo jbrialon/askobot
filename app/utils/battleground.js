@@ -22,6 +22,21 @@ export const CARD_TYPES = {
   COMPANION: 45,
 };
 
+export const CLASS_TYPES = {
+  NEUTRAL: 0,
+  WARRIOR: 1,
+  PALADIN: 2,
+  HUNTER: 3,
+  ROGUE: 4,
+  PRIEST: 5,
+  DEATH_KNIGHT: 6,
+  SHAMAN: 7,
+  MAGE: 8,
+  WARLOCK: 9,
+  DRUID: 10,
+  DEMON_HUNTER: 14,
+};
+
 export const LEADERBOARD_TYPES = {
   BATTLEGROUNDS: "battlegrounds",
   BATTLEGROUNDS_DUO: "battlegroundsduo",
@@ -296,6 +311,7 @@ const fetchAllCardData = async () => {
                     spell: cardTypeId === 42,
                     anomaly: cardTypeId === 43,
                     trinket: cardTypeId === 44,
+                    tavernTier: battlegrounds.tier,
                   }
                 : undefined;
 

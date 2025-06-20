@@ -111,12 +111,12 @@ const log = {
       .addFooter(`channel: ${channel}`)
       .sendMessage();
   },
-  command: ({ user, channel, question, response }) => {
-    console.log(`[COMMAND] ${user} asked: "${question}"\nResponse: "${response}" (${channel})`);
+  command: ({ user, channel, question, response, command }) => {
+    console.log(`[COMMAND] ${user} used ${command}: "${question}"\nResponse: "${response}" (${channel})`);
     discordLog
       .infoMessage()
       .addTitle("🤖 Askobot Interaction 🤖")
-      .addDescription(`**${user}:** ${question}\n**Response:** ${response.slice(1, -1)}`)
+      .addDescription(`**User: **${user}\n**Command: **${command}\n**Question: **${question}\n**Response: ** ${response}`)
       .addField({ name: "env", value: process.env.APP_ENV })
       .addField({ name: "port", value: process.env.APP_PORT })
       .addFooter(`channel: ${channel}`)
