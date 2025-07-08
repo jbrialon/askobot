@@ -41,14 +41,14 @@ const Chat = () => {
             <motion.li
               className={styles["ui-chat__list-item"]}
               layout
-              key={item.tags.timestamp}
+              key={item.timestamp}
               initial="initial"
               animate="animate"
               exit="exit"
               variants={variants}
               transition={{ duration: 0.5 }}
             >
-              <ChatItem key={item.tags.timestamp} item={item} />
+              <ChatItem key={item.timestamp} item={item} />
             </motion.li>
           ))}
         </AnimatePresence>

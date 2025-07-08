@@ -54,14 +54,7 @@ export default class Socket {
   initChatBotEvents() {
     // Handle chat messages (both user messages and bot responses)
     this.chatBot.on("bot-chat", (data) => {
-      const chatEntry = {
-        channel: data.channel,
-        tags: data.tags,
-        message: data.message,
-        user: data.user,
-      };
-
-      this.chatHistory.push(chatEntry);
+      this.chatHistory.push(data);
 
       this.io.emit("chat-history", this.chatHistory);
     });

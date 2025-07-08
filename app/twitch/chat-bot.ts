@@ -71,11 +71,9 @@ export class ChatBot extends EventEmitter {
         "display-name": msg.userInfo.displayName,
         username: user,
         color: msg.userInfo.color,
-        emotes: msg.emoteOffsets,
-        timestamp: Date.now(),
       },
       message: parseChatMessage(text, msg.emoteOffsets),
-      user: msg.userInfo.displayName,
+      timestamp: Date.now(),
     });
 
     if (text.startsWith("!")) {
@@ -117,11 +115,9 @@ export class ChatBot extends EventEmitter {
                 "display-name": "Askowbot",
                 username: this.botName,
                 color: "#FF6B6B",
-                emotes: {},
-                timestamp: Date.now(),
               },
               message: parseChatMessage(response.message, new Map()),
-              user: "Askowbot",
+              timestamp: Date.now(),
             });
 
             this.emit("bot-response", {
