@@ -1,10 +1,7 @@
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Leva, useControls, folder, button } from "leva";
+import { Leva, useControls, button } from "leva";
 import "./styles/style.scss";
-
-// Classes
-import Manager from "./classes/manager.js";
 
 // Components
 import Experience from "./components/3d/experience.jsx";
@@ -21,57 +18,9 @@ import { useStore } from "./store/store.js";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
 function App() {
-  const manager = new Manager();
   const [showConsole, setShowConsole] = useState(false);
 
   // Debug
-  const isDev = import.meta.env.MODE === "development";
-  useControls(
-    "Bot",
-    () => ({
-      Ask: folder(
-        {
-          username: {
-            value: "Askow",
-            disabled: !isDev,
-          },
-          message: {
-            value: "yo askobot, la forme?",
-            disabled: !isDev,
-          },
-          Ask: button(
-            (get) => {
-              const username = get("Bot.Ask.username");
-              const message = get("Bot.Ask.message");
-              manager.trigger("bot-askAskobot", {
-                username,
-                message,
-              });
-            },
-            {
-              disabled: !isDev,
-            },
-          ),
-          fakeEvent: button(() => {
-            const data = {
-              sceneName: "live",
-            };
-            manager.trigger("bot-reactToEvent", {
-              eventType: "scene-change",
-              data,
-            });
-          }),
-        },
-        {
-          collapsed: true,
-        },
-      ),
-    }),
-    {
-      collapsed: false,
-    },
-  );
-
   useControls(
     "OBS",
     () => ({

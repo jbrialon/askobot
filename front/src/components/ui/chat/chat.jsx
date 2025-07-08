@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { parseEmotesInMessage, getEmoteAsUrl } from "tmi-utils";
 import ChatItem from "./chatItem";
 import Manager from "../../../classes/manager";
 import styles from "./chat.module.scss";
@@ -20,26 +19,10 @@ const Chat = () => {
     const handler = (e) => {
       const history = e.detail;
       const parsed = history
-        .filter((item) => item.channel === "#askowbol")
+        .filter((item) => item.channel === "askowbol")
         .map((item) => ({
           ...item,
-          parsedMessage: parseEmotesInMessage(
-            item.tags.emotes,
-            item.message,
-          ).map((message, index, arr) => {
-            if (message.type === "text") {
-              let value = message.value.trim();
-              if (index === 0) value = value.replace(/^🤖\s*/, "");
-              if (index === arr.length - 1) value = value.replace(/\s*🤖$/, "");
-              return { ...message, value };
-            }
-            return {
-              ...message,
-              ...(message.type === "emote" && {
-                src: getEmoteAsUrl(message.value),
-              }),
-            };
-          }),
+          message: item.message,
         }))
         .slice(-2);
 
