@@ -22,21 +22,6 @@ export default class Manager extends EventTarget {
   }
 
   initSocketEvents() {
-    this.addEventListener("bot-askAskobot", (e) => {
-      const { username, message } = e.detail;
-      const user = {
-        name: username,
-        color: "#ff00ff",
-      };
-      this.socket.emit("bot-askAskobot", user, message);
-    });
-
-    this.addEventListener("bot-reactToEvent", (e) => {
-      const { eventType, data } = e.detail;
-
-      this.socket.emit("bot-reactToEvent", eventType, data);
-    });
-
     this.socket.on("chat-history", (history) => {
       this.dispatchEvent(new CustomEvent("chat-history", { detail: history }));
     });

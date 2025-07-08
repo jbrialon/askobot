@@ -37,37 +37,30 @@ export default class Socket {
       } else {
         console.log("New client connected");
       }
-      // inform the Chat Bot we are connected to OBS
-      // this.chatBot.setIsOBS(this.isOBS);
+
+      // Inform the Chat Bot about OBS status (static during runtime)
+      this.chatBot.setIsOBS(this.isOBS);
 
       // Send current chat history to the connected client
       socket.emit("chat-history", this.chatHistory);
 
-      // TODO: finish this
       socket.on("disconnect", () => {
         console.log("Client disconnected");
-        // this.chatBot.setIsOBS(false);
-      });
-
-      // TODO: finish this
-      socket.on("bot-askAskobot", (user, message) => {
-        // this.chatBot.askAskobot("#askowbol", user, message);
-      });
-
-      // TODO: finish this
-      socket.on("bot-reactToEvent", (eventType, data) => {
-        // this.chatBot.reactToEvent("#askowbol", { eventType, data });
+        this.chatBot.setIsOBS(false);
       });
     });
   }
 
   initChatBotEvents() {
+    // Handle chat messages (both user messages and bot responses)
     this.chatBot.on("bot-chat", (data) => {
       this.chatHistory.push(data);
+
       this.io.emit("chat-history", this.chatHistory);
     });
 
-    this.chatBot.on("bot-voice", async (data) => {
+    // Handle bot responses for voice synthesis
+    this.chatBot.on("bot-response", async (data) => {
       if (data.channel === "askowbol") {
         const audioBuffer = await this.voice.convertAsStream({
           text: data.response.message,

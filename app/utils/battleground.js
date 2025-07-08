@@ -9,7 +9,7 @@ const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
 const TOP_PAGES = 8;
 const CURRENT_BG_SEASON = 15;
-const CURRENT_ARENA_SEASON = 1;
+const CURRENT_ARENA_SEASON = 2;
 const cache = new MemoryCache();
 
 export const CARD_TYPES = {

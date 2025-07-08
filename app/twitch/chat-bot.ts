@@ -1,5 +1,5 @@
 import { staticAuthProvider } from "./auth-clients.js";
-import { ChatClient, ChatMessage } from "@twurple/chat";
+import { ChatClient, ChatMessage, parseChatMessage } from "@twurple/chat";
 import { EventEmitter } from "events";
 
 import config from "../../config.js";
@@ -12,6 +12,7 @@ export class ChatBot extends EventEmitter {
   private chatClient: ChatClient;
   private botName: string;
   private lastCommandTime: Record<string, Record<string, number>>;
+  private isOBS: boolean = false;
 
   constructor() {
     super();
@@ -63,6 +64,18 @@ export class ChatBot extends EventEmitter {
       return;
     }
 
+    // Emit user message for chat history
+    this.emit("bot-chat", {
+      channel,
+      tags: {
+        "display-name": msg.userInfo.displayName,
+        username: user,
+        color: msg.userInfo.color,
+      },
+      message: parseChatMessage(text, msg.emoteOffsets),
+      timestamp: Date.now(),
+    });
+
     if (text.startsWith("!")) {
       const [commandName, ...params] = text.slice(1).split(" ");
       if (!commandName) {
@@ -95,17 +108,32 @@ export class ChatBot extends EventEmitter {
               command: commandName,
             });
 
-            this.emit("bot-voice", {
+            // Emit bot response for chat history
+            this.emit("bot-chat", {
+              channel,
+              tags: {
+                "display-name": "Askowbot",
+                username: this.botName,
+                color: "#FF6B6B",
+              },
+              message: parseChatMessage(response.message, new Map()),
+              timestamp: Date.now(),
+            });
+
+            this.emit("bot-response", {
               channel,
               response,
-              user,
+              user: msg.userInfo.displayName,
+              timestamp: Date.now(),
+              type: "command",
+              command: commandName,
             });
           }
         } catch (error) {
           console.error(`Error executing command ${commandName}:`, error);
           log.error({
             user: user,
-            message: error.message,
+            message: error instanceof Error ? error.message : String(error),
             channel: channel,
           });
         }
@@ -134,5 +162,14 @@ export class ChatBot extends EventEmitter {
   public removeChannel(channel: string) {
     this.channels = this.channels.filter((c) => c !== channel);
     this.chatClient.part(channel);
+  }
+
+  public setIsOBS(isOBS: boolean) {
+    this.isOBS = isOBS;
+    console.log(`ChatBot OBS status: ${isOBS}`);
+  }
+
+  public getIsOBS(): boolean {
+    return this.isOBS;
   }
 }

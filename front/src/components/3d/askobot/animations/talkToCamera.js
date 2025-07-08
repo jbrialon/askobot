@@ -1,7 +1,7 @@
 import { gsap } from "gsap";
 import { talkToCamera } from "../../spline/curves";
 
-export const talkToCameraAnimation = (controlPointGroupRef, zoom, manager) => {
+export const talkToCameraAnimation = (controlPointGroupRef, zoom) => {
   if (!controlPointGroupRef.current) return;
 
   const tl = gsap.timeline({
@@ -19,9 +19,7 @@ export const talkToCameraAnimation = (controlPointGroupRef, zoom, manager) => {
     ease: "sine.inOut",
     onComplete: () => {
       zoom();
-      manager.trigger("bot-reactToEvent", {
-        eventType: "action-talkToCamera",
-      });
+      // TODO: add recorded response from askobot
     },
   });
   tl.to(values, {
