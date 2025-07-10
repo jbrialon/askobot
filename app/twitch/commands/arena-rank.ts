@@ -10,6 +10,7 @@ export const arenaRankCommand: CommandHandler = {
   aliases: ["arena", "ar"],
   cooldown: 0.5,
   excludedChannels: ["lbineau"],
+  shouldSynthesize: false,
   execute: async (channel: string, user: string, params: string[], msg: ChatMessage): Promise<CommandResponse> => {
     try {
       if (!params || params.length === 0) {
@@ -27,13 +28,14 @@ export const arenaRankCommand: CommandHandler = {
           3: "🥉",
           4: "🎯",
         } as const;
-        const emoji = rankEmojis[player.rank as keyof typeof rankEmojis] || "⚔";
-        const messageToSend = `${emoji} ${player.accountid} : ${getFrenchOrdinal(player.rank)} (${player.rating}) ${emoji}  [📛⏳ 30s]`;
+        const emote = rankEmojis[player.rank as keyof typeof rankEmojis] || "⚔";
+        const messageToSend = `${player.accountid} : ${getFrenchOrdinal(player.rank)} (${player.rating}) [📛⏳ 30s]`;
 
         return {
           message: messageToSend,
           emotion: "",
           animation: "",
+          emoji: emote,
         };
       } else {
         // if Player is not found, we generate a creative message

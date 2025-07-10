@@ -7,6 +7,7 @@ export const heroCommand: CommandHandler = {
   aliases: ["hp", "héro"],
   cooldown: 0,
   excludedChannels: ["lbineau"],
+  shouldSynthesize: false,
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const heroName = params.join(" ");
@@ -14,16 +15,18 @@ export const heroCommand: CommandHandler = {
 
       if (!heroData) {
         return {
-          message: "🤖 Aucun hero trouvé portant ce nom 🤔 🤖",
+          message: "Aucun hero trouvé portant ce nom 🤔",
           emotion: "",
           animation: "",
+          emoji: "🤖",
         };
       }
 
       return {
-        message: `🤖 ${heroData.name.fr} - ${heroData.text} 🤖`,
+        message: `${heroData.name.fr} - ${heroData.text}`,
         emotion: "",
         animation: "",
+        emoji: "🤖",
       };
     } catch (error) {
       console.error("Error fetching hero data:", error);

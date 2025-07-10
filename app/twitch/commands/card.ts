@@ -7,6 +7,7 @@ export const cardCommand: CommandHandler = {
   aliases: ["carte"],
   cooldown: 0,
   excludedChannels: ["lbineau"],
+  shouldSynthesize: false,
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const cardName = params.join(" ");
@@ -14,16 +15,18 @@ export const cardCommand: CommandHandler = {
 
       if (!cardData) {
         return {
-          message: "🤖 Aucune carte trouvée portant ce nom 🤔 🤖",
+          message: "Aucune carte trouvée portant ce nom 🤔",
           emotion: "",
           animation: "",
+          emoji: "🤖",
         };
       }
 
       return {
-        message: `🤖 ${cardData.name.fr} - ${cardData.text} 🤖`,
+        message: `${cardData.name.fr} - ${cardData.text}`,
         emotion: "",
         animation: "",
+        emoji: "🤖",
       };
     } catch (error) {
       console.error("Error fetching card data:", error);
