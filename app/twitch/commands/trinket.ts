@@ -7,6 +7,7 @@ export const trinketCommand: CommandHandler = {
   aliases: ["trinkets", "bibelot", "bibelots"],
   cooldown: 0,
   excludedChannels: ["lbineau"],
+  shouldSynthesize: false,
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const trinketName = params.join(" ");
@@ -14,16 +15,18 @@ export const trinketCommand: CommandHandler = {
 
       if (!trinketData) {
         return {
-          message: "🤖 Aucun trinket trouvé portant ce nom 🤔 🤖",
+          message: "Aucun trinket trouvé portant ce nom 🤔",
           emotion: "",
           animation: "",
+          emoji: "🤖",
         };
       }
 
       return {
-        message: `🤖 ${trinketData.name.fr} - ${trinketData.text} 🤖`,
+        message: `${trinketData.name.fr} - ${trinketData.text}`,
         emotion: "",
         animation: "",
+        emoji: "🤖",
       };
     } catch (error) {
       console.error("Error fetching trinket data:", error);

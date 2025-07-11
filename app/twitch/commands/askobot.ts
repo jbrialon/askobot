@@ -18,6 +18,7 @@ export class AskobotCommand implements CommandHandler {
   aliases = ["askobot"];
   excludedChannels = [];
   cooldown = 0;
+  shouldSynthesize = true;
   private chatHistory: ChatHistory = {};
 
   private manageHistory(channel: string, user: string, message: string, response: string) {
@@ -91,7 +92,7 @@ export class AskobotCommand implements CommandHandler {
 
       return {
         ...result,
-        message: `🤖 ${result.message} 🤖`,
+        emoji: "🤖",
       };
     } catch (error) {
       console.error("Error in askobot:", error);

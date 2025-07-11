@@ -16,7 +16,14 @@ const ChatItem = ({ item }) => {
           if (part.type === "text") {
             return <Fragment key={idx}>{part.text}</Fragment>;
           } else if (part.type === "emote") {
-            return <img key={idx} className={styles["ui-chat__emote"]} src={buildEmoteImageUrl(part.id, "light", "3.0")} alt={part.name} />;
+            return (
+              <img
+                key={idx}
+                className={styles["ui-chat__emote"]}
+                src={buildEmoteImageUrl(part.id, { theme: "light", scale: "3.0" })}
+                alt={part.name}
+              />
+            );
           }
           return null;
         })}

@@ -99,7 +99,7 @@ export class ChatBot extends EventEmitter {
           const response = await command.execute(channel, user, params, msg);
 
           if (response) {
-            this.say(channel, response.message);
+            this.say(channel, `${response.emoji || ""} ${response.message} ${response.emoji || ""}`);
             log.command({
               user: msg.userInfo.displayName,
               channel: channel,
@@ -120,14 +120,16 @@ export class ChatBot extends EventEmitter {
               timestamp: Date.now(),
             });
 
-            this.emit("bot-response", {
-              channel,
-              response,
-              user: msg.userInfo.displayName,
-              timestamp: Date.now(),
-              type: "command",
-              command: commandName,
-            });
+            if (command.shouldSynthesize) {
+              this.emit("bot-response", {
+                channel,
+                response,
+                user: msg.userInfo.displayName,
+                timestamp: Date.now(),
+                type: "command",
+                command: commandName,
+              });
+            }
           }
         } catch (error) {
           console.error(`Error executing command ${commandName}:`, error);

@@ -7,6 +7,7 @@ export const spellCommand: CommandHandler = {
   aliases: ["spells", "sort"],
   cooldown: 0,
   excludedChannels: ["lbineau"],
+  shouldSynthesize: false,
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const spellName = params.join(" ");
@@ -14,16 +15,18 @@ export const spellCommand: CommandHandler = {
 
       if (!spellData) {
         return {
-          message: "🤖 Aucun sort trouvé portant ce nom 🤔 🤖",
+          message: "Aucun sort trouvé portant ce nom 🤔",
           emotion: "",
           animation: "",
+          emoji: "🤖",
         };
       }
 
       return {
-        message: `🤖 ${spellData.name.fr} - ${spellData.text} 🤖`,
+        message: `${spellData.name.fr} - ${spellData.text}`,
         emotion: "",
         animation: "",
+        emoji: "🤖",
       };
     } catch (error) {
       console.error("Error fetching spell data:", error);

@@ -10,6 +10,7 @@ export const bgRankCommand: CommandHandler = {
   aliases: ["bgrankduo", "bg", "bgduo"],
   cooldown: 0.5,
   excludedChannels: ["lbineau"],
+  shouldSynthesize: false,
   execute: async (channel: string, user: string, params: string[], msg: ChatMessage): Promise<CommandResponse> => {
     const isDuo = msg.text.startsWith("!bgrankduo");
 
@@ -30,14 +31,15 @@ export const bgRankCommand: CommandHandler = {
           4: "🍫",
         } as const;
         const emoji = rankEmojis[player.rank as keyof typeof rankEmojis] || "⚔";
-        const messageToSend = `${emoji} ${player.accountid} : ${getFrenchOrdinal(
+        const messageToSend = `${player.accountid} : ${getFrenchOrdinal(
           player.rank,
-        )} (${player.rating}) ${isDuo ? "(duo)" : ""} ${emoji}  [📛⏳ 30s]`;
+        )} (${player.rating}) ${isDuo ? "(duo)" : ""} [📛⏳ 30s]`;
 
         return {
           message: messageToSend,
           emotion: "",
           animation: "",
+          emoji: emoji,
         };
       } else {
         // if Player is not found, we generate a creative message
