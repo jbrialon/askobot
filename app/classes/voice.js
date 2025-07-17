@@ -31,24 +31,32 @@ export default class Voice {
 
   // pause in text
   // <break time="1.5s" />
+  // Helper to sanitize text for TTS
+  sanitizeText(text) {
+    // Replace @handles with just the username so the bot don't say the "at" (@)
+    const handleRegex = /@([\w_]+)/g;
+    return text.replace(handleRegex, "$1");
+  }
+
   async convertAsStream({ text, emotion }) {
     try {
-      const audioStream = await this.instance.textToSpeech.convertAsStream(
-        "1Ju3wgDv0NblqqooMpNg",
-        {
-          text: `"${text}"`,
-          next_text: `, he said with a ${emotion} voice`,
-          model_id: "eleven_flash_v2_5", // eleven_multilingual_v2
-          output_format: "mp3_44100_128",
-          voice_settings: {
-            stability: 1,
-            similarity_boost: 0.5,
-            use_speaker_boost: true,
-            style: 0.5,
-            speed: 1,
-          },
+      // Sanitize text before sending to TTS
+      const cleanText = this.sanitizeText(text);
+      console.log(`[TTS]: ${cleanText} (${emotion})`);
+
+      const audioStream = await this.instance.textToSpeech.convertAsStream("1Ju3wgDv0NblqqooMpNg", {
+        text: cleanText,
+        next_text: `, he said with a ${emotion} voice`,
+        model_id: "eleven_flash_v2_5", // eleven_multilingual_v2
+        output_format: "mp3_44100_128",
+        voice_settings: {
+          stability: 0.3,
+          similarity_boost: 0.75,
+          use_speaker_boost: true,
+          style: 0.5,
+          speed: 1,
         },
-      );
+      });
 
       const chunks = [];
       for await (const chunk of audioStream) {
