@@ -8,7 +8,7 @@ import cards from "../../db/db.json" with { type: "json" };
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
 const TOP_PAGES = 8;
-const CURRENT_BG_SEASON = 15;
+const CURRENT_BG_SEASON = 16;
 const CURRENT_ARENA_SEASON = 2;
 const cache = new MemoryCache();
 
@@ -105,7 +105,6 @@ const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_TYPES.BA
 
       const playerPageUrl = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${region}&leaderboardId=${leaderboardType}&seasonId=${seasonId}&page=${playerPage}`;
       const playerPageData = await fetchData(playerPageUrl);
-
       const playerIndexInPage = playerIndex % PLAYERS_PER_PAGE;
       const player = playerPageData?.leaderboard?.rows?.[playerIndexInPage] || null; // Return null if index is out of range
 
