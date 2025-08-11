@@ -20,6 +20,7 @@ export const CARD_TYPES = {
   ANOMALY: 43,
   TRINKET: 44,
   COMPANION: 45,
+  REWARD: 40,
 };
 
 export const CLASS_TYPES = {
