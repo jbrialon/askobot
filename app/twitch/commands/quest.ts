@@ -4,7 +4,7 @@ import { fetchCardData, CARD_TYPES } from "../../utils/battleground.js";
 
 export const questCommand: CommandHandler = {
   name: "quest",
-  aliases: ["quests", "quête", "quêtes", "rewards", "récompenses"],
+  aliases: ["quests", "quête", "quete", "rewards", "récompenses"],
   cooldown: 0,
   excludedChannels: ["lbineau"],
   shouldSynthesize: false,

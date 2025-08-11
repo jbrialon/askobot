@@ -237,6 +237,9 @@ const fetchCardData = (cardName, type) => {
     case CARD_TYPES.SPELL:
       dataset = cards.filter((card) => card.battlegrounds?.spell === true);
       break;
+    case CARD_TYPES.REWARD:
+      dataset = cards.filter((card) => card.battlegrounds?.reward === true);
+      break;
     default: // Normal tavern card
       dataset = cards.filter(
         (card) =>
