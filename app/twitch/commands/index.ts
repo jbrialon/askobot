@@ -3,6 +3,7 @@ import { askobotCommand } from "./askobot.js";
 import { cardCommand } from "./card.js";
 import { heroCommand } from "./hero.js";
 import { trinketCommand } from "./trinket.js";
+import { questCommand } from "./quest.js";
 import { spellCommand } from "./spell.js";
 import { anomalyCommand } from "./anomaly.js";
 import { arenaRankCommand } from "./arena-rank.js";
@@ -13,6 +14,7 @@ export const commands = [
   cardCommand,
   heroCommand,
   trinketCommand,
+  questCommand,
   spellCommand,
   anomalyCommand,
   arenaRankCommand,
