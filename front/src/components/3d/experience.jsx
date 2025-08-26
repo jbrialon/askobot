@@ -21,6 +21,7 @@ const GRID_POSITIONS = {
 export default function Experience() {
   const scene = useStore((state) => state.scene);
   const isOBS = useStore((state) => state.isOBS);
+  const lightmode = useStore((state) => state.lightmode);
 
   const [gridPosition, setGridPosition] = useState(GRID_POSITIONS.default);
   const appElement = document.getElementById("app");
@@ -69,12 +70,7 @@ export default function Experience() {
           <Askobot />
         </Suspense>
         <Start />
-        <Grid
-          position-y={gridPosition}
-          ref={gridRef}
-          args={gridSize}
-          {...gridConfig}
-        />
+        {!lightmode && <Grid position-y={gridPosition} ref={gridRef} args={gridSize} {...gridConfig} />}
       </Canvas>
     </>
   );

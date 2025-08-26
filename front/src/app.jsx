@@ -71,7 +71,7 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("app")).render(
   <StrictMode>
-    <Leva collapsed={true} />
+    <Leva collapsed={true} hidden={true} />
     <Experience />
     <RouterProvider router={router} />,
   </StrictMode>,

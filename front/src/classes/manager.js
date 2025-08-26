@@ -52,7 +52,21 @@ export default class Manager extends EventTarget {
     }
   }
 
+  checkUrlHash() {
+    if (window.location.hash === "#lightmode") {
+      return "live";
+    }
+    return null;
+  }
+
   async syncCurrentScene() {
+    const hashScene = this.checkUrlHash();
+    if (hashScene) {
+      useStore.getState().setScene(hashScene);
+      useStore.getState().setLightmode(true);
+      return;
+    }
+
     const scene = await this.getCurrentSceneAsync();
     if (scene && scene.name) {
       useStore.getState().setScene(scene.name);

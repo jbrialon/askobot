@@ -120,7 +120,7 @@ export class ChatBot extends EventEmitter {
               timestamp: Date.now(),
             });
 
-            if (command.shouldSynthesize) {
+            if (command.shouldSynthesize && this.isOBS) {
               this.emit("bot-response", {
                 channel,
                 response,

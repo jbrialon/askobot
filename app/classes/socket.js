@@ -61,7 +61,7 @@ export default class Socket {
 
     // Handle bot responses for voice synthesis
     this.chatBot.on("bot-response", async (data) => {
-      if (data.channel === "askowbol") {
+      if (data.channel === "askowbol" || data.channel === "slyders_hs") {
         const audioBuffer = await this.voice.convertAsStream({
           text: data.response.message,
           emotion: data.response.emotion,
