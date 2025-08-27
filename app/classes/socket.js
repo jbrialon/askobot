@@ -47,7 +47,7 @@ export default class Socket {
         socket.join(channel);
         console.log(`Client joined channel: ${channel}`);
 
-        // track the channel connections and if it has OBS
+        // track the channel connections and if it's running on OBS
         this.addChannelConnection(channel, isOBS);
 
         socket.channel = channel;
