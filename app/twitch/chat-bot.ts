@@ -12,7 +12,6 @@ export class ChatBot extends EventEmitter {
   private chatClient: ChatClient;
   private botName: string;
   private lastCommandTime: Record<string, Record<string, number>>;
-  private isOBS: boolean = false;
 
   constructor() {
     super();
@@ -120,7 +119,9 @@ export class ChatBot extends EventEmitter {
               timestamp: Date.now(),
             });
 
-            if (command.shouldSynthesize) {
+            // if the command should synthesize and the channel should receive synthesized voice
+            const channelShouldSynthesize = config.channels.find((c) => c.twitchChannel === channel)?.shouldSynthesize;
+            if (command.shouldSynthesize && channelShouldSynthesize) {
               this.emit("bot-response", {
                 channel,
                 response,
@@ -164,14 +165,5 @@ export class ChatBot extends EventEmitter {
   public removeChannel(channel: string) {
     this.channels = this.channels.filter((c) => c !== channel);
     this.chatClient.part(channel);
-  }
-
-  public setIsOBS(isOBS: boolean) {
-    this.isOBS = isOBS;
-    console.log(`ChatBot OBS status: ${isOBS}`);
-  }
-
-  public getIsOBS(): boolean {
-    return this.isOBS;
   }
 }

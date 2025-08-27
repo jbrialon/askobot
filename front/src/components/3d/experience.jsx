@@ -69,12 +69,7 @@ export default function Experience() {
           <Askobot />
         </Suspense>
         <Start />
-        <Grid
-          position-y={gridPosition}
-          ref={gridRef}
-          args={gridSize}
-          {...gridConfig}
-        />
+        {scene !== "live" && <Grid position-y={gridPosition} ref={gridRef} args={gridSize} {...gridConfig} />}
       </Canvas>
     </>
   );
