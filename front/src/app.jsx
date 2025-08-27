@@ -1,4 +1,4 @@
-import { StrictMode, useState } from "react";
+import { StrictMode, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { Leva, useControls, button } from "leva";
 import "./styles/style.scss";
@@ -15,10 +15,15 @@ import { OauthCallback } from "./components/oauth/oauth-callback.jsx";
 import { useStore } from "./store/store.js";
 
 // Router
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider, useParams } from "react-router";
 
 function App() {
+  const { channel } = useParams();
   const [showConsole, setShowConsole] = useState(false);
+
+  useEffect(() => {
+    useStore.getState().setChannel(channel);
+  }, [channel]);
 
   // Debug
   useControls(
@@ -57,6 +62,10 @@ function App() {
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <App />,
+  },
+  {
+    path: "/:channel",
     element: <App />,
   },
   {

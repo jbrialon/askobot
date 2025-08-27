@@ -1,10 +1,10 @@
 import { create } from "zustand";
 
 export const useStore = create((set) => ({
-  scene: null,
+  scene: "live",
   isOBS: false,
-  lightmode: false,
+  channel: null,
   setScene: (scene) => set({ scene }),
   setIsOBS: (isOBS) => set({ isOBS }),
-  setLightmode: (lightmode) => set({ lightmode }),
+  setChannel: (channel) => set({ channel }),
 }));

@@ -19,7 +19,6 @@ const Chat = () => {
     const handler = (e) => {
       const history = e.detail;
       const parsed = history
-        .filter((item) => item.channel === "askowbol")
         .map((item) => ({
           ...item,
           message: item.message,

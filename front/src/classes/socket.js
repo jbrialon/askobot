@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 
 let instance = null;
 export default class Socket {
-  constructor() {
+  constructor(channel) {
     // Singleton
     if (instance) {
       return instance;
@@ -16,6 +16,8 @@ export default class Socket {
       query: {
         // If window.obsstudio is defined, then it’s running in OBS
         isOBS: (typeof window.obsstudio !== "undefined").toString(),
+        // channel is the channel name from the url, it's used to join the socket to the room named after the channel
+        channel: channel || "askowbol",
       },
     });
   }

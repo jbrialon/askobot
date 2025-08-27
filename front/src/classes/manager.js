@@ -9,19 +9,23 @@ export default class Manager extends EventTarget {
       return instance;
     }
     instance = this;
-    this.socket = new Socket().instance;
     this.isOBS = null;
 
     this.initOBS();
     this.initOBSEvents();
-    this.initSocketEvents();
 
     if (this.isOBS) {
       this.syncCurrentScene();
     }
+
+    useStore.subscribe(({ channel }) => {
+      this.initSocketEvents(channel);
+    });
   }
 
-  initSocketEvents() {
+  initSocketEvents(channel) {
+    this.socket = new Socket(channel).instance;
+
     this.socket.on("chat-history", (history) => {
       this.dispatchEvent(new CustomEvent("chat-history", { detail: history }));
     });
@@ -43,33 +47,20 @@ export default class Manager extends EventTarget {
           sceneName: event.detail.name,
         };
 
+        // disabled for now
         // update store
-        useStore.getState().setScene(data.sceneName);
+        // useStore.getState().setScene(data.sceneName);
       });
     } else {
       // dev mode
-      useStore.getState().setScene("start");
+      // useStore.getState().setScene("start");
     }
-  }
-
-  checkUrlHash() {
-    if (window.location.hash === "#lightmode") {
-      return "live";
-    }
-    return null;
   }
 
   async syncCurrentScene() {
-    const hashScene = this.checkUrlHash();
-    if (hashScene) {
-      useStore.getState().setScene(hashScene);
-      useStore.getState().setLightmode(true);
-      return;
-    }
-
     const scene = await this.getCurrentSceneAsync();
     if (scene && scene.name) {
-      useStore.getState().setScene(scene.name);
+      // useStore.getState().setScene(scene.name);
     }
   }
 
