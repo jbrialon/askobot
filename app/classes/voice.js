@@ -1,4 +1,4 @@
-import { ElevenLabsClient } from "elevenlabs";
+import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 
 export default class Voice {
   constructor() {
@@ -11,7 +11,7 @@ export default class Voice {
   // Askobot #1 (claptrap) : dmpjA77eRwk6YUSKBiAv
   // Askobot 2 (voice gen) : HAszShXoWaHgc2vlxgbB
   // Askobot 3 (GladOS) : 1Ju3wgDv0NblqqooMpNg
-
+  // Askobot 4 (voice gen) : PxuZwPMVj1DzmyNotLMi
   // Robotic and calm
   // voice_settings: {
   //   stability: 1,
@@ -41,19 +41,24 @@ export default class Voice {
   async convertAsStream({ text, emotion }) {
     try {
       // Sanitize text before sending to TTS
-      const cleanText = this.sanitizeText(text);
+      let cleanText = this.sanitizeText(text);
       console.log(`[TTS]: ${cleanText} (${emotion})`);
 
-      const audioStream = await this.instance.textToSpeech.convertAsStream("1Ju3wgDv0NblqqooMpNg", {
+      const audioStream = await this.instance.textToSpeech.stream("1Ju3wgDv0NblqqooMpNg", {
         text: cleanText,
         next_text: `, he said with a ${emotion} voice`,
-        model_id: "eleven_flash_v2_5", // eleven_multilingual_v2
+        modelId: "eleven_flash_v2_5", // eleven_multilingual_v2 / eleven_v3
         output_format: "mp3_44100_128",
         voice_settings: {
-          stability: 0.3,
+          // stability: Controls how much variation is allowed in the voice (0-1)
+          stability: 0.5,
+          // similarity_boost: How closely to match the original voice (0-1)
           similarity_boost: 0.75,
+          // use_speaker_boost: Enhances clarity and reduces noise/distortion
           use_speaker_boost: true,
+          // style: Controls expressiveness of the voice (0-1)
           style: 0.5,
+          // speed: Playback speed multiplier
           speed: 1,
         },
       });
