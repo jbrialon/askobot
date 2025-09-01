@@ -80,7 +80,7 @@ export default {
       twitchChannel: "slyders_hs",
       maxChar: "30 words",
       mood: ["helpful", "sarcastic", "extremely sarcastic", "extremely sarcastic"],
-      shouldSynthesize: false,
+      shouldSynthesize: true,
       context: [
         `
       - The Streamer of the Twitch Channel is Slyders, the Twitch Channel is dedicated to Hearthstone Battlegrounds.
