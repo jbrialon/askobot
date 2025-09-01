@@ -1,4 +1,5 @@
 import { Server as SocketIOServer } from "socket.io";
+import { log } from "../utils/utils.js";
 
 let instance = null;
 export default class Socket {
@@ -13,6 +14,8 @@ export default class Socket {
     this.isOBS = false;
     this.chatBot = chatBot;
     this.voice = voice;
+    this.chatHistory = new Map();
+    this.channelConnections = new Map();
 
     // init Socket.IO
     this.io = new SocketIOServer(server, {
@@ -26,26 +29,21 @@ export default class Socket {
     // init Events
     this.initIOEvents();
     this.initChatBotEvents();
-
-    // setup
-    this.chatHistory = new Map();
-    this.channelConnections = new Map();
   }
 
   initIOEvents() {
     this.io.on("connection", (socket) => {
       const isOBS = socket.handshake.query.isOBS === "true";
       const channel = socket.handshake.query.channel;
-      if (isOBS) {
-        console.log("New client connected running on OBS");
-      } else {
-        console.log("New client connected");
-      }
 
       if (channel) {
         // Join the socket to the room named after the channel
         socket.join(channel);
-        console.log(`Client joined channel: ${channel}`);
+        log.info({
+          user: "Socket",
+          message: `Client joined channel: ${channel}, OBS Status: ${isOBS}`,
+          channel: channel,
+        });
 
         // track the channel connections and if it's running on OBS
         this.addChannelConnection(channel, isOBS);
@@ -59,10 +57,15 @@ export default class Socket {
       socket.emit("chat-history", chatHistory);
 
       socket.on("disconnect", () => {
-        console.log("Client disconnected");
+        log.info({
+          user: "Socket",
+          message: `Client disconnected from channel: ${channel}`,
+          channel,
+        });
 
         // remove the channel connection
         if (socket.channel) {
+          socket.leave(socket.channel);
           this.removeChannelConnection(socket.channel, socket.isOBS);
         }
       });
@@ -91,8 +94,18 @@ export default class Socket {
           content: data.response,
           audioBuffer: audioBuffer ? audioBuffer.toString("base64") : null,
         });
+
+        log.info({
+          user: "Socket",
+          message: `audio generation for channel ${data.channel} since it's on OBS`,
+          channel: data.channel,
+        });
       } else {
-        console.log(`no audio generation for channel ${data.channel} since it's not on OBS`);
+        log.info({
+          user: "Socket",
+          message: `no audio generation for channel ${data.channel} since it's not on OBS`,
+          channel: data.channel,
+        });
       }
     });
   }
@@ -110,7 +123,11 @@ export default class Socket {
       });
     }
 
-    console.log(`Channel ${channel}: ${existing?.socketCount || 1} connections, OBS: ${this.channelConnections.get(channel).hasOBS}`);
+    log.info({
+      user: "Socket",
+      message: `Channel ${channel}: ${existing?.socketCount || 1} connections, OBS: ${this.channelConnections.get(channel).hasOBS}`,
+      channel: channel,
+    });
   }
 
   removeChannelConnection(channel, wasOBS) {
@@ -125,9 +142,17 @@ export default class Socket {
 
       if (existing.socketCount <= 0) {
         this.channelConnections.delete(channel);
-        console.log(`Channel ${channel} disconnected`);
+        log.info({
+          user: "Socket",
+          message: `Channel ${channel} disconnected`,
+          channel: channel,
+        });
       } else {
-        console.log(`Channel ${channel}: ${existing.socketCount} connections remaining`);
+        log.info({
+          user: "Socket",
+          message: `Channel ${channel}: ${existing.socketCount} connections remaining`,
+          channel: channel,
+        });
       }
     }
   }
