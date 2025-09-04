@@ -1,6 +1,6 @@
 import { gsap } from "gsap";
-import { looping } from "../../spline/curves";
-import soundEvents from "../../../../classes/sound-events";
+import { looping } from "@/components/3d/spline/curves";
+import soundEvents from "@/classes/sound-events";
 export const loopingAnimation = (botRef, controlPointRef, wings) => {
   if (!botRef.current) return;
 

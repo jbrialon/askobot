@@ -2,13 +2,7 @@ import { gsap } from "gsap";
 import { intro } from "../../spline/curves";
 
 import { Vector3 } from "three";
-export const introAnimation = (
-  scene,
-  botRef,
-  botGroupRef,
-  controlPointGroupRef,
-  controlPointRef,
-) => {
+export const introAnimation = (scene, botRef, botGroupRef, controlPointGroupRef, controlPointRef) => {
   const values = { property: 0 };
   const speed = 1.0;
 
@@ -20,13 +14,8 @@ export const introAnimation = (
 
   // Direction vector between current position and destination
   const currentPosition = controlPointGroupRef.current.position;
-  const destinationPosition = isForward
-    ? intro.curve.getPointAt(1)
-    : intro.curve.getPointAt(0); // destination is depending on direction of movement
-  const direction = new Vector3().subVectors(
-    destinationPosition,
-    currentPosition,
-  );
+  const destinationPosition = isForward ? intro.curve.getPointAt(1) : intro.curve.getPointAt(0); // destination is depending on direction of movement
+  const direction = new Vector3().subVectors(destinationPosition, currentPosition);
 
   // calculate the angle
   const lookAtDestinationAngleY = Math.atan2(direction.x, direction.z);
@@ -50,9 +39,7 @@ export const introAnimation = (
       duration: speed,
       onUpdate: () => {
         const progress = values.property;
-        const point = isForward
-          ? intro.curve.getPointAt(progress)
-          : intro.curve.getPointAt(1 - progress); // reverse direction
+        const point = isForward ? intro.curve.getPointAt(progress) : intro.curve.getPointAt(1 - progress); // reverse direction
         controlPointGroupRef.current.position.copy(point);
       },
       ease: "sine.in",

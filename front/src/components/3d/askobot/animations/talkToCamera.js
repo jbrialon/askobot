@@ -1,5 +1,5 @@
 import { gsap } from "gsap";
-import { talkToCamera } from "../../spline/curves";
+import { talkToCamera } from "@/components/3d/spline/curves";
 
 export const talkToCameraAnimation = (controlPointGroupRef, zoom) => {
   if (!controlPointGroupRef.current) return;

@@ -1,5 +1,5 @@
-import Socket from "./socket.js";
-import { useStore } from "../store/store.js";
+import Socket from "@/classes/socket.js";
+import { useStore } from "@/store/store.js";
 
 let instance = null;
 export default class Manager extends EventTarget {

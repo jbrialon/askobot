@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { useAudioPlayer } from "./../../composables/useAudioPlayer";
+import { useAudioPlayer } from "@/composables/useAudioPlayer";
 import { useFrame } from "@react-three/fiber";
-import { useStore } from "../../store/store";
-import Manager from "../../classes/manager";
+import { useStore } from "@/store/store";
+import Manager from "@/classes/manager";
 
 export default function Start() {
   const manager = new Manager();

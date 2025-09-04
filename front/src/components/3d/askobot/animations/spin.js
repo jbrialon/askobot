@@ -1,5 +1,5 @@
 import { gsap } from "gsap";
-import soundEvents from "../../../../classes/sound-events";
+import soundEvents from "@/classes/sound-events";
 
 export const spinAnimation = (ref, antennas) => {
   if (!ref.current) return;

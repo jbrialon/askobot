@@ -3,10 +3,10 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 
 // Composables
-import { useAudioPlayer } from "../../../composables/useAudioPlayer";
+import { useAudioPlayer } from "@/composables/useAudioPlayer";
 
 // Audio
-import soundEvents from "../../../classes/sound-events";
+import soundEvents from "@/classes/sound-events";
 
 export default function useAskobotAudio(manager, scene, animations, botRef, equalizerMaterial) {
   const currentAnimation = useRef(null);

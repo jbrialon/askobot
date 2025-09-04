@@ -1,5 +1,5 @@
 import { gsap } from "gsap";
-import soundEvents from "../../../../classes/sound-events";
+import soundEvents from "@/classes/sound-events";
 export const zoomAnimation = (lens) => {
   const origin = {
     y: lens[0].position.z,

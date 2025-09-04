@@ -1,15 +1,7 @@
 import { useMemo, useEffect } from "react";
-import {
-  MeshPhysicalMaterial,
-  ShaderMaterial,
-  BackSide,
-  DoubleSide,
-  Uniform,
-  Color,
-  MeshStandardMaterial,
-} from "three";
-import vertexShader from "./../../../shaders/vertex.glsl";
-import fragmentShader from "./../../../shaders/fragment.glsl";
+import { MeshPhysicalMaterial, ShaderMaterial, BackSide, DoubleSide, Uniform, Color, MeshStandardMaterial } from "three";
+import vertexShader from "@/shaders/vertex.glsl";
+import fragmentShader from "@/shaders/fragment.glsl";
 
 export default function useAskobotMaterials(barNumber, barColor) {
   const { lensMaterial, equalizerMaterial, ledMaterial } = useMemo(() => {

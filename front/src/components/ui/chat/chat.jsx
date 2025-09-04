@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ChatItem from "./chatItem";
-import Manager from "../../../classes/manager";
+import Manager from "@/classes/manager";
 import styles from "./chat.module.scss";
 
 const Chat = () => {

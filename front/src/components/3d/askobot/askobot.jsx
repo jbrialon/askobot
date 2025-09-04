@@ -7,7 +7,7 @@ import { Float, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 
 // App
-import Manager from "../../../classes/manager";
+import Manager from "@/classes/manager";
 import useAskobotModel from "./useAskobotModel";
 import useAskobotMaterials from "./useAskobotMaterials";
 import useAskobotAnimation from "./useAskobotAnimation";
@@ -15,7 +15,7 @@ import useAskobotAudio from "./useAskobotAudio";
 import useAskobotControls from "./useAskobotControls";
 
 // Store
-import { useStore } from "../../../store/store";
+import { useStore } from "@/store/store";
 
 // Curves
 import { looping, intro, talkToCamera } from "../spline/curves";
@@ -39,8 +39,7 @@ export default function Askobot() {
   const dampingVec = new Vector3(0.9, 0.92, 0.9); // Y retains more inertia
 
   // Model
-  const { model, batteries, lens, lensMesh, wings, antennas, led, equilizer } =
-    useAskobotModel();
+  const { model, batteries, lens, lensMesh, wings, antennas, led, equilizer } = useAskobotModel();
 
   // Animations
   const animations = useAskobotAnimation(
@@ -61,11 +60,7 @@ export default function Askobot() {
   // Leva Controls
   const { barNumber, barColor, ledColor } = useAskobotControls(animations);
   // Materials
-  const { lensMaterial, equalizerMaterial, ledMaterial } = useAskobotMaterials(
-    barNumber,
-    barColor,
-    ledColor,
-  );
+  const { lensMaterial, equalizerMaterial, ledMaterial } = useAskobotMaterials(barNumber, barColor, ledColor);
 
   // Audio
   useAskobotAudio(manager, scene, animations, botRef, equalizerMaterial);
@@ -147,41 +142,21 @@ export default function Askobot() {
 
   return (
     <>
-      <group
-        ref={controlPointGroupRef}
-        position={controlPointGroupRef.current.position}
-      >
+      <group ref={controlPointGroupRef} position={controlPointGroupRef.current.position}>
         <mesh ref={controlPointRef} scale={[0.5, 0.8, 0.5]} visible={false}>
           <octahedronGeometry args={[0.1, 0]} />
           <meshNormalMaterial />
         </mesh>
-        <Spline
-          curvePoints={looping.curvePoints}
-          curve={looping.curve}
-          showSpline={false}
-        ></Spline>
+        <Spline curvePoints={looping.curvePoints} curve={looping.curve} showSpline={false}></Spline>
       </group>
 
-      <Float
-        speed={5}
-        rotationIntensity={0.05}
-        floatIntensity={0.5}
-        visible={true}
-      >
+      <Float speed={5} rotationIntensity={0.05} floatIntensity={0.5} visible={true}>
         <group ref={botGroupRef}>
           <primitive ref={botRef} object={model} />
         </group>
       </Float>
-      <Spline
-        curvePoints={intro.curvePoints}
-        curve={intro.curve}
-        showSpline={false}
-      ></Spline>
-      <Spline
-        curvePoints={talkToCamera.curvePoints}
-        curve={talkToCamera.curve}
-        showSpline={false}
-      ></Spline>
+      <Spline curvePoints={intro.curvePoints} curve={intro.curve} showSpline={false}></Spline>
+      <Spline curvePoints={talkToCamera.curvePoints} curve={talkToCamera.curve} showSpline={false}></Spline>
     </>
   );
 }

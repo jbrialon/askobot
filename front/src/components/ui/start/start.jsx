@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import { useStore } from "../../../store/store";
+import { useStore } from "@/store/store";
 import styles from "./start.module.scss";
 
 const Start = () => {
@@ -33,9 +33,7 @@ const Start = () => {
       >
         <span>Ça commence bientôt!</span>
       </div>
-      <div
-        className={`${styles["ui-start__text"]} ${styles["ui-start__text--front"]} ${styles["ui-start__text--glitch"]}`}
-      >
+      <div className={`${styles["ui-start__text"]} ${styles["ui-start__text--front"]} ${styles["ui-start__text--glitch"]}`}>
         <span>Ça commence bientôt!</span>
       </div>
     </div>

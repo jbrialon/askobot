@@ -10,7 +10,7 @@ import Askobot from "./askobot/askobot";
 import Start from "./start";
 
 // Store
-import { useStore } from "../../store/store";
+import { useStore } from "@/store/store";
 
 // config
 const GRID_POSITIONS = {
