@@ -1,9 +1,14 @@
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
+import { ToWords } from "to-words";
 
 export default class Voice {
   constructor() {
     this.instance = new ElevenLabsClient({
       apiKey: process.env.ELEVENLABS_API_KEY,
+    });
+
+    this.toWords = new ToWords({
+      localeCode: "fr-FR",
     });
   }
 
@@ -35,13 +40,29 @@ export default class Voice {
   sanitizeText(text) {
     // Replace @handles with just the username so the bot don't say the "at" (@)
     const handleRegex = /@([\w_]+)/g;
-    return text.replace(handleRegex, "$1");
+    text = text.replace(handleRegex, "$1");
+    
+    // Remove emojis
+    const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
+    return text.replace(emojiRegex, "");
+  }
+
+  // Voice normalization for better TTS pronunciation
+  normalizeText(text) {
+    return (
+      text
+        // Convert all numbers to words
+        .replace(/\b\d+\b/g, (match) => {
+          return this.toWords.convert(Number.parseInt(match));
+        })
+    );
   }
 
   async convertAsStream({ text, emotion }) {
     try {
-      // Sanitize text before sending to TTS
+      // Sanitize and normalize text before sending to TTS
       let cleanText = this.sanitizeText(text);
+      cleanText = this.normalizeText(cleanText);
       console.log(`[TTS]: ${cleanText} (${emotion})`);
 
       const audioStream = await this.instance.textToSpeech.stream("1Ju3wgDv0NblqqooMpNg", {

@@ -66,61 +66,82 @@ const getCurrentTimeOfDay = () => {
 
 const discordLog = new DiscordNotification(os.hostname(), process.env.DISCORD_WEBHOOK);
 
+const sendToDiscord = async (discordMessageBuilder, fallbackMessage) => {
+  try {
+    await discordMessageBuilder.sendMessage();
+  } catch (error) {
+    console.error(`[DISCORD ERROR] Failed to send Discord message: ${error.message}`);
+    if (fallbackMessage) {
+      console.log(`[FALLBACK] ${fallbackMessage}`);
+    }
+  }
+};
+
 const log = {
   info: ({ user, message, channel }) => {
     console.log(`[INFO] ${user}: ${message} (${channel})`);
-    discordLog
-      .infoMessage()
-      .addTitle(user)
-      .addDescription(message)
-      .addField({ name: "env", value: process.env.APP_ENV })
-      .addField({ name: "port", value: process.env.APP_PORT })
-      .addFooter(`channel: ${channel}`)
-      .sendMessage();
+    sendToDiscord(
+      discordLog
+        .infoMessage()
+        .addTitle(user)
+        .addDescription(message)
+        .addField({ name: "env", value: process.env.APP_ENV })
+        .addField({ name: "port", value: process.env.APP_PORT })
+        .addFooter(`channel: ${channel}`),
+      `INFO: ${user} - ${message} (${channel})`,
+    );
   },
   warn: ({ user, message, channel }) => {
     console.warn(`[WARN] ${user}: ${message} (${channel})`);
-    discordLog
-      .warningMessage()
-      .addTitle(user)
-      .addDescription(message)
-      .addField({ name: "env", value: process.env.APP_ENV })
-      .addField({ name: "port", value: process.env.APP_PORT })
-      .addFooter(`channel: ${channel}`)
-      .sendMessage();
+    sendToDiscord(
+      discordLog
+        .warningMessage()
+        .addTitle(user)
+        .addDescription(message)
+        .addField({ name: "env", value: process.env.APP_ENV })
+        .addField({ name: "port", value: process.env.APP_PORT })
+        .addFooter(`channel: ${channel}`),
+      `WARN: ${user} - ${message} (${channel})`,
+    );
   },
   error: ({ user, message, channel }) => {
     console.error(`[ERROR] ${user}: ${message} (${channel})`);
-    discordLog
-      .errorMessage()
-      .addTitle(user)
-      .addDescription(message)
-      .addField({ name: "env", value: process.env.APP_ENV })
-      .addField({ name: "port", value: process.env.APP_PORT })
-      .addFooter(`channel: ${channel}`)
-      .sendMessage();
+    sendToDiscord(
+      discordLog
+        .errorMessage()
+        .addTitle(user)
+        .addDescription(message)
+        .addField({ name: "env", value: process.env.APP_ENV })
+        .addField({ name: "port", value: process.env.APP_PORT })
+        .addFooter(`channel: ${channel}`),
+      `ERROR: ${user} - ${message} (${channel})`,
+    );
   },
   success: ({ user, message, channel }) => {
     console.log(`[SUCCESS] ${user}: ${message} (${channel})`);
-    discordLog
-      .sucessfulMessage()
-      .addTitle(user)
-      .addDescription(message)
-      .addField({ name: "env", value: process.env.APP_ENV })
-      .addField({ name: "port", value: process.env.APP_PORT })
-      .addFooter(`channel: ${channel}`)
-      .sendMessage();
+    sendToDiscord(
+      discordLog
+        .sucessfulMessage()
+        .addTitle(user)
+        .addDescription(message)
+        .addField({ name: "env", value: process.env.APP_ENV })
+        .addField({ name: "port", value: process.env.APP_PORT })
+        .addFooter(`channel: ${channel}`),
+      `SUCCESS: ${user} - ${message} (${channel})`,
+    );
   },
   command: ({ user, channel, question, response, command }) => {
     console.log(`[COMMAND] ${user} used ${command}: "${question}"\nResponse: "${response}" (${channel})`);
-    discordLog
-      .infoMessage()
-      .addTitle("🤖 Askobot Interaction 🤖")
-      .addDescription(`**User: **${user}\n**Command: **${command}\n**Question: **${question}\n**Response: ** ${response}`)
-      .addField({ name: "env", value: process.env.APP_ENV })
-      .addField({ name: "port", value: process.env.APP_PORT })
-      .addFooter(`channel: ${channel}`)
-      .sendMessage();
+    sendToDiscord(
+      discordLog
+        .infoMessage()
+        .addTitle("🤖 Askobot Interaction 🤖")
+        .addDescription(`**User: **${user}\n**Command: **${command}\n**Question: **${question}\n**Response: ** ${response}`)
+        .addField({ name: "env", value: process.env.APP_ENV })
+        .addField({ name: "port", value: process.env.APP_PORT })
+        .addFooter(`channel: ${channel}`),
+      `COMMAND: ${user} used ${command} in ${channel}`,
+    );
   },
 };
 
