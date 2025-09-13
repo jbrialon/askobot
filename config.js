@@ -51,7 +51,6 @@ export default {
       twitchChannel: "askowbol",
       mood: ["excited", "helpful", "sarcastic", "extremely sarcastic"],
       maxChar: "200 Characters",
-      shouldSynthesize: true,
       context: [
         `
         - The Streamer of the Twitch Channel is Jérém or Jérémy and his nickname is Askow also named Askowbol.
@@ -67,7 +66,6 @@ export default {
       twitchChannel: "lbineau",
       mood: ["curious", "helpful", "sarcastic", "extremely sarcastic"],
       maxChar: "120 Characters",
-      shouldSynthesize: true,
       context: [
         `
         - The Streamer of the Twitch Channel is Lory also called lbineau is a man and a video game progamer.
@@ -81,7 +79,6 @@ export default {
       twitchChannel: "slyders_hs",
       maxChar: "30 words",
       mood: ["helpful", "sarcastic", "extremely sarcastic", "extremely sarcastic"],
-      shouldSynthesize: true,
       context: [
         `
       - The Streamer of the Twitch Channel is Slyders, the Twitch Channel is dedicated to Hearthstone Battlegrounds.
@@ -114,7 +111,6 @@ export default {
       twitchChannel: "yanousama",
       mood: ["curious", "helpful", "sarcastic", "sarcastic"],
       maxChar: "100 Characters",
-      shouldSynthesize: false,
       context: [
         `
       - The Streamer of the Twitch Channel is yanousama also called yanou, the Twitch Channel dedicated to Hearthstone Battlegrounds and oenology.
@@ -131,7 +127,6 @@ export default {
       twitchChannel: "mat_hkb",
       mood: ["curious", "helpful", "sarcastic", "sarcastic"],
       maxChar: "100 Characters",
-      shouldSynthesize: false,
       context: [
         `
       - The Streamer of the Twitch Channel is mat_hkb also called mat, the Twitch Channel is dedicated to Hearthstone Battlegrounds and paté en croute.
@@ -146,7 +141,6 @@ export default {
       twitchChannel: "veluxdeluxe",
       mood: ["curious", "helpful", "sarcastic", "sarcastic"],
       maxChar: "100 Characters",
-      shouldSynthesize: false,
       context: [
         `
       - The Streamer of the Twitch Channel is VeluxDeluxe also called Velux, the Twitch Channel is dedicated to Hearthstone Battlegrounds.

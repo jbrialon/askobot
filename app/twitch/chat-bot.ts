@@ -63,7 +63,7 @@ export class ChatBot extends EventEmitter {
       return;
     }
 
-    // Emit user message for chat history
+    // Emit user message for chat history (Front-End chat.jsx)
     this.emit("bot-chat", {
       channel,
       tags: {
@@ -107,30 +107,14 @@ export class ChatBot extends EventEmitter {
               command: commandName,
             });
 
-            // Emit bot response for chat history
-            this.emit("bot-chat", {
-              channel,
-              tags: {
-                "display-name": "Askowbot",
-                username: this.botName,
-                color: "#FF6B6B",
-              },
-              message: parseChatMessage(response.message, new Map()),
-              timestamp: Date.now(),
-            });
-
-            // if the command should synthesize and the channel should receive synthesized voice
-            const channelShouldSynthesize = config.channels.find((c) => c.twitchChannel === channel)?.shouldSynthesize;
-            if (command.shouldSynthesize && channelShouldSynthesize) {
-              this.emit("bot-response", {
-                channel,
-                response,
-                user: msg.userInfo.displayName,
-                timestamp: Date.now(),
-                type: "command",
-                command: commandName,
-              });
-            }
+            // this.emit("bot-response", {
+            //   channel,
+            //   response,
+            //   user: msg.userInfo.displayName,
+            //   timestamp: Date.now(),
+            //   type: "command",
+            //   command: commandName,
+            // });
           }
         } catch (error) {
           console.error(`Error executing command ${commandName}:`, error);
@@ -155,6 +139,17 @@ export class ChatBot extends EventEmitter {
 
   public say(channel: string, message: string) {
     this.chatClient.say(channel, message);
+    // Emit bot response for chat history (Front-End chat.jsx)
+    this.emit("bot-chat", {
+      channel,
+      tags: {
+        "display-name": "Askowbot",
+        username: this.botName,
+        color: "#FF6B6B",
+      },
+      message: parseChatMessage(message, new Map()),
+      timestamp: Date.now(),
+    });
   }
 
   public addChannel(channel: string) {

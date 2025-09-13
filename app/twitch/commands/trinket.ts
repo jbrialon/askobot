@@ -7,7 +7,6 @@ export const trinketCommand: CommandHandler = {
   aliases: ["trinkets", "bibelot", "bibelots"],
   cooldown: 0,
   excludedChannels: ["lbineau"],
-  shouldSynthesize: false,
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const trinketName = params.join(" ");
