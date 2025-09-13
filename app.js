@@ -64,7 +64,7 @@ async function startServer() {
   const chatBot = new ChatBot();
   chatBot.connect();
 
-  await cleanupEventSubSubscriptions();
+  // await cleanupEventSubSubscriptions();
   await setupEventSubSubscriptions();
 
   // init Socket IO Server
