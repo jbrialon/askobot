@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { log } from "../utils/utils.js";
 import crypto from "crypto";
 
@@ -22,7 +22,7 @@ interface EventSubRequest extends Request {
   body: EventSubEvent;
 }
 
-export async function eventSubMiddleware(req: EventSubRequest, res: Response, next?: NextFunction) {
+export async function eventSubMiddleware(req: EventSubRequest, res: Response) {
   try {
     const messageId = req.headers["twitch-eventsub-message-id"] as string;
     const messageTimestamp = req.headers["twitch-eventsub-message-timestamp"] as string;
@@ -30,9 +30,9 @@ export async function eventSubMiddleware(req: EventSubRequest, res: Response, ne
     const messageType = req.headers["twitch-eventsub-message-type"] as string;
 
     // Verify the message signature if we have a webhook secret
-    if (process.env.TWITCH_EVENTSUB_SECRET) {
+    if (process.env["TWITCH_EVENTSUB_SECRET"]) {
       const expectedSignature = crypto
-        .createHmac("sha256", process.env.TWITCH_EVENTSUB_SECRET)
+        .createHmac("sha256", process.env["TWITCH_EVENTSUB_SECRET"])
         .update(messageId + messageTimestamp + JSON.stringify(req.body))
         .digest("hex");
 
