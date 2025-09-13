@@ -41,13 +41,14 @@ export default class Voice {
     // Replace @handles with just the username so the bot don't say the "at" (@)
     const handleRegex = /@([\w_]+)/g;
     text = text.replace(handleRegex, "$1");
-    
+
     // Remove emojis
-    const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
+    const emojiRegex =
+      /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
     return text.replace(emojiRegex, "");
   }
 
-  // Voice normalization for better TTS pronunciation
+  // Voice normalization for better TTS pronunciation (for flash models)
   normalizeText(text) {
     return (
       text

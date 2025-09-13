@@ -8,13 +8,14 @@ import { fileURLToPath } from "url";
 // Classes
 import Socket from "./app/classes/socket.js";
 import Voice from "./app/classes/voice.js";
-// import TwitchBot from "./app/classes/twitch-bot.js";
 
 // Database
 import { setupDatabase } from "./app/database/index.js";
 
 // New Twitch flow
 import { oAuthTokenMiddleWare } from "./app/twitch/oauth-token-middleware.js";
+import { eventSubMiddleware } from "./app/twitch/eventsub-middleware.js";
+import { setupEventSubSubscriptions } from "./app/twitch/eventsub-setup.js";
 import { ChatBot } from "./app/twitch/chat-bot.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -56,9 +57,14 @@ async function startServer() {
   // Route for oAuth token
   app.post("/oauth-token", oAuthTokenMiddleWare);
 
+  // Route for EventSub webhooks
+  app.post("/eventsub", eventSubMiddleware);
+
   const voice = new Voice();
   const chatBot = new ChatBot();
   chatBot.connect();
+
+  await setupEventSubSubscriptions();
 
   // init Socket IO Server
   const socket = new Socket({ server, chatBot, voice });
