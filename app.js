@@ -15,7 +15,7 @@ import { setupDatabase } from "./app/database/index.js";
 // New Twitch flow
 import { oAuthTokenMiddleWare } from "./app/twitch/oauth-token-middleware.js";
 import { eventSubMiddleware } from "./app/twitch/eventsub-middleware.js";
-import { setupEventSubSubscriptions } from "./app/twitch/eventsub-setup.js";
+import { setupEventSubSubscriptions, cleanupEventSubSubscriptions } from "./app/twitch/eventsub-setup.js";
 import { ChatBot } from "./app/twitch/chat-bot.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -64,6 +64,7 @@ async function startServer() {
   const chatBot = new ChatBot();
   chatBot.connect();
 
+  await cleanupEventSubSubscriptions();
   await setupEventSubSubscriptions();
 
   // init Socket IO Server

@@ -5,10 +5,10 @@ import { log } from "../utils/utils.js";
 // const WEBHOOK_URL = `${process.env.TWITCH_OAUTH_REDIRECT_URL}/eventsub`;
 const WEBHOOK_URL = `https://askobot.jerem.cool/eventsub`;
 
-const WEBHOOK_SECRET = process.env["TWITCH_CLIENT_SECRET"];
+const WEBHOOK_SECRET = process.env["TWITCH_EVENTSUB_SECRET"];
 
 if (!WEBHOOK_SECRET) {
-  throw new Error("TWITCH_CLIENT_SECRET environment variable must be set");
+  throw new Error("TWITCH_EVENTSUB_SECRET environment variable must be set");
 }
 
 export async function setupEventSubSubscriptions() {
@@ -95,5 +95,25 @@ export async function setupEventSubSubscriptions() {
   } catch (error) {
     console.error("Failed to setup EventSub subscriptions:", error);
     throw error;
+  }
+}
+
+export async function cleanupEventSubSubscriptions() {
+  try {
+    const subscriptions = await apiClient.eventSub.getSubscriptions();
+    console.log(`Found ${subscriptions.data.length} EventSub subscriptions to cleanup`);
+
+    for (const subscription of subscriptions.data) {
+      try {
+        await apiClient.eventSub.deleteSubscription(subscription.id);
+        console.log(`Deleted subscription: ${subscription.type} (ID: ${subscription.id})`);
+      } catch (error: any) {
+        console.error(`Failed to delete subscription ${subscription.id}:`, error.message);
+      }
+    }
+
+    console.log("EventSub subscription cleanup completed");
+  } catch (error) {
+    console.error("Failed to cleanup EventSub subscriptions:", error);
   }
 }
