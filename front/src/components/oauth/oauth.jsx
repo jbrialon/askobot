@@ -14,7 +14,8 @@ export const Oauth = () => {
       redirect_uri: `${TWITCH_OAUTH_REDIRECT_URL}/oauth-callback`,
       client_id: APP_CLIENT_ID,
       response_type: "code",
-      scope: "moderator:read:followers channel:read:subscriptions",
+      scope:
+        "moderator:read:followers channel:read:subscriptions channel:read:redemptions channel:manage:redemptions bits:read channel:read:hype_train",
       state,
     });
     window.location.href = `https://id.twitch.tv/oauth2/authorize?${params.toString()}`;
