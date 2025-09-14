@@ -64,9 +64,9 @@ export class ChatBot extends EventEmitter {
     }
 
     // Emit user message for chat history (Front-End chat.jsx)
-    this.emit("bot-chat", {
+    this.emit("chat", {
       channel,
-      tags: {
+      user: {
         "display-name": msg.userInfo.displayName,
         username: user,
         color: msg.userInfo.color,
@@ -106,15 +106,6 @@ export class ChatBot extends EventEmitter {
               response: response.message,
               command: commandName,
             });
-
-            // this.emit("bot-response", {
-            //   channel,
-            //   response,
-            //   user: msg.userInfo.displayName,
-            //   timestamp: Date.now(),
-            //   type: "command",
-            //   command: commandName,
-            // });
           }
         } catch (error) {
           console.error(`Error executing command ${commandName}:`, error);
@@ -140,9 +131,9 @@ export class ChatBot extends EventEmitter {
   public say(channel: string, message: string) {
     this.chatClient.say(channel, message);
     // Emit bot response for chat history (Front-End chat.jsx)
-    this.emit("bot-chat", {
+    this.emit("chat", {
       channel,
-      tags: {
+      user: {
         "display-name": "Askowbot",
         username: this.botName,
         color: "#FF6B6B",

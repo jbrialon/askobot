@@ -18,6 +18,9 @@ import { eventSubMiddleware } from "./app/twitch/eventsub-middleware.js";
 import { setupEventSubSubscriptions, cleanupEventSubSubscriptions } from "./app/twitch/eventsub-setup.js";
 import { ChatBot } from "./app/twitch/chat-bot.js";
 
+// Services
+import askobot from "./app/services/askobot.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -46,7 +49,7 @@ async function startServer() {
   const server = http.createServer(app);
 
   server.listen(process.env["APP_PORT"], () => {
-    console.log(`Askobot Front End is running at http://localhost:${process.env["APP_PORT"]}`);
+    console.log(`Askobot Front End is running at ${process.env["APP_URL"]}`);
   });
 
   // Route for serving the index.html
@@ -64,11 +67,12 @@ async function startServer() {
   const chatBot = new ChatBot();
   chatBot.connect();
 
+  // TODO: this probably should be done in oauth-token post
   // await cleanupEventSubSubscriptions();
   await setupEventSubSubscriptions();
 
   // init Socket IO Server
-  const socket = new Socket({ server, chatBot, voice });
+  const socket = new Socket({ server, chatBot, voice, askobot });
 }
 
 startServer();

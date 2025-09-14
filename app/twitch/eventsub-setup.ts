@@ -3,9 +3,7 @@ import { apiClient } from "./auth-clients.js";
 import { log } from "../utils/utils.js";
 import { getAuthenticatedUserIds } from "../database/index.js";
 
-// const WEBHOOK_URL = `${process.env.TWITCH_OAUTH_REDIRECT_URL}/eventsub`;
-const WEBHOOK_URL = `https://askobot.jerem.cool/eventsub`;
-
+const WEBHOOK_URL = `${process.env["APP_URL"]}/eventsub`;
 const WEBHOOK_SECRET = process.env["TWITCH_EVENTSUB_SECRET"];
 
 if (!WEBHOOK_SECRET) {

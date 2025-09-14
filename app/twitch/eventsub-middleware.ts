@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { log } from "../utils/utils.js";
 import crypto from "crypto";
 
+import askobot from "../services/askobot.js";
+
 interface EventSubEvent {
   subscription: {
     id: string;
@@ -45,12 +47,12 @@ export async function eventSubMiddleware(req: EventSubRequest, res: Response) {
       }
     }
 
-    console.log(`EventSub ${messageType} received:`, {
-      messageId,
-      messageType,
-      subscriptionType: req.body.subscription?.type,
-      subscriptionId: req.body.subscription?.id,
-    });
+    // console.log(`EventSub ${messageType} received:`, {
+    //   messageId,
+    //   messageType,
+    //   subscriptionType: req.body.subscription?.type,
+    //   subscriptionId: req.body.subscription?.id,
+    // });
 
     // Handle webhook verification challenge
     if (messageType === "webhook_callback_verification") {
@@ -89,7 +91,13 @@ export async function eventSubMiddleware(req: EventSubRequest, res: Response) {
 }
 
 async function handleChannelPointReward(event: any) {
-  const channel = event?.broadcaster_user_name || event?.broadcaster_user_login;
+  let channel = event?.broadcaster_user_login?.toLowerCase();
+
+  // Test mode when we are testing from twitch-cli
+  if (channel === "testBroadcaster") {
+    channel = "askowbol";
+  }
+
   const rewardTitle = event?.reward?.title;
   const userName = event?.user_name;
   const userInput = event?.user_input;
@@ -97,7 +105,7 @@ async function handleChannelPointReward(event: any) {
 
   // Handle different reward types based on title
   switch (rewardTitle?.toLowerCase()) {
-    case "robot animation":
+    case "looping":
       log.info({
         user: "EventSub",
         message: `${rewardTitle} ${cost}: ${userName} requested animation: "${userInput}"`,
@@ -113,7 +121,13 @@ async function handleChannelPointReward(event: any) {
         message: `${rewardTitle} ${cost}: ${userName} asked: "${userInput}"`,
         channel: channel,
       });
-      // TODO: trigger Askobot voice answer
+
+      const result = await askobot.generateResponse(channel, userName, userInput);
+      // Emit the response for voice synthesis and frontend
+      askobot.emit("response", {
+        channel: channel,
+        response: result,
+      });
       break;
 
     default:

@@ -60,14 +60,9 @@ class Askobot extends EventEmitter {
     }
   }
 
-  async generateResponse(
-    channel: string,
-    user: string,
-    message: string,
-    source: "chat" | "channelpoints" = "chat",
-  ): Promise<AskobotResponse> {
-    const channelInfo = await getChannelInfo(channel);
+  async generateResponse(channel: string, user: string, message: string): Promise<AskobotResponse> {
     const channelConfig = config.channels.find((c) => c.twitchChannel === channel);
+    const channelInfo = await getChannelInfo(channel);
     const openAI = createOpenAI();
 
     try {
@@ -97,11 +92,12 @@ class Askobot extends EventEmitter {
       };
     } catch (error) {
       console.error("Error in askobot:", error);
-      const fallbackMessage = "🤖 Erreur : J'ai oublié comment parler poliment, désolé ! 🤖";
+      const fallbackMessage = "Erreur : J'ai oublié comment parler poliment, désolé !";
       return {
         message: fallbackMessage,
         emotion: "",
         animation: "",
+        emoji: "😵",
       };
     }
   }

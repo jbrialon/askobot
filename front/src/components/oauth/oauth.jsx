@@ -11,7 +11,7 @@ export const Oauth = () => {
     window.sessionStorage.setItem("oauth-state", JSON.stringify({ path: pathname, state }));
 
     const params = new URLSearchParams({
-      redirect_uri: `${TWITCH_OAUTH_REDIRECT_URL}/oauth-callback`,
+      redirect_uri: `${APP_URL}/oauth-callback`,
       client_id: APP_CLIENT_ID,
       response_type: "code",
       scope:

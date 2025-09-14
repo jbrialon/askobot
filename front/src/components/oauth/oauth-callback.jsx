@@ -26,7 +26,7 @@ export const OauthCallback = () => {
         return;
       }
       const code = new URLSearchParams(window.location.search).get("code");
-      await fetch(`${TWITCH_OAUTH_REDIRECT_URL}/oauth-token`, {
+      await fetch(`${APP_URL}/oauth-token`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
