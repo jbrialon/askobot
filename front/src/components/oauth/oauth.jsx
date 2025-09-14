@@ -24,7 +24,7 @@ export const Oauth = () => {
   return (
     <div className={styles["oauth"]}>
       <button onClick={handleOauth} className={styles["oauth__box"]}>
-        Connect Askobot to Twitch
+        Connecter Askobot à mon compte Twitch
       </button>
     </div>
   );
