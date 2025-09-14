@@ -129,6 +129,8 @@ export class ChatBot extends EventEmitter {
   }
 
   public say(channel: string, message: string) {
+    if (!this.isChannelJoined(channel)) return;
+
     this.chatClient.say(channel, message);
     // Emit bot response for chat history (Front-End chat.jsx)
     this.emit("chat", {
@@ -151,5 +153,9 @@ export class ChatBot extends EventEmitter {
   public removeChannel(channel: string) {
     this.channels = this.channels.filter((c) => c !== channel);
     this.chatClient.part(channel);
+  }
+
+  public isChannelJoined(channel: string): boolean {
+    return this.channels.includes(channel);
   }
 }
