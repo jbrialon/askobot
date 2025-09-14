@@ -47,12 +47,12 @@ export async function eventSubMiddleware(req: EventSubRequest, res: Response) {
       }
     }
 
-    // console.log(`EventSub ${messageType} received:`, {
-    //   messageId,
-    //   messageType,
-    //   subscriptionType: req.body.subscription?.type,
-    //   subscriptionId: req.body.subscription?.id,
-    // });
+    console.log(`EventSub ${messageType} received:`, {
+      messageId,
+      messageType,
+      subscriptionType: req.body.subscription?.type,
+      subscriptionId: req.body.subscription?.id,
+    });
 
     // Handle webhook verification challenge
     if (messageType === "webhook_callback_verification") {
@@ -94,7 +94,7 @@ async function handleChannelPointReward(event: any) {
   let channel = event?.broadcaster_user_login?.toLowerCase();
 
   // Test mode when we are testing from twitch-cli
-  if (channel === "testBroadcaster") {
+  if (channel === "testbroadcaster") {
     channel = "askowbol";
   }
 

@@ -7,7 +7,6 @@ import "@/styles/style.scss";
 import Experience from "@/components/3d/experience.jsx";
 import Chat from "@/components/ui/chat/chat.jsx";
 import Console from "@/components/ui/console/console.jsx";
-import Start from "@/components/ui/start/start.jsx";
 import { Oauth } from "@/components/oauth/oauth.jsx";
 import { OauthCallback } from "@/components/oauth/oauth-callback.jsx";
 
@@ -51,8 +50,9 @@ function App() {
   return (
     <>
       <div className="ui">
-        <Start />
         {showConsole && <Console />}
+        <Leva collapsed={true} hidden={true} />
+        <Experience />
         <Chat />
       </div>
     </>
@@ -80,8 +80,6 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("app")).render(
   <StrictMode>
-    <Leva collapsed={true} hidden={true} />
-    <Experience />
     <RouterProvider router={router} />,
   </StrictMode>,
 );
