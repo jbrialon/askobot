@@ -118,7 +118,7 @@ export default class Socket {
           channel: channel,
         });
         // we say it here, even if no audio was generated it's still outputing in the chat
-        this.chatBot.say("askowbol", response.message);
+        this.chatBot.say(channel, response.message);
       }
     });
   }
