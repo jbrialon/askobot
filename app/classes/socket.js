@@ -98,7 +98,7 @@ export default class Socket {
         });
 
         // we say it here so it's in sync with the audio generation
-        this.chatBot.say(channel, response.message);
+        this.chatBot.say(channel, response);
 
         this.io.to(channel).emit("audio-voice", {
           channel: channel,
@@ -118,7 +118,7 @@ export default class Socket {
           channel: channel,
         });
         // we say it here, even if no audio was generated it's still outputing in the chat
-        this.chatBot.say(channel, response.message);
+        this.chatBot.say(channel, response);
       }
     });
   }

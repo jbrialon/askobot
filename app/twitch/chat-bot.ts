@@ -98,7 +98,7 @@ export class ChatBot extends EventEmitter {
           const response = await command.execute(channel, user, params, msg);
 
           if (response) {
-            this.say(channel, `${response.emoji || ""} ${response.message} ${response.emoji || ""}`);
+            this.say(channel, response);
             log.command({
               user: msg.userInfo.displayName,
               channel: channel,
@@ -128,9 +128,10 @@ export class ChatBot extends EventEmitter {
     });
   }
 
-  public say(channel: string, message: string) {
+  public say(channel: string, response: { message: string; emoji?: string }) {
     if (!this.isChannelJoined(channel)) return;
 
+    const message = `${response.emoji || ""} ${response.message} ${response.emoji || ""}`;
     this.chatClient.say(channel, message);
     // Emit bot response for chat history (Front-End chat.jsx)
     this.emit("chat", {
@@ -140,7 +141,7 @@ export class ChatBot extends EventEmitter {
         username: this.botName,
         color: "#FF6B6B",
       },
-      message: parseChatMessage(message, new Map()),
+      message: parseChatMessage(response.message, new Map()),
       timestamp: Date.now(),
     });
   }
