@@ -15,7 +15,7 @@ import { setupDatabase } from "./app/database/index.js";
 // New Twitch flow
 import { oAuthTokenMiddleWare } from "./app/twitch/oauth-token-middleware.js";
 import { eventSubMiddleware } from "./app/twitch/eventsub-middleware.js";
-import { setupEventSubSubscriptions, cleanupEventSubSubscriptions } from "./app/twitch/eventsub-setup.js";
+import { cleanupEventSubSubscriptions } from "./app/twitch/eventsub-setup.js";
 import { ChatBot } from "./app/twitch/chat-bot.js";
 
 // Services
@@ -67,9 +67,8 @@ async function startServer() {
   const chatBot = new ChatBot();
   chatBot.connect();
 
-  // TODO: this probably should be done in oauth-token post
+  // EventSub manual cleanup
   // await cleanupEventSubSubscriptions();
-  await setupEventSubSubscriptions();
 
   // init Socket IO Server
   const socket = new Socket({ server, chatBot, voice, askobot });

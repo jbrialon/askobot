@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { getUserOauthTokens, persistUserTokens } from "./auth-clients.js";
 import { getTokenInfo } from "@twurple/auth";
+import { setupEventSubSubscriptions } from "./eventsub-setup.js";
 
 export async function oAuthTokenMiddleWare(req: Request, res: Response, next: NextFunction) {
   try {
@@ -30,6 +31,13 @@ export async function oAuthTokenMiddleWare(req: Request, res: Response, next: Ne
       refresh_token: tokens.refreshToken,
       expires_in: tokens.expiresIn,
     });
+
+    // Setup EventSub subscriptions when we have a new authorized user
+    try {
+      await setupEventSubSubscriptions();
+    } catch (error) {
+      console.error("Failed to setup EventSub subscriptions after OAuth:", error);
+    }
   } catch (err) {
     console.error(err);
   }
