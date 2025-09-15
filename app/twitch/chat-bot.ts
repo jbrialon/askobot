@@ -18,13 +18,7 @@ export class ChatBot extends EventEmitter {
     this.config = config;
     this.botName = process.env["TWITCH_BOT_USERNAME"] as string;
     this.lastCommandTime = {};
-    this.channels = this.config.channels
-      .filter((channel) => {
-        return process.env["APP_ENV"] === "development"
-          ? channel.twitchChannel === "askowbol" // Only include #askowbol in development
-          : channel.twitchChannel !== "askowbol"; // Exclude #askowbol in production
-      })
-      .map((channel) => channel.twitchChannel);
+    this.channels = this.config.channels.map((channel) => channel.twitchChannel);
 
     this.chatClient = new ChatClient({
       webSocket: true,
