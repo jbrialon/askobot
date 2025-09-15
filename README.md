@@ -97,17 +97,27 @@ The built front-end will be served statically by the backend.
 
 ---
 
-## 🛠️ Future Ideas / TODO
+## 🧪 Testing EventSub with Twitch CLI
 
-- End Scene with credits
-- Start Scene as a 3D Factory
-- Scene when playing, askobot appears only when he speaks, from above? randomly on the screen?
-- send discord alerts when online
-- actual scene for both start and end
-- stt -> askobot -> tts
-- generate json as response
-  - des intonations en fonction de la reponse
-  - lier ça a une animation du robot
-  - rajouter des LEDs sur le robot, les allumer a la couleur du pseudo dans le chat
+### Channel Point Redemption Testing
 
----
+```bash
+# Trigger a channel point redemption event
+twitch event trigger channel.channel_points_custom_reward_redemption.add -F http://localhost:3000/eventsub -n "askobot" -s thesecret
+```
+
+### Other EventSub Events
+
+```bash
+# Follow event
+twitch event trigger follow -F http://localhost:3000/eventsub -s thesecret
+
+# Subscription event
+twitch event trigger subscribe -F http://localhost:3000/eventsub -s thesecret
+
+# Hype Train event
+twitch event trigger hype-train-begin -F http://localhost:3000/eventsub -n "askobot" -s thesecret
+
+# Raid event
+twitch event trigger raid -F http://localhost:3000/eventsub -s thesecret
+```
