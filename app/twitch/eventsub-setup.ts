@@ -1,10 +1,9 @@
 import "dotenv/config";
 import { apiClient } from "./auth-clients.js";
 import { log } from "../utils/utils.js";
+import { getAuthenticatedUserIds } from "../database/index.js";
 
-// const WEBHOOK_URL = `${process.env.TWITCH_OAUTH_REDIRECT_URL}/eventsub`;
-const WEBHOOK_URL = `https://askobot.jerem.cool/eventsub`;
-
+const WEBHOOK_URL = `${process.env["APP_URL"]}/eventsub`;
 const WEBHOOK_SECRET = process.env["TWITCH_EVENTSUB_SECRET"];
 
 if (!WEBHOOK_SECRET) {
@@ -17,9 +16,23 @@ export async function setupEventSubSubscriptions() {
     const existingSubscriptions = await apiClient.eventSub.getSubscriptions();
     console.log(`Found ${existingSubscriptions.data.length} existing EventSub subscriptions`);
 
-    // Channels we want to monitor
-    // TODO: well this could be better
-    const channels = ["askowbol"];
+    // Get all users who have authorized the app with OAuth
+    const userIds = await getAuthenticatedUserIds();
+    console.log(`Authenticated users:`, userIds);
+
+    // Get user details for each authenticated user
+    const channels: string[] = [];
+    for (const userId of userIds) {
+      try {
+        const user = await apiClient.users.getUserById(userId);
+        if (user) {
+          channels.push(user.name);
+          console.log(`Will monitor channel: ${user.name} (${user.id})`);
+        }
+      } catch (error) {
+        console.error(`Failed to get user details for ID ${userId}:`, error);
+      }
+    }
 
     for (const channelName of channels) {
       try {

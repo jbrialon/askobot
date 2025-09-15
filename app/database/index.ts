@@ -15,3 +15,13 @@ export async function setupDatabase() {
 
   console.log("Database setup complete");
 }
+
+export async function getAuthenticatedUserIds(): Promise<string[]> {
+  try {
+    const { rows } = await dbPool.query("SELECT id FROM user_tokens");
+    return rows.map((row: any) => row.id);
+  } catch (error) {
+    console.error("Failed to get authenticated user IDs:", error);
+    return [];
+  }
+}

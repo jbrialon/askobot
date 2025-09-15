@@ -12,6 +12,5 @@ export interface CommandHandler {
   aliases?: string[];
   cooldown?: number; // Cooldown in minutes, undefined means no cooldown
   excludedChannels?: string[]; // Array of channels where the command will be disabled
-  shouldSynthesize: boolean;
   execute: (channel: string, user: string, params: string[], msg: ChatMessage) => Promise<CommandResponse>;
 }

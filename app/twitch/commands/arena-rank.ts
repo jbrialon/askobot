@@ -10,7 +10,6 @@ export const arenaRankCommand: CommandHandler = {
   aliases: ["arena", "ar"],
   cooldown: 0.5,
   excludedChannels: ["lbineau"],
-  shouldSynthesize: false,
   execute: async (channel: string, user: string, params: string[], msg: ChatMessage): Promise<CommandResponse> => {
     try {
       if (!params || params.length === 0) {

@@ -7,7 +7,6 @@ export const anomalyCommand: CommandHandler = {
   aliases: ["anomalies", "anomalie"],
   cooldown: 0,
   excludedChannels: ["lbineau"],
-  shouldSynthesize: false,
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const anomalyName = params.join(" ");

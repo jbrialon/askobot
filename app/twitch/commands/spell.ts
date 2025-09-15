@@ -7,7 +7,6 @@ export const spellCommand: CommandHandler = {
   aliases: ["spells", "sort"],
   cooldown: 0,
   excludedChannels: ["lbineau"],
-  shouldSynthesize: false,
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const spellName = params.join(" ");

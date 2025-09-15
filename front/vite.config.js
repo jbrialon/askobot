@@ -29,7 +29,7 @@ export default defineConfig((mode) => {
     plugins: [react(), glsl()],
     define: {
       APP_CLIENT_ID: JSON.stringify(env.TWITCH_CLIENT_ID),
-      TWITCH_OAUTH_REDIRECT_URL: JSON.stringify(env.TWITCH_OAUTH_REDIRECT_URL),
+      APP_URL: JSON.stringify(env.APP_URL),
     },
   };
 });

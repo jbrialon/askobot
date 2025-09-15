@@ -6,10 +6,10 @@ import { oAuthTokensPersistentStorage } from "../database/twitch-tokens.js";
 const clientId = process.env["TWITCH_CLIENT_ID"];
 const clientSecret = process.env["TWITCH_CLIENT_SECRET"];
 const accessToken = process.env["TWITCH_OAUTH"];
-const redirectUri = `${process.env["TWITCH_OAUTH_REDIRECT_URL"]}/oauth-callback`;
+const redirectUri = `${process.env["APP_URL"]}/oauth-callback`;
 
 if (!clientId || !clientSecret || !accessToken || !redirectUri) {
-  throw new Error("env variables TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, TWITCH_OAUTH, TWITCH_OAUTH_REDIRECT_URL must be set");
+  throw new Error("env variables TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, TWITCH_OAUTH, APP_URL must be set");
 }
 
 // used by the chatbot

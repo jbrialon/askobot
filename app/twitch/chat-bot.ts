@@ -18,13 +18,7 @@ export class ChatBot extends EventEmitter {
     this.config = config;
     this.botName = process.env["TWITCH_BOT_USERNAME"] as string;
     this.lastCommandTime = {};
-    this.channels = this.config.channels
-      .filter((channel) => {
-        return process.env["APP_ENV"] === "development"
-          ? channel.twitchChannel === "askowbol" // Only include #askowbol in development
-          : channel.twitchChannel !== "askowbol"; // Exclude #askowbol in production
-      })
-      .map((channel) => channel.twitchChannel);
+    this.channels = this.config.channels.map((channel) => channel.twitchChannel);
 
     this.chatClient = new ChatClient({
       webSocket: true,
@@ -63,10 +57,10 @@ export class ChatBot extends EventEmitter {
       return;
     }
 
-    // Emit user message for chat history
-    this.emit("bot-chat", {
+    // Emit user message for chat history (Front-End chat.jsx)
+    this.emit("chat", {
       channel,
-      tags: {
+      user: {
         "display-name": msg.userInfo.displayName,
         username: user,
         color: msg.userInfo.color,
@@ -98,7 +92,7 @@ export class ChatBot extends EventEmitter {
           const response = await command.execute(channel, user, params, msg);
 
           if (response) {
-            this.say(channel, `${response.emoji || ""} ${response.message} ${response.emoji || ""}`);
+            this.say(channel, response);
             log.command({
               user: msg.userInfo.displayName,
               channel: channel,
@@ -106,31 +100,6 @@ export class ChatBot extends EventEmitter {
               response: response.message,
               command: commandName,
             });
-
-            // Emit bot response for chat history
-            this.emit("bot-chat", {
-              channel,
-              tags: {
-                "display-name": "Askowbot",
-                username: this.botName,
-                color: "#FF6B6B",
-              },
-              message: parseChatMessage(response.message, new Map()),
-              timestamp: Date.now(),
-            });
-
-            // if the command should synthesize and the channel should receive synthesized voice
-            const channelShouldSynthesize = config.channels.find((c) => c.twitchChannel === channel)?.shouldSynthesize;
-            if (command.shouldSynthesize && channelShouldSynthesize) {
-              this.emit("bot-response", {
-                channel,
-                response,
-                user: msg.userInfo.displayName,
-                timestamp: Date.now(),
-                type: "command",
-                command: commandName,
-              });
-            }
           }
         } catch (error) {
           console.error(`Error executing command ${commandName}:`, error);
@@ -153,8 +122,22 @@ export class ChatBot extends EventEmitter {
     });
   }
 
-  public say(channel: string, message: string) {
+  public say(channel: string, response: { message: string; emoji?: string }) {
+    if (!this.isChannelJoined(channel)) return;
+
+    const message = `${response.emoji || ""} ${response.message} ${response.emoji || ""}`;
     this.chatClient.say(channel, message);
+    // Emit bot response for chat history (Front-End chat.jsx)
+    this.emit("chat", {
+      channel,
+      user: {
+        "display-name": "Askowbot",
+        username: this.botName,
+        color: "#FF6B6B",
+      },
+      message: parseChatMessage(response.message, new Map()),
+      timestamp: Date.now(),
+    });
   }
 
   public addChannel(channel: string) {
@@ -165,5 +148,9 @@ export class ChatBot extends EventEmitter {
   public removeChannel(channel: string) {
     this.channels = this.channels.filter((c) => c !== channel);
     this.chatClient.part(channel);
+  }
+
+  public isChannelJoined(channel: string): boolean {
+    return this.channels.includes(channel);
   }
 }

@@ -7,7 +7,6 @@ export const questCommand: CommandHandler = {
   aliases: ["quests", "quête", "quete", "rewards", "récompenses"],
   cooldown: 0,
   excludedChannels: ["lbineau"],
-  shouldSynthesize: false,
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const questName = params.join(" ");

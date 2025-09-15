@@ -6,9 +6,9 @@ const ChatItem = ({ item }) => {
   return (
     <>
       <div className={styles["ui-chat__user"]}>
-        {item.tags["display-name"] === "Askowbot" && <div className={styles["ui-chat__avatar"]}></div>}
-        <div className={styles["ui-chat__name"]} style={{ color: item.tags.color }}>
-          {item.tags["display-name"]}
+        {item.user["display-name"] === "Askowbot" && <div className={styles["ui-chat__avatar"]}></div>}
+        <div className={styles["ui-chat__name"]} style={{ color: item.user.color }}>
+          {item.user["display-name"]}
         </div>
       </div>
       <div className={styles["ui-chat__message"]}>

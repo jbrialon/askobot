@@ -3,7 +3,7 @@ import { log } from "../utils/utils.js";
 
 let instance = null;
 export default class Socket {
-  constructor({ server, chatBot, voice }) {
+  constructor({ server, chatBot, voice, askobot }) {
     // Singleton
     if (instance) {
       return instance;
@@ -14,6 +14,7 @@ export default class Socket {
     this.isOBS = false;
     this.chatBot = chatBot;
     this.voice = voice;
+    this.askobot = askobot;
     this.chatHistory = new Map();
     this.channelConnections = new Map();
 
@@ -29,6 +30,7 @@ export default class Socket {
     // init Events
     this.initIOEvents();
     this.initChatBotEvents();
+    this.initAskobotEvents();
   }
 
   initIOEvents() {
@@ -74,38 +76,49 @@ export default class Socket {
 
   initChatBotEvents() {
     // Handle chat messages (both user messages and bot responses)
-    this.chatBot.on("bot-chat", (data) => {
+    this.chatBot.on("chat", (data) => {
+      const { channel, response } = data;
       this.addToChatHistory(data.channel, data);
       const chatHistory = this.getChatHistory(data.channel);
-
       this.io.to(data.channel).emit("chat-history", chatHistory);
     });
+  }
 
-    // Handle bot responses for voice synthesis, trying to limit the number of requests to the ElevenLabs API
-    this.chatBot.on("bot-response", async (data) => {
-      if (this.channelHasOBS(data.channel)) {
+  initAskobotEvents() {
+    // Handle askobot responses from EventSub events
+    this.askobot.on("response", async (data) => {
+      const { channel, response } = data;
+
+      // Generate voice if OBS is connected
+      // trying to limit the number of requests to the ElevenLabs API
+      if (this.channelHasOBS(channel)) {
         const audioBuffer = await this.voice.convertAsStream({
-          text: data.response.message,
-          emotion: data.response.emotion,
+          text: response.message,
+          emotion: response.emotion,
         });
 
-        this.io.to(data.channel).emit("audio-voice", {
-          channel: data.channel,
-          content: data.response,
+        // we say it here so it's in sync with the audio generation
+        this.chatBot.say(channel, response);
+
+        this.io.to(channel).emit("audio-voice", {
+          channel: channel,
+          content: response,
           audioBuffer: audioBuffer ? audioBuffer.toString("base64") : null,
         });
 
         log.info({
           user: "Socket",
-          message: `audio generation for channel ${data.channel} since it's on OBS`,
-          channel: data.channel,
+          message: `audio generation for channel ${channel} since it's on OBS`,
+          channel: channel,
         });
       } else {
         log.info({
           user: "Socket",
-          message: `no audio generation for channel ${data.channel} since it's not on OBS`,
-          channel: data.channel,
+          message: `no audio generation for channel ${channel} since it's not on OBS`,
+          channel: channel,
         });
+        // we say it here, even if no audio was generated it's still outputing in the chat
+        this.chatBot.say(channel, response);
       }
     });
   }
