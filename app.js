@@ -7,19 +7,25 @@ import { fileURLToPath } from "url";
 
 // Classes
 import Socket from "./app/classes/socket.js";
-import Voice from "./app/classes/voice.js";
+import voice from "./app/classes/voice.js";
 
 // Database
 import { setupDatabase } from "./app/database/index.js";
 
-// New Twitch flow
+// Twitch flow
 import { oAuthTokenMiddleWare } from "./app/twitch/oauth-token-middleware.js";
 import { eventSubMiddleware } from "./app/twitch/eventsub-middleware.js";
 import { cleanupEventSubSubscriptions } from "./app/twitch/eventsub-setup.js";
-import { ChatBot } from "./app/twitch/chat-bot.js";
+import chatBot from "./app/twitch/chat-bot.js";
+
+// Discord
+import discordBot from "./app/discord/discord-bot.js";
 
 // Services
 import askobot from "./app/services/askobot.js";
+
+// Utils
+import { log } from "./app/utils/utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,15 +69,20 @@ async function startServer() {
   // Route for EventSub webhooks
   app.post("/eventsub", eventSubMiddleware);
 
-  const voice = new Voice();
-  const chatBot = new ChatBot();
-  chatBot.connect();
-
   // EventSub manual cleanup
   // await cleanupEventSubSubscriptions();
 
   // init Socket IO Server
   const socket = new Socket({ server, chatBot, voice, askobot });
+
+  // Wait for Discord bot to be ready before logging success
+  discordBot.once("ready", () => {
+    log.success({
+      user: "System",
+      message: "🚀 Askowbot Launch success 🚀",
+      channel: "system",
+    });
+  });
 }
 
 startServer();

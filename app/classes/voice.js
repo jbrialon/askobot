@@ -1,7 +1,6 @@
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { ToWords } from "to-words";
-
-export default class Voice {
+class Voice {
   constructor() {
     this.instance = new ElevenLabsClient({
       apiKey: process.env.ELEVENLABS_API_KEY,
@@ -103,3 +102,6 @@ export default class Voice {
     }
   }
 }
+
+const voice = new Voice();
+export default voice;

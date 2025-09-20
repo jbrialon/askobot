@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
-import { DiscordNotification } from "@penseapp/discord-notification";
 import os from "os";
+import { EmbedBuilder } from "discord.js";
+import discordBot from "../discord/discord-bot.js";
 
 let cachedToken = null;
 let tokenExpiry = 0;
@@ -49,26 +50,11 @@ const getOAuthToken = async () => {
   }
 };
 
-const getCurrentTimeOfDay = () => {
-  const now = new Date();
-  const currentHour = now.getHours();
-
-  if (currentHour >= 5 && currentHour < 12) {
-    return "morning";
-  } else if (currentHour >= 12 && currentHour < 17) {
-    return "afternoon";
-  } else if (currentHour >= 17 && currentHour < 20) {
-    return "evening";
-  } else {
-    return "night";
-  }
-};
-
-const discordLog = new DiscordNotification(os.hostname(), process.env.DISCORD_WEBHOOK);
-
-const sendToDiscord = async (discordMessageBuilder, fallbackMessage) => {
+const logToDiscord = async (embed, channel, fallbackMessage) => {
   try {
-    await discordMessageBuilder.sendMessage();
+    embed.setFooter({ text: `${os.hostname()} • ${process.env.APP_ENV} • ${channel}` }).setTimestamp();
+
+    await discordBot.log(embed);
   } catch (error) {
     console.error(`[DISCORD ERROR] Failed to send Discord message: ${error.message}`);
     if (fallbackMessage) {
@@ -80,68 +66,31 @@ const sendToDiscord = async (discordMessageBuilder, fallbackMessage) => {
 const log = {
   info: ({ user, message, channel }) => {
     console.log(`[INFO] ${user}: ${message} (${channel})`);
-    sendToDiscord(
-      discordLog
-        .infoMessage()
-        .addTitle(user)
-        .addDescription(message)
-        .addField({ name: "env", value: process.env.APP_ENV })
-        .addField({ name: "port", value: process.env.APP_PORT })
-        .addFooter(`channel: ${channel}`),
-      `INFO: ${user} - ${message} (${channel})`,
-    );
+    const embed = new EmbedBuilder().setColor(0x0099ff).setTitle(user).setDescription(message);
+    logToDiscord(embed, channel, `INFO: ${user} - ${message} (${channel})`);
   },
   warn: ({ user, message, channel }) => {
     console.warn(`[WARN] ${user}: ${message} (${channel})`);
-    sendToDiscord(
-      discordLog
-        .warningMessage()
-        .addTitle(user)
-        .addDescription(message)
-        .addField({ name: "env", value: process.env.APP_ENV })
-        .addField({ name: "port", value: process.env.APP_PORT })
-        .addFooter(`channel: ${channel}`),
-      `WARN: ${user} - ${message} (${channel})`,
-    );
+    const embed = new EmbedBuilder().setColor(0xffcc00).setTitle(user).setDescription(message);
+    logToDiscord(embed, channel, `WARN: ${user} - ${message} (${channel})`);
   },
   error: ({ user, message, channel }) => {
     console.error(`[ERROR] ${user}: ${message} (${channel})`);
-    sendToDiscord(
-      discordLog
-        .errorMessage()
-        .addTitle(user)
-        .addDescription(message)
-        .addField({ name: "env", value: process.env.APP_ENV })
-        .addField({ name: "port", value: process.env.APP_PORT })
-        .addFooter(`channel: ${channel}`),
-      `ERROR: ${user} - ${message} (${channel})`,
-    );
+    const embed = new EmbedBuilder().setColor(0xff0000).setTitle(user).setDescription(message);
+    logToDiscord(embed, channel, `ERROR: ${user} - ${message} (${channel})`);
   },
   success: ({ user, message, channel }) => {
     console.log(`[SUCCESS] ${user}: ${message} (${channel})`);
-    sendToDiscord(
-      discordLog
-        .sucessfulMessage()
-        .addTitle(user)
-        .addDescription(message)
-        .addField({ name: "env", value: process.env.APP_ENV })
-        .addField({ name: "port", value: process.env.APP_PORT })
-        .addFooter(`channel: ${channel}`),
-      `SUCCESS: ${user} - ${message} (${channel})`,
-    );
+    const embed = new EmbedBuilder().setColor(0x00ff00).setTitle(user).setDescription(message);
+    logToDiscord(embed, channel, `SUCCESS: ${user} - ${message} (${channel})`);
   },
   command: ({ user, channel, question, response, command }) => {
     console.log(`[COMMAND] ${user} used ${command}: "${question}"\nResponse: "${response}" (${channel})`);
-    sendToDiscord(
-      discordLog
-        .infoMessage()
-        .addTitle("🤖 Askobot Interaction 🤖")
-        .addDescription(`**User: **${user}\n**Command: **${command}\n**Question: **${question}\n**Response: ** ${response}`)
-        .addField({ name: "env", value: process.env.APP_ENV })
-        .addField({ name: "port", value: process.env.APP_PORT })
-        .addFooter(`channel: ${channel}`),
-      `COMMAND: ${user} used ${command} in ${channel}`,
-    );
+    const embed = new EmbedBuilder()
+      .setColor(0x0099ff)
+      .setTitle("<:askobot:1417924303755935754> Askobot Interaction <:askobot:1417924303755935754>")
+      .setDescription(`**User:** ${user}\n**Command:** ${command}\n**Question:** ${question}\n**Response:** ${response}`);
+    logToDiscord(embed, channel, `COMMAND: ${user} used ${command} in ${channel}`);
   },
 };
 
@@ -155,4 +104,4 @@ const cleanText = (text) => {
   return text.replace(/<\/?(b|i)>/g, ""); // Removes <b>, </b>, <i>, and </i> tags};
 };
 
-export { getValidToken, getCurrentTimeOfDay, log, getFrenchOrdinal, cleanText };
+export { getValidToken, log, getFrenchOrdinal, cleanText };

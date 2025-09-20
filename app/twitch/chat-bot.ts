@@ -27,6 +27,7 @@ export class ChatBot extends EventEmitter {
     });
 
     this.setupEventHandlers();
+    this.connect();
   }
 
   private setupEventHandlers() {
@@ -113,13 +114,9 @@ export class ChatBot extends EventEmitter {
     }
   }
 
-  public connect() {
+  private connect() {
     this.chatClient.connect();
-    log.success({
-      user: "System",
-      message: "🚀 Askowbot Launch success 🚀",
-      channel: "System",
-    });
+    console.log(`Twitch Chat Bot Ready!`);
   }
 
   public say(channel: string, response: { message: string; emoji?: string }) {
@@ -154,3 +151,6 @@ export class ChatBot extends EventEmitter {
     return this.channels.includes(channel);
   }
 }
+
+const chatBot = new ChatBot();
+export default chatBot;

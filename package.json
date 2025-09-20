@@ -14,11 +14,11 @@
   "license": "ISC",
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.12.2",
-    "@penseapp/discord-notification": "^2.0.9",
     "@twurple/api": "^7.3.0",
     "@twurple/auth": "^7.3.0",
     "@twurple/chat": "^7.3.0",
     "cors": "^2.8.5",
+    "discord.js": "^14.22.1",
     "dotenv": "^16.3.1",
     "express": "^4.21.2",
     "fuse.js": "^7.0.0",
