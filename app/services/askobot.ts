@@ -22,7 +22,7 @@ interface AskobotResponse {
 class Askobot extends EventEmitter {
   private history: History = {};
 
-  private manageHistory(channel: string, user: string, message: string, response: string) {
+  private manageHistory(channel: string, user: string, message: string, response: string, platform: "twitch" | "discord" = "twitch") {
     if (!this.history[channel]) {
       this.history[channel] = {
         messages: [],
@@ -42,7 +42,7 @@ class Askobot extends EventEmitter {
     // Add user message
     this.history[channel].messages.push({
       role: "user",
-      content: `@${user}: ${message}`,
+      content: `[${platform.toUpperCase()}] @${user}: ${message}`,
     });
 
     // Add bot response
@@ -60,7 +60,12 @@ class Askobot extends EventEmitter {
     }
   }
 
-  async generateResponse(channel: string, user: string, message: string): Promise<AskobotResponse> {
+  async generateResponse(
+    channel: string,
+    user: string,
+    message: string,
+    platform: "twitch" | "discord" = "twitch",
+  ): Promise<AskobotResponse> {
     const channelConfig = config.channels.find((c) => c.twitchChannel === channel);
     const channelInfo = await getChannelInfo(channel);
     const openAI = createOpenAI();
@@ -84,7 +89,7 @@ class Askobot extends EventEmitter {
       });
 
       // Manage chat history after successful response
-      this.manageHistory(channel, user, message, result.message);
+      this.manageHistory(channel, user, message, result.message, platform);
 
       return {
         ...result,
@@ -92,7 +97,7 @@ class Askobot extends EventEmitter {
       };
     } catch (error) {
       console.error("Error in askobot:", error);
-      const fallbackMessage = "Erreur : J'ai oublié comment parler poliment, désolé !";
+      const fallbackMessage = "<Error.01.beep.boop>";
       return {
         message: fallbackMessage,
         emotion: "",

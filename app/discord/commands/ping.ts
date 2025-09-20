@@ -5,11 +5,11 @@ import { CommandHandler } from "./types.js";
 export class PingCommand implements CommandHandler {
   data = new SlashCommandBuilder()
     .setName("ping")
-    .setDescription("Replies with pong!");
+    .setDescription("Répond avec pong !");
 
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
     await interaction.reply({
-      content: "pong!",
+      content: "pong !",
     });
   }
 }

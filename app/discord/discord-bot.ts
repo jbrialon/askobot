@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { Client, Collection, Events, GatewayIntentBits, MessageFlags, REST, Routes } from "discord.js";
+import { Client, Collection, Events, GatewayIntentBits, MessageFlags, REST, Routes, EmbedBuilder } from "discord.js";
 
 import { commands } from "./commands/index.js";
 
@@ -11,6 +11,8 @@ class DiscordBot extends EventEmitter {
   private client: Client;
   private clientId: string;
   private token: string;
+  private logGuildId: string;
+  private logsChannelId: string;
   private commands: Collection<string, any>;
 
   constructor() {
@@ -18,6 +20,10 @@ class DiscordBot extends EventEmitter {
 
     this.clientId = process.env["DISCORD_CLIENT_ID"] as string;
     this.token = process.env["DISCORD_TOKEN"] as string;
+
+    // logs setup
+    this.logGuildId = "1157764771681144924" as string;
+    this.logsChannelId = "1158084205658517584" as string;
 
     if (!this.clientId || !this.token) {
       throw new Error("Missing DISCORD_CLIENT_ID or DISCORD_TOKEN environment variables");
@@ -151,12 +157,7 @@ class DiscordBot extends EventEmitter {
       status: "online",
     });
 
-    this.client.guilds.cache.forEach(async (guild) => {
-      const channel = guild.channels.cache.find((channel: any) => channel.name === "général" || channel.name === "general");
-      if (channel && "send" in channel) {
-        // await channel.send("<:askobot:1417924303755935754> wub wub");
-      }
-    });
+    this.emit("ready");
   }
 
   private async handleGuildJoin(guild: any) {
@@ -173,6 +174,31 @@ class DiscordBot extends EventEmitter {
       console.log(`Successfully deployed ${commandsData.length} commands to ${guild.name}`);
     } catch (error) {
       console.error(`Failed to deploy commands to ${guild.name}:`, error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  // TODO
+  // will be used to announce Stream is Live Message
+  public say() {}
+
+  // Function used to log into the log channel on discord
+  public async log(embed: EmbedBuilder) {
+    try {
+      const guild = this.client.guilds.cache.get(this.logGuildId);
+      if (!guild) {
+        console.error(`Log guild not found: ${this.logGuildId}`);
+        return;
+      }
+
+      const channel = guild.channels.cache.get(this.logsChannelId);
+      if (!channel || !("send" in channel)) {
+        console.error(`Log channel not found or not text-based: ${this.logsChannelId}`);
+        return;
+      }
+
+      await channel.send({ embeds: [embed] });
+    } catch (error) {
+      console.error("Error sending log message:", error);
     }
   }
 

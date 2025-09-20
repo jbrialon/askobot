@@ -2,12 +2,17 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 import askobot from "../../services/askobot.js";
 import { CommandHandler } from "./types.js";
+import config from "../../../config.js";
 
 export class AskobotCommand implements CommandHandler {
   data = new SlashCommandBuilder()
     .setName("askobot")
-    .setDescription("Ask the bot a question")
-    .addStringOption((option) => option.setName("question").setDescription("What do you want to ask Askobot?").setRequired(true));
+    .setDescription("Poser une question au bot")
+    .addStringOption((option) => option.setName("question").setDescription("Que veux-tu demander à Askobot ?").setRequired(true));
+
+  private getConfigPerGuildId(guildId: string) {
+    return config.channels.find((channel) => channel.discordGuild && channel.discordGuild.includes(guildId));
+  }
 
   private convertMentionsToDiscordFormat(message: string, interaction: ChatInputCommandInteraction): string {
     const mentionRegex = /@([\w\u00C0-\u017F]+)/g;
@@ -18,21 +23,27 @@ export class AskobotCommand implements CommandHandler {
   }
 
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
+    const guildId = interaction.guild?.id;
+    if (!guildId) {
+      await interaction.reply({ content: "Cette commande ne peut être utilisée que dans un serveur.", ephemeral: true });
+      return;
+    }
+
+    const config = this.getConfigPerGuildId(guildId);
+    if (!config) {
+      await interaction.reply({ content: "Askobot n'est pas configuré pour ce serveur.", ephemeral: true });
+      return;
+    }
+
+    const channel = config.twitchChannel;
     const question = interaction.options.getString("question")!;
     const displayName = interaction.user.globalName || interaction.user.username;
-    // const guildName = interaction.guild?.name || "DM";
-    // Todo should match the guildname to the config.channel for Askobot context
-    // console.log("User info:", {
-    //   username: interaction.user.username,
-    //   globalName: interaction.user.globalName,
-    //   displayName: displayName,
-    //   guildName: guildName
-    // });
+
     // Defer the reply to buy more time for Askobot response
     await interaction.deferReply();
 
     try {
-      const response = await askobot.generateResponse("askowbol", displayName, question);
+      const response = await askobot.generateResponse(channel, displayName, question, "discord");
       const message = this.convertMentionsToDiscordFormat(response.message, interaction);
 
       await interaction.editReply({
@@ -41,7 +52,7 @@ export class AskobotCommand implements CommandHandler {
     } catch (error) {
       console.error("Error generating response:", error);
       await interaction.editReply({
-        content: "Sorry, I encountered an error while processing your request.",
+        content: "<Error.02.beep.boop>",
       });
     }
   }

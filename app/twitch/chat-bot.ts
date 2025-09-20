@@ -116,11 +116,7 @@ export class ChatBot extends EventEmitter {
 
   private connect() {
     this.chatClient.connect();
-    log.success({
-      user: "System",
-      message: "🚀 Askowbot Launch success 🚀",
-      channel: "System",
-    });
+    console.log(`Twitch Chat Bot Ready!`);
   }
 
   public say(channel: string, response: { message: string; emoji?: string }) {

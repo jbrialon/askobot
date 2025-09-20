@@ -24,6 +24,9 @@ import discordBot from "./app/discord/discord-bot.js";
 // Services
 import askobot from "./app/services/askobot.js";
 
+// Utils
+import { log } from "./app/utils/utils.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -71,6 +74,15 @@ async function startServer() {
 
   // init Socket IO Server
   const socket = new Socket({ server, chatBot, voice, askobot });
+
+  // Wait for Discord bot to be ready before logging success
+  discordBot.once("ready", () => {
+    log.success({
+      user: "System",
+      message: "🚀 Askowbot Launch success 🚀",
+      channel: "system",
+    });
+  });
 }
 
 startServer();
