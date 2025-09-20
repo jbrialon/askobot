@@ -75,10 +75,11 @@ class Askobot extends EventEmitter {
         model: config.model,
         prompt: `The user "${user}" asked: "${message}".`,
         promptVars: buildPromptVars({
-          user: user,
+          user,
           message,
           channelConfig,
           channelInfo,
+          platform,
         }),
         history: this.history[channel]?.messages || [],
         outputSchema: z.object({

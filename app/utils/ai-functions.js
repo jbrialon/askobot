@@ -14,7 +14,9 @@ const createOpenAI = () => {
 
     promptVars.prompt = prompt;
 
-    const context = Object.entries(promptVars).reduce((p, [key, value]) => p.replace(`\${${key}}`, value), config.genericContext);
+    const context = config.genericContext.replace(/\$\{(\w+)\}/g, (match, key) =>
+      promptVars.hasOwnProperty(key) ? promptVars[key] : match,
+    );
 
     const messages = [
       ...(context ? [{ role: "system", content: context }] : []),
@@ -42,9 +44,35 @@ const createOpenAI = () => {
   };
 };
 
-const buildPromptVars = ({ user, message, channelConfig, channelInfo }) => {
+const buildPromptVars = ({ user, message, channelConfig, channelInfo, platform }) => {
   const randomMood = channelConfig.mood[Math.floor(Math.random() * channelConfig.mood.length)];
   const randomContext = channelConfig.context[Math.floor(Math.random() * channelConfig.context.length)];
+
+  // Only include Twitch info when platform is twitch
+  const platformInfo =
+    platform === "twitch"
+      ? `- The Title of the Twitch Channel is "${channelInfo.title}", its Category is "${channelInfo.game}" and the description of the channel is "${channelInfo.description}".`
+      : "";
+
+  // Platform-specific commands
+  const availableCommands =
+    platform === "twitch"
+      ? `<available_commands>
+    You can help users with the following commands:
+    - !askobot or !askowbot: Ask you any question.
+    - !bgrank or !bg: Check a player's Hearthstone Battlegrounds rank.
+    - !bgrankduo or !bgduo: Check a player's Hearthstone Battlegrounds Duo rank.
+    - !arenarank or !ar: Check a player's Hearthstone Arena rank.
+    - !card: Get information about a Hearthstone card.
+    - !hero: Get information about a Hearthstone hero.
+    - !trinket: Get information about a Hearthstone trinket.
+    - !spell: Get information about a Hearthstone spell.
+    - !anomaly: Get information about a Hearthstone anomaly.
+    </available_commands>`
+      : `<available_commands>
+    You can help users with Discord slash commands:
+    - /askobot: Ask you any question directly in Discord.
+    </available_commands>`;
 
   return {
     time: new Date().toLocaleString(),
@@ -52,9 +80,8 @@ const buildPromptVars = ({ user, message, channelConfig, channelInfo }) => {
     username: user,
     message,
     channelContext: randomContext,
-    title: channelInfo.title,
-    game: channelInfo.game,
-    desc: channelInfo.description,
+    platformInfo,
+    availableCommands,
     moods: channelConfig.mood.join(", "),
     maxChar: channelConfig.maxChar,
     animations: config.animations.join(", "),
