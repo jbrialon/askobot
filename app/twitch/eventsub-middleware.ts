@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { log } from "../utils/utils.js";
+import { log } from "../utils/log.js";
 import crypto from "crypto";
 
 import askobot from "../services/askobot.js";

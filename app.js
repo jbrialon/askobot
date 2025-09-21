@@ -25,7 +25,7 @@ import discordBot from "./app/discord/discord-bot.js";
 import askobot from "./app/services/askobot.js";
 
 // Utils
-import { log } from "./app/utils/utils.js";
+import { log } from "./app/utils/log.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

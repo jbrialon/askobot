@@ -3,15 +3,10 @@ import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import { fetchAllCardData } from "../app/utils/battleground.js";
-import { log } from "../app/utils/utils.js";
 
 const saveDataToFile = async (outputFilePath) => {
   try {
-    log.info({
-      user: "System",
-      message: "Fetching data for cards",
-      channel: "System",
-    });
+    console.log("Fetching data for cards");
     const cardsData = await fetchAllCardData();
     if (cardsData) {
       // Create the output directory if it doesn't exist
@@ -23,24 +18,12 @@ const saveDataToFile = async (outputFilePath) => {
       // Save the card data to a JSON file
       fs.writeFileSync(outputFilePath, JSON.stringify(cardsData, null, 2));
 
-      log.success({
-        user: "System",
-        message: `Cards data saved to: ${outputFilePath}`,
-        channel: "System",
-      });
+      console.log(`Cards data saved to: ${outputFilePath}`);
     } else {
-      log.info({
-        user: "System",
-        message: `No data found for cards: "${cardName}"`,
-        channel: "System",
-      });
+      console.log(`No data found for cards: "${cardName}"`);
     }
   } catch (error) {
-    log.error({
-      user: "System",
-      message: `Error saving card data: "${error}"`,
-      channel: "System",
-    });
+    console.log(`Error saving card data: "${error}"`);
   }
 };
 
