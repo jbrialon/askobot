@@ -4,7 +4,7 @@ import { EventEmitter } from "events";
 
 import config from "../../config.js";
 import { commands } from "./commands/index.js";
-import { log } from "../utils/utils.js";
+import { log } from "../utils/log.js";
 
 export class ChatBot extends EventEmitter {
   private config: typeof config;

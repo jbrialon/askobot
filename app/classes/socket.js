@@ -1,5 +1,5 @@
 import { Server as SocketIOServer } from "socket.io";
-import { log } from "../utils/utils.js";
+import { log } from "../utils/log.js";
 
 let instance = null;
 export default class Socket {
