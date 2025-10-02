@@ -22,7 +22,7 @@ export const spellCommand: CommandHandler = {
       }
 
       return {
-        message: `${spellData.name.fr} - ${spellData.text}`,
+        message: `${spellData.name.fr}: ${spellData.text}`,
         emotion: "",
         animation: "",
         emoji: "🤖",

@@ -22,7 +22,7 @@ export const anomalyCommand: CommandHandler = {
       }
 
       return {
-        message: `${anomalyData.name.fr} - ${anomalyData.text}`,
+        message: `${anomalyData.name.fr}: ${anomalyData.text}`,
         emotion: "",
         animation: "",
         emoji: "🤖",

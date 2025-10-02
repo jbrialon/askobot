@@ -217,7 +217,7 @@ const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_TYPES.BA
 
 const fetchCardData = (cardName, type) => {
   const options = {
-    keys: ["name.en", "name.fr"], // Fields to search
+    keys: ["name.en", "name.fr", "companion.name"], // Fields to search - including companion names
     threshold: 0.3, // Lower threshold means stricter matches
     includeScore: true, // Include match score for sorting
   };
@@ -240,8 +240,8 @@ const fetchCardData = (cardName, type) => {
     case CARD_TYPES.REWARD:
       dataset = cards.filter((card) => card.battlegrounds?.reward === true);
       break;
-    default: // Normal tavern card
-      dataset = cards.filter(
+    default:
+      const minionCards = cards.filter(
         (card) =>
           !card.battlegrounds?.hero &&
           !card.battlegrounds?.quest &&
@@ -250,6 +250,8 @@ const fetchCardData = (cardName, type) => {
           !card.battlegrounds?.anomaly &&
           !card.battlegrounds?.spell,
       );
+      const heroesWithCompanions = cards.filter((card) => card.battlegrounds?.hero === true && card.companion);
+      dataset = [...minionCards, ...heroesWithCompanions];
   }
 
   // Initialize Fuse.js
@@ -393,6 +395,7 @@ const fetchAllCardData = async () => {
                       companion = {
                         name: companionCard.name,
                         text: cleanText(companionCard.text),
+                        tier: companionCard.battlegrounds.tier,
                       };
                     }
                   }

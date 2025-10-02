@@ -22,7 +22,7 @@ export const heroCommand: CommandHandler = {
       }
 
       return {
-        message: `${heroData.name.fr} - ${heroData.text}`,
+        message: `${heroData.name.fr}: ${heroData.text}`,
         emotion: "",
         animation: "",
         emoji: "🤖",
