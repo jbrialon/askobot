@@ -392,7 +392,6 @@ const fetchAllCardData = async () => {
                     const companionData = await companionResponse.json();
                     const companionCard = companionData.cards?.[0];
                     if (companionCard && companionCard.name && companionCard.text) {
-                      console.log(companionCard);
                       companion = {
                         name: companionCard.name,
                         text: cleanText(companionCard.text),
