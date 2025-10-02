@@ -21,8 +21,17 @@ export const cardCommand: CommandHandler = {
         };
       }
 
+      if (cardData.companion) {
+        return {
+          message: `${cardData.companion.name} - T${cardData.companion.tier}: ${cardData.companion.text}`,
+          emotion: "",
+          animation: "",
+          emoji: "🤖",
+        };
+      }
+
       return {
-        message: `${cardData.name.fr} - ${cardData.text}`,
+        message: `${cardData.name.fr}: ${cardData.text}`,
         emotion: "",
         animation: "",
         emoji: "🤖",

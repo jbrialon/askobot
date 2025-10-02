@@ -22,7 +22,7 @@ export const questCommand: CommandHandler = {
       }
 
       return {
-        message: `${questData.name.fr} - ${questData.text}`,
+        message: `${questData.name.fr}: ${questData.text}`,
         emotion: "",
         animation: "",
         emoji: "🤖",

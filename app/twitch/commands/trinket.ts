@@ -22,7 +22,7 @@ export const trinketCommand: CommandHandler = {
       }
 
       return {
-        message: `${trinketData.name.fr} - ${trinketData.text}`,
+        message: `${trinketData.name.fr}: ${trinketData.text}`,
         emotion: "",
         animation: "",
         emoji: "🤖",
