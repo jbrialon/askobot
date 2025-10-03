@@ -23,19 +23,19 @@ export const CARD_TYPES = {
   REWARD: 40,
 };
 
-export const CLASS_TYPES = {
-  NEUTRAL: 0,
-  WARRIOR: 1,
-  PALADIN: 2,
-  HUNTER: 3,
-  ROGUE: 4,
-  PRIEST: 5,
-  DEATH_KNIGHT: 6,
-  SHAMAN: 7,
-  MAGE: 8,
-  WARLOCK: 9,
-  DRUID: 10,
-  DEMON_HUNTER: 14,
+export const MINION_TYPES = {
+  NONE: 0,
+  UNDEAD: 1,
+  QUILBOAR: 2,
+  BEAST: 3,
+  ELEMENTAL: 4,
+  MECH: 5,
+  PIRATE: 7,
+  MURLOC: 8,
+  DEMON: 9,
+  DRAGON: 10,
+  ALL: 12,
+  NAGA: 14,
 };
 
 export const LEADERBOARD_TYPES = {
@@ -68,7 +68,7 @@ const fetchData = async (url) => {
 };
 
 // Main function to fetch leaderboard data for the first 100 players
-const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_TYPES.BATTLEGROUNDS) => {
+export const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_TYPES.BATTLEGROUNDS) => {
   const paramOne = args[0];
   let paramTwo = args[1];
 
@@ -215,7 +215,7 @@ const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_TYPES.BA
   }
 };
 
-const fetchCardData = (cardName, type) => {
+export const fetchCardData = (cardName, type) => {
   const options = {
     keys: ["name.en", "name.fr", "companion.name"], // Fields to search - including companion names
     threshold: 0.3, // Lower threshold means stricter matches
@@ -268,7 +268,7 @@ const fetchCardData = (cardName, type) => {
   return results[0].item;
 };
 
-const fetchAllCardData = async () => {
+export const fetchAllCardData = async () => {
   // Battlegrounds Card Type:
   // 3  - Hero
   // 4  - Minion
@@ -305,7 +305,8 @@ const fetchAllCardData = async () => {
         data.map(async (localeData, localeIndex) => {
           const localeCards = localeData.cards || [];
           return Promise.all(
-            localeCards.map(async ({ slug, name, text, childIds, battlegrounds, cardTypeId }) => {
+            localeCards.map(async (card) => {
+              let { slug, name, text, childIds, battlegrounds, cardTypeId, health, attack, classId, multiClassIds, minionTypeId } = card;
               const cleanedBattlegrounds = battlegrounds
                 ? {
                     hero: battlegrounds.hero,
@@ -319,6 +320,22 @@ const fetchAllCardData = async () => {
                     tavernTier: battlegrounds.tier,
                   }
                 : undefined;
+
+              // get minion data
+              let minion;
+              if (cardTypeId === 4 && localeIndex === 0) {
+                let minionType = classId;
+                if (!minionTypeId && classId === MINION_TYPES.ALL) {
+                  minionType = MINION_TYPES.NONE;
+                }
+                minion = {
+                  tier: battlegrounds?.tier,
+                  health: health,
+                  attack: attack,
+                  classId: minionType,
+                  multiClassIds: multiClassIds,
+                };
+              }
 
               // get golden text
               let upgradeText;
@@ -392,10 +409,19 @@ const fetchAllCardData = async () => {
                     const companionData = await companionResponse.json();
                     const companionCard = companionData.cards?.[0];
                     if (companionCard && companionCard.name && companionCard.text) {
+                      let minionType = companionCard.classId;
+                      if (!minionTypeId && companionCard.classId === MINION_TYPES.ALL) {
+                        minionType = MINION_TYPES.NONE;
+                      }
+
                       companion = {
                         name: companionCard.name,
                         text: cleanText(companionCard.text),
                         tier: companionCard.battlegrounds.tier,
+                        health: companionCard.health,
+                        attack: companionCard.attack,
+                        classId: minionType,
+                        multiClassIds: companionCard.multiClassIds,
                       };
                     }
                   }
@@ -412,6 +438,7 @@ const fetchAllCardData = async () => {
                 text: localeIndex === 0 ? cleanText(text) : undefined, // Keep only French text
                 upgradeText,
                 companion,
+                minion,
                 cardTypeId,
                 battlegrounds: cleanedBattlegrounds,
               };
@@ -453,5 +480,3 @@ const fetchAllCardData = async () => {
     return [];
   }
 };
-
-export { fetchAllCardData, fetchCardData, fetchLeaderboardData };
