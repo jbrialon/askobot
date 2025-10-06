@@ -44,6 +44,10 @@ export default {
     {
       twitchChannel: "askowbol",
       discordGuild: ["1157764771681144924", "1418964397862420480", "801787387428601857"],
+      discordNotifications: {
+        guildId: "801787387428601857",
+        channelId: "900084169193979967",
+      },
       mood: ["excited", "helpful", "sarcastic", "extremely sarcastic"],
       maxChar: "200 Characters",
       context: [
@@ -59,6 +63,10 @@ export default {
     },
     {
       twitchChannel: "lbineau",
+      discordNotifications: {
+        guildId: "801787387428601857",
+        channelId: "900084169193979967",
+      },
       mood: ["curious", "helpful", "sarcastic", "extremely sarcastic"],
       maxChar: "120 Characters",
       context: [

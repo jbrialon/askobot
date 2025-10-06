@@ -3,9 +3,6 @@ import { Client, Collection, Events, GatewayIntentBits, MessageFlags, REST, Rout
 
 import { commands } from "./commands/index.js";
 
-// use this class to log instead of utils webhook
-// import { log } from "../utils/utils.js";
-
 // guild = discord server
 class DiscordBot extends EventEmitter {
   private client: Client;
@@ -177,9 +174,26 @@ class DiscordBot extends EventEmitter {
     }
   }
 
-  // TODO
-  // will be used to announce Stream is Live Message
-  public say() {}
+  // Send a message to a specific channel in a guild
+  public async say(guildId: string, channelId: string, message: string) {
+    try {
+      const guild = this.client.guilds.cache.get(guildId);
+      if (!guild) {
+        console.error(`Guild not found: ${guildId}`);
+        return;
+      }
+
+      const channel = guild.channels.cache.get(channelId);
+      if (!channel || !("send" in channel)) {
+        console.error(`Channel not found or not text-based: ${channelId}`);
+        return;
+      }
+
+      await channel.send(message);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  }
 
   // Function used to log into the log channel on discord
   public async log(embed: EmbedBuilder) {
