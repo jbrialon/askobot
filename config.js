@@ -1,5 +1,5 @@
 export default {
-  model: "gpt-4o-mini-2024-07-18",
+  model: "gpt-5-mini",
   memoryCapacity: 40,
   memoryDuration: 25, // in minutes
   genericContext: `
