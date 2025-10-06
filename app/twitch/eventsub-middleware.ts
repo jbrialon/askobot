@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { handleStreamOnline } from "./events/stream-online.js";
 import { handleStreamOffline } from "./events/stream-offline.js";
 import { handleChannelPointReward } from "./events/channel-point-reward.js";
+import { handleChannelUpdate } from "./events/channel-update.js";
 
 interface EventSubEvent {
   subscription: {
@@ -144,6 +145,10 @@ async function handleEventSubNotification(eventData: EventSubEvent) {
 
     case "stream.offline":
       await handleStreamOffline(event);
+      break;
+
+    case "channel.update":
+      await handleChannelUpdate(event);
       break;
 
     case "channel.channel_points_custom_reward_redemption.add":

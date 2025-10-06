@@ -1,4 +1,8 @@
 import { log } from "../../utils/log.js";
+import askobot from "../../services/askobot.js";
+import discordBot from "../../discord/discord-bot.js";
+
+import config from "../../../config.js";
 
 export async function handleStreamOnline(event: any) {
   let channel = event?.broadcaster_user_login?.toLowerCase();
@@ -8,6 +12,7 @@ export async function handleStreamOnline(event: any) {
     channel = "askowbol";
   }
 
+  const channelConfig = config.channels.find((c) => c.twitchChannel === channel);
   const broadcasterName = event?.broadcaster_user_name;
   const streamType = event?.type; // we only care about "live" event
   const startedAt = event?.started_at;
@@ -18,7 +23,19 @@ export async function handleStreamOnline(event: any) {
     channel: channel,
   });
 
-  // TODO
-  // - Send notification to Discord with a custom message from Askobot
-  // - Update bot status
+  // Send Discord notification if setup
+  if (channelConfig?.discordNotifications) {
+    const { guildId, channelId } = channelConfig.discordNotifications;
+
+    // Generate a custom message from Askobot
+    const prompt = `le stream de ${broadcasterName} est en ligne, genere un message pour l'annoncer sur le discord`;
+    const result = await askobot.generateResponse(channel, "system", prompt);
+
+    const message = `${result.message}\n\nhttps://twitch.tv/${channel}`;
+
+    console.log(message);
+    await discordBot.say(guildId, channelId, message);
+  }
+
+  // TODO: Update bot status
 }
