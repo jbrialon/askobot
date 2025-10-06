@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import { log } from "../utils/log.js";
 import crypto from "crypto";
 
-import askobot from "../services/askobot.js";
+import { handleStreamOnline } from "./events/stream-online.js";
+import { handleStreamOffline } from "./events/stream-offline.js";
+import { handleChannelPointReward } from "./events/channel-point-reward.js";
+import { handleChannelUpdate } from "./events/channel-update.js";
 
 interface EventSubEvent {
   subscription: {
@@ -90,52 +93,6 @@ export async function eventSubMiddleware(req: EventSubRequest, res: Response) {
   }
 }
 
-async function handleChannelPointReward(event: any) {
-  let channel = event?.broadcaster_user_login?.toLowerCase();
-
-  // Test mode when we are testing from twitch-cli
-  if (channel === "testbroadcaster") {
-    channel = "askowbol";
-  }
-
-  const rewardTitle = event?.reward?.title;
-  const userName = event?.user_name;
-  const userInput = event?.user_input;
-  const cost = event?.reward?.cost;
-
-  // Handle different reward types based on title
-  switch (rewardTitle?.toLowerCase()) {
-    case "looping":
-      log.info({
-        user: "EventSub",
-        message: `${rewardTitle} ${cost}: ${userName} requested animation: "${userInput}"`,
-        channel: channel,
-      });
-      // TODO: Integrate with frontend robot animations
-      break;
-
-    case "askobot":
-    case "askowbot":
-      log.info({
-        user: "EventSub",
-        message: `${rewardTitle} ${cost}: ${userName} asked: "${userInput}"`,
-        channel: channel,
-      });
-
-      const result = await askobot.generateResponse(channel, userName, userInput);
-      // Emit the response for voice synthesis and frontend
-      askobot.emit("response", {
-        channel: channel,
-        response: result,
-      });
-      break;
-
-    default:
-      console.log(`Unknown reward type: ${rewardTitle}`);
-      break;
-  }
-}
-
 async function handleEventSubNotification(eventData: EventSubEvent) {
   const subscriptionType = eventData.subscription.type;
   const event = eventData.event;
@@ -183,19 +140,15 @@ async function handleEventSubNotification(eventData: EventSubEvent) {
       break;
 
     case "stream.online":
-      log.info({
-        user: "EventSub",
-        message: `Stream online: ${event?.broadcaster_user_name}`,
-        channel: channel,
-      });
+      await handleStreamOnline(event);
       break;
 
     case "stream.offline":
-      log.info({
-        user: "EventSub",
-        message: `Stream offline: ${event?.broadcaster_user_name}`,
-        channel: channel,
-      });
+      await handleStreamOffline(event);
+      break;
+
+    case "channel.update":
+      await handleChannelUpdate(event);
       break;
 
     case "channel.channel_points_custom_reward_redemption.add":

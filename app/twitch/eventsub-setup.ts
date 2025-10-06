@@ -53,6 +53,7 @@ export async function setupEventSubSubscriptions() {
           { type: "channel.raid", version: "1" },
           { type: "stream.online", version: "1" },
           { type: "stream.offline", version: "1" },
+          { type: "channel.update", version: "2" },
           { type: "channel.channel_points_custom_reward_redemption.add", version: "1" },
           { type: "channel.channel_points_custom_reward_redemption.update", version: "1" },
         ];
