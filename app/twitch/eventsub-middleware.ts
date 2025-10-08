@@ -32,11 +32,6 @@ interface EventSubRequest extends Request {
 const processedMessageIds = new Set<string>();
 const MESSAGE_ID_EXPIRY = 10 * 60 * 1000; // 10 minutes
 
-// Clean up old message IDs every 10 minutes
-setInterval(() => {
-  processedMessageIds.clear();
-}, MESSAGE_ID_EXPIRY);
-
 export async function eventSubMiddleware(req: EventSubRequest, res: Response) {
   try {
     const messageId = req.headers["twitch-eventsub-message-id"] as string;
@@ -97,6 +92,11 @@ export async function eventSubMiddleware(req: EventSubRequest, res: Response) {
 
       // Mark this message as processed
       processedMessageIds.add(messageId);
+
+      // Auto-delete old message ID after 10 minutes
+      setTimeout(() => {
+        processedMessageIds.delete(messageId);
+      }, MESSAGE_ID_EXPIRY);
 
       // Process the event based on subscription type
       await handleEventSubNotification(req.body);
