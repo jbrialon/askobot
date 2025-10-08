@@ -393,7 +393,7 @@ export const fetchAllCardData = async () => {
 
               // get companion data
               let companion;
-              if (battlegrounds?.companionId && localeIndex === 0) {
+              if (battlegrounds?.companionId) {
                 try {
                   const companionResponse = await fetch(
                     `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds&id=${battlegrounds.companionId}`,
