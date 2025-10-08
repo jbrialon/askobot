@@ -27,6 +27,16 @@ interface EventSubRequest extends Request {
   body: EventSubEvent;
 }
 
+// https://dev.twitch.tv/docs/eventsub "Handling duplicate events"
+// Track processed messages to prevent duplicate event handling
+const processedMessageIds = new Set<string>();
+const MESSAGE_ID_EXPIRY = 10 * 60 * 1000; // 10 minutes
+
+// Clean up old message IDs every 10 minutes
+setInterval(() => {
+  processedMessageIds.clear();
+}, MESSAGE_ID_EXPIRY);
+
 export async function eventSubMiddleware(req: EventSubRequest, res: Response) {
   try {
     const messageId = req.headers["twitch-eventsub-message-id"] as string;
@@ -57,6 +67,13 @@ export async function eventSubMiddleware(req: EventSubRequest, res: Response) {
       subscriptionId: req.body.subscription?.id,
     });
 
+    // Check for duplicate messages (since Twitch can send the same event multiple times)
+    if (messageType === "notification" && processedMessageIds.has(messageId)) {
+      console.log(`Duplicate EventSub message ignored: ${messageId}`);
+      res.status(204).send();
+      return;
+    }
+
     // Handle webhook verification challenge
     if (messageType === "webhook_callback_verification") {
       console.log("EventSub webhook verification challenge received");
@@ -77,6 +94,9 @@ export async function eventSubMiddleware(req: EventSubRequest, res: Response) {
         type: req.body.subscription.type,
         event: req.body.event,
       });
+
+      // Mark this message as processed
+      processedMessageIds.add(messageId);
 
       // Process the event based on subscription type
       await handleEventSubNotification(req.body);
