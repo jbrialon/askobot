@@ -12,9 +12,9 @@ export const buddyCommand: CommandHandler = {
       const heroName = params.join(" ");
       const heroData = fetchCardData(heroName, CARD_TYPES.HERO);
 
-      if (!heroData) {
+      if (!heroData || !heroData.companion) {
         return {
-          message: "Aucun buddy trouvé portant ce nom 🤔",
+          message: "Aucune information trouvée pour le buddy 🤔",
           emotion: "",
           animation: "",
           emoji: "🤖",
@@ -22,7 +22,7 @@ export const buddyCommand: CommandHandler = {
       }
 
       return {
-        message: `${heroData.companion?.name} - T${heroData.companion?.tier}: ${heroData.companion?.text}`,
+        message: `${heroData.companion.name} - T${heroData.companion.tier}: ${heroData.companion.text}`,
         emotion: "",
         animation: "",
         emoji: "🤖",

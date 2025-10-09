@@ -33,7 +33,6 @@ export async function handleStreamOnline(event: any) {
 
     const message = `${result.message}\n\nhttps://twitch.tv/${channel}`;
 
-    console.log(message);
     await discordBot.say(guildId, channelId, message);
   }
 
