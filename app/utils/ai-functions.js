@@ -11,35 +11,50 @@ const createOpenAI = () => {
 
   return async function aiFunction({ model = "gpt-4.1-nano", prompt, promptVars = {}, history = [], tools = [], outputSchema }) {
     const zodSchema = outputSchema || null;
-
     promptVars.prompt = prompt;
 
     const context = config.genericContext.replace(/\$\{(\w+)\}/g, (match, key) =>
       promptVars.hasOwnProperty(key) ? promptVars[key] : match,
     );
 
-    const messages = [
+    const platformPrefix = promptVars.platform ? `[${promptVars.platform.toUpperCase()}] ` : "";
+    const input = [
       ...(context ? [{ role: "system", content: context }] : []),
       ...history,
       {
         role: "user",
-        content: promptVars.username ? `@${promptVars.username}: ${promptVars.message}` : promptVars.message,
+        content: promptVars.username ? `${platformPrefix}@${promptVars.username}: ${promptVars.message}` : promptVars.message,
       },
     ];
+    const responseFormat = zodSchema ? zodResponseFormat(zodSchema, "structured_output") : null;
     const options = {
       model,
-      messages,
+      input,
       tools: tools.length > 0 ? tools : undefined, // TODO
-      response_format: zodSchema ? zodResponseFormat(zodSchema, "structured_output") : undefined,
+      ...(responseFormat && {
+        text: {
+          format: {
+            type: "json_schema",
+            name: responseFormat.json_schema.name,
+            schema: responseFormat.json_schema.schema,
+            strict: responseFormat.json_schema.strict,
+          },
+        },
+      }),
     };
     try {
-      const response = await openai.chat.completions.create(options);
-      let content = response.choices[0].message.content;
-      content = jsonrepair(content);
-      const jsonResponse = JSON.parse(content);
+      const response = await openai.responses.create(options);
+      const content = response.output_text;
+
+      if (!content) {
+        throw new Error("No output_text in API response");
+      }
+
+      const repairedContent = jsonrepair(content);
+      const jsonResponse = JSON.parse(repairedContent);
       return zodSchema ? zodSchema.parse(jsonResponse) : jsonResponse;
     } catch (error) {
-      throw new Error(error);
+      throw error;
     }
   };
 };
@@ -80,6 +95,7 @@ const buildPromptVars = ({ user, message, channelConfig, channelInfo, platform }
     username: user,
     message,
     channelContext: randomContext,
+    platform,
     platformInfo,
     availableCommands,
     moods: channelConfig.mood.join(", "),
