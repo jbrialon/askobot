@@ -79,7 +79,7 @@ export default {
       battletag: "lbineau",
     },
     {
-      twitchChannel: "slyders_hs",
+      twitchChannel: "slyders",
       discordGuild: ["931478826804985876"],
       maxChar: "30 words",
       mood: ["helpful", "sarcastic", "extremely sarcastic", "extremely sarcastic"],
@@ -113,7 +113,7 @@ export default {
     {
       twitchChannel: "yanousama",
       discordGuild: ["1068573334234730526"],
-      mood: ["curious", "helpful", "sarcastic", "sarcastic"], 
+      mood: ["curious", "helpful", "sarcastic", "sarcastic"],
       maxChar: "100 Characters",
       context: [
         `
