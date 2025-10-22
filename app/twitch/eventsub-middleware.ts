@@ -135,6 +135,14 @@ async function handleEventSubNotification(eventData: EventSubEvent) {
       });
       break;
 
+    case "channel.subscription.message":
+      log.info({
+        user: "EventSub",
+        message: `Resub: ${event?.user_name} (${event?.cumulative_months} months)`,
+        channel: channel,
+      });
+      break;
+
     case "channel.subscription.gift":
       log.info({
         user: "EventSub",
