@@ -49,6 +49,7 @@ export async function setupEventSubSubscriptions() {
           { type: "channel.follow", version: "2" },
           { type: "channel.subscribe", version: "1" },
           { type: "channel.subscription.gift", version: "1" },
+          { type: "channel.subscription.message", version: "1" },
           { type: "channel.cheer", version: "1" },
           { type: "channel.raid", version: "1" },
           { type: "stream.online", version: "1" },
