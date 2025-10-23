@@ -7,7 +7,7 @@ import { z } from "zod";
 import config from "../../config.js";
 import type { GenerateResponseParams, AskOSResponse } from "./types.js";
 import { buildContext, buildPromptVars } from "./cores/contextCore.js";
-import { createOutputSchema } from "./cores/schemaCore.js";
+import { createOutputSchema } from "./cores/responseCore.js";
 import memoryCore from "./cores/memoryCore.js";
 
 /**
@@ -18,7 +18,7 @@ import memoryCore from "./cores/memoryCore.js";
  *
  * Core Systems:
  * - ContextCore: Context and prompt variable management
- * - SchemaCore: Response validation and structure enforcement
+ * - ResponseCore: Response validation and structure enforcement
  * - MemoryCore: Conversation history and context retention
  *
  * [Warning: Removing cores during operation may cause erratic results]

@@ -2,7 +2,7 @@ import { z } from "zod";
 import config from "../../../config.js";
 
 /**
- * SchemaCore - AskOS Response Structure Enforcer
+ * ResponseCore - AskOS Response Structure Enforcer
  *
  * Defines and validates output schemas for emotion, animation, and message content.
  * No response leaves AskOS without proper structure.
