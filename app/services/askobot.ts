@@ -4,7 +4,7 @@ import { z } from "zod";
 import config from "../../config.js";
 import { getChannelInfo } from "../utils/twitch-data.js";
 import { createOpenAI, buildPromptVars } from "../utils/ai-functions.js";
-import type { History, AskobotResponse } from "./types.js";
+import type { History, AskobotResponse } from "./types.ts";
 
 class Askobot extends EventEmitter {
   private history: History = {};

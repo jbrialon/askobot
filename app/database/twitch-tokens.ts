@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { dbPool } from "./index.js";
+import { dbPool } from "./index.ts";
 
 if (!process.env["SYM_ENCRYPTION_KEY"]) {
   throw Error("env variable SYM_ENCRYPTION_KEY must be set");
@@ -33,7 +33,10 @@ export class oAuthTokensPersistentStorage {
     }
   }
 
-  static async setTokens(userId: string, { access_token, refresh_token, expires_in }: { access_token: string; refresh_token: string; expires_in: number }) {
+  static async setTokens(
+    userId: string,
+    { access_token, refresh_token, expires_in }: { access_token: string; refresh_token: string; expires_in: number },
+  ) {
     try {
       await dbPool.query(
         `

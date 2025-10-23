@@ -1,6 +1,6 @@
 import os from "os";
 import { EmbedBuilder } from "discord.js";
-import discordBot from "../discord/discord-bot.js";
+import discordBot from "../discord/discord-bot.ts";
 
 const logToDiscord = async (embed, channel, fallbackMessage) => {
   try {

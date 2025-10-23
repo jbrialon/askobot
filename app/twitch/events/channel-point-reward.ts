@@ -1,5 +1,5 @@
 import { log } from "../../utils/log.js";
-import askobot from "../../services/askobot.js";
+import askobot from "../../services/askobot.ts";
 
 export async function handleChannelPointReward(event: any) {
   let channel = event?.broadcaster_user_login?.toLowerCase();

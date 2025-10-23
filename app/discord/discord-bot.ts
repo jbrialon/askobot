@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import { Client, Collection, Events, GatewayIntentBits, MessageFlags, REST, Routes, EmbedBuilder } from "discord.js";
 
-import { commands } from "./commands/index.js";
+import { commands } from "./commands/index.ts";
 
 // guild = discord server
 class DiscordBot extends EventEmitter {

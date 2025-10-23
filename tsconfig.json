@@ -1,14 +1,23 @@
 {
   "extends": ["@tsconfig/node-lts/tsconfig.json", "@tsconfig/strictest/tsconfig.json"],
   "compilerOptions": {
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
-    "sourceMap": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "outDir": "./dist",
     "rootDir": ".",
-    "checkJs": false
+    "outDir": "./dist",
+
+    "allowJs": true,
+    "checkJs": false,
+    "resolveJsonModule": true,
+
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+
+    "types": ["node"],
+    "sourceMap": true,
+
+    "forceConsistentCasingInFileNames": true,
+    "noUncheckedSideEffectImports": true
   },
   "include": ["app.js", "config.js", "db", "app"],
   "exclude": ["dist", "node_modules", "front"]

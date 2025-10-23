@@ -1,6 +1,6 @@
 import { log } from "../../utils/log.js";
-import askobot from "../../services/askobot.js";
-import discordBot from "../../discord/discord-bot.js";
+import askobot from "../../services/askobot.ts";
+import discordBot from "../../discord/discord-bot.ts";
 
 import config from "../../../config.js";
 

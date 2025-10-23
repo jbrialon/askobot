@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { StaticAuthProvider, RefreshingAuthProvider, exchangeCode } from "@twurple/auth";
 import { ApiClient } from "@twurple/api";
-import { oAuthTokensPersistentStorage } from "../database/twitch-tokens.js";
+import { oAuthTokensPersistentStorage } from "../database/twitch-tokens.ts";
 
 const clientId = process.env["TWITCH_CLIENT_ID"];
 const clientSecret = process.env["TWITCH_CLIENT_SECRET"];
