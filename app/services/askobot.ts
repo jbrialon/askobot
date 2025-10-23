@@ -4,20 +4,7 @@ import { z } from "zod";
 import config from "../../config.js";
 import { getChannelInfo } from "../utils/twitch-data.js";
 import { createOpenAI, buildPromptVars } from "../utils/ai-functions.js";
-
-interface History {
-  [channel: string]: {
-    messages: { role: string; content: string }[];
-    lastActivity: number;
-  };
-}
-
-interface AskobotResponse {
-  message: string;
-  emotion?: string;
-  animation?: string;
-  emoji?: string;
-}
+import type { History, AskobotResponse } from "./types.js";
 
 class Askobot extends EventEmitter {
   private history: History = {};
@@ -70,6 +57,10 @@ class Askobot extends EventEmitter {
     const channelInfo = await getChannelInfo(channel);
     const openAI = createOpenAI();
 
+    if (!channelConfig) {
+      throw new Error(`Channel configuration not found for channel: ${channel}`);
+    }
+
     try {
       const result = await openAI({
         model: config.model,
@@ -84,8 +75,8 @@ class Askobot extends EventEmitter {
         history: this.history[channel]?.messages || [],
         outputSchema: z.object({
           message: z.string(),
-          emotion: z.enum(channelConfig.mood),
-          animation: z.enum(config.animations),
+          emotion: z.enum(channelConfig.mood as [string, ...string[]]),
+          animation: z.enum(config.animations as [string, ...string[]]),
         }),
       });
 
