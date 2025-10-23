@@ -8,6 +8,7 @@ import config from "../../config.js";
 import type { GenerateResponseParams, AskOSResponse } from "./types.js";
 import { buildContext, buildPromptVars } from "./cores/contextCore.js";
 import { createOutputSchema } from "./cores/schemaCore.js";
+import memoryCore from "./cores/memoryCore.js";
 
 /**
  * AskOS v0.1alpha
@@ -18,6 +19,7 @@ import { createOutputSchema } from "./cores/schemaCore.js";
  * Core Systems:
  * - ContextCore: Context and prompt variable management
  * - SchemaCore: Response validation and structure enforcement
+ * - MemoryCore: Conversation history and context retention
  *
  * [Warning: Removing cores during operation may cause erratic results]
  *
@@ -40,11 +42,26 @@ class AskOS {
   async generateResponse(params: GenerateResponseParams): Promise<AskOSResponse> {
     const channelConfig = this.getChannelConfig(params.channel);
     const channelInfo = await getChannelInfo(params.channel);
+
+    // Get conversation history from MemoryCore
+    const history = memoryCore.getHistory(params.channel);
+
     const promptVars = buildPromptVars(params, channelConfig, channelInfo);
-    const input = this.buildInputMessages(params, promptVars);
+    const input = this.buildInputMessages(params, promptVars, history);
     const outputSchema = createOutputSchema(channelConfig);
 
-    return await this.callOpenAI(input, outputSchema);
+    const response = await this.callOpenAI(input, outputSchema);
+
+    // Store conversation in MemoryCore
+    memoryCore.addConversation(
+      params.channel,
+      params.user,
+      params.message,
+      response.message,
+      params.platform
+    );
+
+    return response;
   }
 
   private getChannelConfig(channel: string) {
@@ -55,13 +72,17 @@ class AskOS {
     return channelConfig;
   }
 
-  private buildInputMessages(params: GenerateResponseParams, promptVars: Record<string, any>): any[] {
+  private buildInputMessages(
+    params: GenerateResponseParams,
+    promptVars: Record<string, any>,
+    history: any[]
+  ): any[] {
     const context = buildContext(promptVars);
     const platformPrefix = params.platform ? `[${params.platform.toUpperCase()}] ` : "";
 
     return [
       { role: "system", content: context },
-      ...(params.history || []),
+      ...history,
       {
         role: "user",
         content: `${platformPrefix}@${params.user}: ${params.message}`,

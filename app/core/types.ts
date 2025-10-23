@@ -8,7 +8,6 @@ export interface GenerateResponseParams {
   user: string;
   message: string;
   platform?: "twitch" | "discord";
-  history?: ChatMessage[];
 }
 
 export interface AskOSResponse {

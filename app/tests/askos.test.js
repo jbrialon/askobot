@@ -3,29 +3,35 @@ import assert from "node:assert";
 import "dotenv/config";
 
 import askOS from "../../dist/app/core/askOS.js";
+import memoryCore from "../../dist/app/core/cores/memoryCore.js";
 
-test("AskOS generates response with history", async () => {
+test("AskOS generates response with history (using MemoryCore)", async () => {
+  // First, set up the conversation history by making a first request
+  const firstResponse = await askOS.generateResponse({
+    channel: "askowbol",
+    user: "TestUser",
+    message: "Filou est un chat blanc au yeux bleu",
+    platform: "twitch",
+  });
+
+  assert.ok(firstResponse.message, "First response should have a message");
+  console.log("First response to setup memory:", firstResponse);
+
+  // Now ask about Filou's color - AskOS should remember from MemoryCore
   const response = await askOS.generateResponse({
     channel: "askowbol",
     user: "TestUser",
     message: "De quelle couleur est Filou?",
     platform: "twitch",
-    history: [
-      {
-        role: "user",
-        content: "[TWITCH] @TestUser: Filou est un chat blanc au yeux bleu",
-      },
-      {
-        role: "assistant",
-        content: "Filou a l'air d'être un magnifique chat! Les chats blancs aux yeux bleus sont vraiment splendides.",
-      },
-    ],
   });
 
   assert.ok(response.message, "Response should have a message");
   assert.ok(response.emotion, "Response should have an emotion");
   assert.ok(response.animation, "Response should have an animation");
-  console.log("Response:", response);
+  console.log("Response with memory:", response);
+
+  // Clean up
+  memoryCore.clearHistory("askowbol");
 });
 
 test("AskOS generates response without history", async () => {
