@@ -1,7 +1,7 @@
 import { test, mock } from "node:test";
 import assert from "node:assert";
 
-import { MemoryCache } from "../utils/memory-cache.js";
+import { MemoryCache } from "../../dist/app/classes/memory-cache.js";
 
 test("memory cache with cache hit", () => {
   const cache = new MemoryCache();
