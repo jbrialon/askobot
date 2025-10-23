@@ -2,8 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert";
 import "dotenv/config";
 
-import askOS from "../../dist/app/core/askOS.js";
-import memoryCore from "../../dist/app/core/cores/memoryCore.js";
+import askOS from "../core/askOS.ts";
+import memoryCore from "../core/cores/memoryCore.ts";
 
 test("AskOS generates response with history (using MemoryCore)", async () => {
   // First, set up the conversation history by making a first request

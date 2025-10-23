@@ -1,9 +1,9 @@
-import { ChatMessage } from "@twurple/chat";
-import { CommandHandler, CommandResponse } from "./types.js";
+import type { ChatMessage } from "@twurple/chat";
+import type { CommandHandler, CommandResponse } from "./types.ts";
 import { fetchLeaderboardData, LEADERBOARD_TYPES } from "../../utils/battleground.js";
 import { getFrenchOrdinal } from "../../utils/utils.js";
 import config from "../../../config.js";
-import { askobotCommand } from "./askobot.js";
+import { askobotCommand } from "./askobot.ts";
 
 export const arenaRankCommand: CommandHandler = {
   name: "arenarank",

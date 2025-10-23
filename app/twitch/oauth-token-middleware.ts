@@ -1,9 +1,9 @@
-import { NextFunction, Request, Response } from "express";
-import { getUserOauthTokens, persistUserTokens } from "./auth-clients.js";
+import type { NextFunction, Request, Response } from "express";
+import { getUserOauthTokens, persistUserTokens } from "./auth-clients.ts";
 import { getTokenInfo } from "@twurple/auth";
-import { setupEventSubSubscriptions } from "./eventsub-setup.js";
+import { setupEventSubSubscriptions } from "./eventsub-setup.ts";
 
-export async function oAuthTokenMiddleWare(req: Request, res: Response, next: NextFunction) {
+export async function oAuthTokenMiddleWare(req: Request, res: Response, _next: NextFunction) {
   try {
     console.log("Received oAuth code from client, now validating the code with the Twitch API");
     const { code } = req.body;

@@ -1,3 +1,3 @@
-import { askobotCommand } from "./askobot.js";
+import { askobotCommand } from "./askobot.ts";
 
 export const commands = [askobotCommand];

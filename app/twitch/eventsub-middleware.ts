@@ -1,11 +1,11 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { log } from "../utils/log.js";
 import crypto from "crypto";
 
-import { handleStreamOnline } from "./events/stream-online.js";
-import { handleStreamOffline } from "./events/stream-offline.js";
-import { handleChannelPointReward } from "./events/channel-point-reward.js";
-import { handleChannelUpdate } from "./events/channel-update.js";
+import { handleStreamOnline } from "./events/stream-online.ts";
+import { handleStreamOffline } from "./events/stream-offline.ts";
+import { handleChannelPointReward } from "./events/channel-point-reward.ts";
+import { handleChannelUpdate } from "./events/channel-update.ts";
 
 interface EventSubEvent {
   subscription: {

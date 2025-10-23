@@ -10,19 +10,19 @@ import Socket from "./app/classes/socket.js";
 import voice from "./app/classes/voice.js";
 
 // Database
-import { setupDatabase } from "./app/database/index.js";
+import { setupDatabase } from "./app/database/index.ts";
 
 // Twitch flow
-import { oAuthTokenMiddleWare } from "./app/twitch/oauth-token-middleware.js";
-import { eventSubMiddleware } from "./app/twitch/eventsub-middleware.js";
-import { cleanupEventSubSubscriptions } from "./app/twitch/eventsub-setup.js";
-import chatBot from "./app/twitch/chat-bot.js";
+import { oAuthTokenMiddleWare } from "./app/twitch/oauth-token-middleware.ts";
+import { eventSubMiddleware } from "./app/twitch/eventsub-middleware.ts";
+import { cleanupEventSubSubscriptions } from "./app/twitch/eventsub-setup.ts";
+import chatBot from "./app/twitch/chat-bot.ts";
 
 // Discord
-import discordBot from "./app/discord/discord-bot.js";
+import discordBot from "./app/discord/discord-bot.ts";
 
 // Services
-import askobot from "./app/services/askobot.js";
+import askobot from "./app/services/askobot.ts";
 
 // Utils
 import { log } from "./app/utils/log.js";

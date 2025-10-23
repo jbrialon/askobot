@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { apiClient } from "./auth-clients.js";
+import { apiClient } from "./auth-clients.ts";
 import { log } from "../utils/log.js";
-import { getAuthenticatedUserIds } from "../database/index.js";
+import { getAuthenticatedUserIds } from "../database/index.ts";
 
 const WEBHOOK_URL = `${process.env["APP_URL"]}/eventsub`;
 const WEBHOOK_SECRET = process.env["TWITCH_EVENTSUB_SECRET"];

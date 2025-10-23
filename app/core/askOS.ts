@@ -5,10 +5,10 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 import config from "../../config.js";
-import type { GenerateResponseParams, AskOSResponse } from "./types.js";
-import { buildContext, buildPromptVars } from "./cores/contextCore.js";
-import { createOutputSchema } from "./cores/responseCore.js";
-import memoryCore from "./cores/memoryCore.js";
+import type { GenerateResponseParams, AskOSResponse } from "./types.ts";
+import { buildContext, buildPromptVars } from "./cores/contextCore.ts";
+import { createOutputSchema } from "./cores/responseCore.ts";
+import memoryCore from "./cores/memoryCore.ts";
 
 /**
  * AskOS v0.1alpha
@@ -53,13 +53,7 @@ class AskOS {
     const response = await this.callOpenAI(input, outputSchema);
 
     // Store conversation in MemoryCore
-    memoryCore.addConversation(
-      params.channel,
-      params.user,
-      params.message,
-      response.message,
-      params.platform
-    );
+    memoryCore.addConversation(params.channel, params.user, params.message, response.message, params.platform);
 
     return response;
   }
@@ -72,11 +66,7 @@ class AskOS {
     return channelConfig;
   }
 
-  private buildInputMessages(
-    params: GenerateResponseParams,
-    promptVars: Record<string, any>,
-    history: any[]
-  ): any[] {
+  private buildInputMessages(params: GenerateResponseParams, promptVars: Record<string, any>, history: any[]): any[] {
     const context = buildContext(promptVars);
     const platformPrefix = params.platform ? `[${params.platform.toUpperCase()}] ` : "";
 
