@@ -1,5 +1,5 @@
-import Fuse from "fuse.js";
 import config from "../../../config.js";
+import { buildCommunity } from "./knowledgeCore.ts";
 
 /**
  * ContextCore - AskOS Contextual Analysis Module
@@ -68,61 +68,6 @@ export function buildAvailableCommands(platform: "twitch" | "discord"): string {
       Ask you any question directly in Discord
     </command>
   </discord_commands>`;
-}
-
-/**
- * Filters community members mentioned in the user or message using fuzzy matching
- */
-function filterCommunityByMention(user: string, message: string): typeof config.community {
-  const fuse = new Fuse(config.community, {
-    keys: ["name", "alias"],
-    threshold: 0.3,
-    includeScore: true,
-  });
-
-  const searchText = `${user} ${message}`;
-  const words = searchText
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((word) => word.length > 2);
-
-  const matchedMembers = new Set<(typeof config.community)[number]>();
-
-  for (const word of words) {
-    const results = fuse.search(word);
-    results.forEach((result) => matchedMembers.add(result.item));
-  }
-
-  return Array.from(matchedMembers);
-}
-
-export function buildCommunity(user?: string, message?: string): string {
-  const members = user && message ? filterCommunityByMention(user, message) : config.community;
-
-  if (members.length === 0) {
-    return "";
-  }
-
-  const communityMembers = members
-    .map((member) => {
-      const randomDescription = member.description[Math.floor(Math.random() * member.description.length)];
-
-      const aliasAttr = member.alias.length > 0 ? ` aliases="${member.alias.join(", ")}"` : "";
-
-      return `<member name="${member.name}"${aliasAttr}>
-        ${randomDescription}
-      </member>`;
-    })
-    .join("\n");
-  console.log({
-    user,
-    message,
-    communityMembers,
-  });
-  return `
-    <community>
-${communityMembers}
-    </community>`;
 }
 
 export function buildPromptVars(
