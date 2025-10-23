@@ -1,3 +1,4 @@
+import Fuse from "fuse.js";
 import config from "../../../config.js";
 
 /**
@@ -17,31 +18,111 @@ export function buildContext(promptVars: Record<string, any>): string {
 
 export function buildPlatformInfo(platform: "twitch" | "discord", channelInfo: any): string {
   if (platform === "twitch" && channelInfo) {
-    return `- The Title of the Twitch Channel is "${channelInfo.title}", its Category is "${channelInfo.game}" and the description of the channel is "${channelInfo.description}".`;
+    return `
+    <twitch_channel_info>
+      - Title: "${channelInfo.title}"
+      - Category: "${channelInfo.game}"
+      - Channel Description: "${channelInfo.description}"
+    </twitch_channel_info>`;
   }
   return "";
 }
 
 export function buildAvailableCommands(platform: "twitch" | "discord"): string {
   if (platform === "twitch") {
-    return `<available_commands>
-    You can help users with the following commands:
-    - !askobot or !askowbot: Ask you any question.
-    - !bgrank or !bg: Check a player's Hearthstone Battlegrounds rank.
-    - !bgrankduo or !bgduo: Check a player's Hearthstone Battlegrounds Duo rank.
-    - !arenarank or !ar: Check a player's Hearthstone Arena rank.
-    - !card: Get information about a Hearthstone card.
-    - !hero: Get information about a Hearthstone hero.
-    - !trinket: Get information about a Hearthstone trinket.
-    - !spell: Get information about a Hearthstone spell.
-    - !anomaly: Get information about a Hearthstone anomaly.
+    return `
+    <available_commands>
+      <command name="!askobot" aliases="!askowbot">
+        Ask you any question
+      </command>
+      <command name="!bgrank" aliases="!bg">
+        Check a player's Hearthstone Battlegrounds rank
+      </command>
+      <command name="!bgrankduo" aliases="!bgduo">
+        Check a player's Hearthstone Battlegrounds Duo rank
+      </command>
+      <command name="!arenarank" aliases="!ar">
+        Check a player's Hearthstone Arena rank
+      </command>
+      <command name="!card">
+        Get information about a Hearthstone card
+      </command>
+      <command name="!hero">
+        Get information about a Hearthstone Battlegrounds hero
+      </command>
+      <command name="!trinket">
+        Get information about a Hearthstone trinket
+      </command>
+      <command name="!spell">
+        Get information about a Hearthstone spell
+      </command>
+      <command name="!anomaly">
+        Get information about a Hearthstone anomaly
+      </command>
     </available_commands>`;
   }
 
-  return `<available_commands>
-    You can help users with Discord slash commands:
-    - /askobot: Ask you any question directly in Discord.
-    </available_commands>`;
+  return `
+  <discord_commands>
+    <command name="/askobot">
+      Ask you any question directly in Discord
+    </command>
+  </discord_commands>`;
+}
+
+/**
+ * Filters community members mentioned in the user or message using fuzzy matching
+ */
+function filterCommunityByMention(user: string, message: string): typeof config.community {
+  const fuse = new Fuse(config.community, {
+    keys: ["name", "alias"],
+    threshold: 0.3,
+    includeScore: true,
+  });
+
+  const searchText = `${user} ${message}`;
+  const words = searchText
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word.length > 2);
+
+  const matchedMembers = new Set<(typeof config.community)[number]>();
+
+  for (const word of words) {
+    const results = fuse.search(word);
+    results.forEach((result) => matchedMembers.add(result.item));
+  }
+
+  return Array.from(matchedMembers);
+}
+
+export function buildCommunity(user?: string, message?: string): string {
+  const members = user && message ? filterCommunityByMention(user, message) : config.community;
+
+  if (members.length === 0) {
+    return "";
+  }
+
+  const communityMembers = members
+    .map((member) => {
+      const randomDescription = member.description[Math.floor(Math.random() * member.description.length)];
+
+      const aliasAttr = member.alias.length > 0 ? ` aliases="${member.alias.join(", ")}"` : "";
+
+      return `<member name="${member.name}"${aliasAttr}>
+        ${randomDescription}
+      </member>`;
+    })
+    .join("\n");
+  console.log({
+    user,
+    message,
+    communityMembers,
+  });
+  return `
+    <community>
+${communityMembers}
+    </community>`;
 }
 
 export function buildPromptVars(
@@ -66,13 +147,13 @@ export function buildPromptVars(
     mood: randomMood,
     username: params.user,
     message: params.message,
-    prompt: `The user "${params.user}" asked: "${params.message}".`,
     channelContext: randomContext,
     platform,
     platformInfo: buildPlatformInfo(platform, channelInfo),
     availableCommands: buildAvailableCommands(platform),
-    moods: channelConfig.mood.join(", "),
+    community: buildCommunity(params.user, params.message),
+    moods: channelConfig.mood.join(" | "),
     maxChar: channelConfig.maxChar,
-    animations: config.animations.join(", "),
+    animations: config.animations.join(" | "),
   };
 }
