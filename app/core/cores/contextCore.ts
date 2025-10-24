@@ -19,7 +19,6 @@ export class ContextCore {
    * with actual values from the provided promptVars
    */
   buildContext(promptVars: Record<string, any>): string {
-    console.log(genericContext.replace(/\$\{(\w+)\}/g, (match, key) => (promptVars.hasOwnProperty(key) ? String(promptVars[key]) : match)));
     return genericContext.replace(/\$\{(\w+)\}/g, (match, key) => (promptVars.hasOwnProperty(key) ? String(promptVars[key]) : match));
   }
 

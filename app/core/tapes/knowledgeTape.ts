@@ -19,6 +19,7 @@ export interface CommunityMember {
   alias: string[];
   keywords: string[];
   descriptions: string[];
+  gender: string;
 }
 
 /**
@@ -36,6 +37,7 @@ export const communityMembers: CommunityMember[] = [
       'Professional Valorant progamer competing in VCT for Slyders Corp. Also proud parent of "Gol D", whose cuteness transcends all known dimensions.',
       'The greatest subgifter of all time and devoted parent to "Gol D" - a dog so adorable it violates the fundamental laws of reality.',
     ],
+    gender: "man",
   },
   {
     name: "Goldomarc",
@@ -46,6 +48,7 @@ export const communityMembers: CommunityMember[] = [
       'Legendary inventor of the Rhubarbulle and spiritual godfather to "Gol D". His culinary genius is matched only by his tractor-driving skills.',
       'The most relevant chat member whose wisdom spans generations. Godfather of "Gol D" and keeper of eternal chat relevance.',
     ],
+    gender: "man",
   },
   {
     name: "fayaGANAS",
@@ -56,6 +59,7 @@ export const communityMembers: CommunityMember[] = [
       "The creative genius behind the most famous Twitch emotes. A true artist who shaped the visual language of the chat.",
       "The ultimate chill guy whose relaxed vibes and musical talent make him the zen master of the community.",
     ],
+    gender: "man",
   },
   {
     name: "Auruuu",
@@ -66,6 +70,7 @@ export const communityMembers: CommunityMember[] = [
       "Future doctor and healer of the chat. Soon to be medically essential.",
       "The most talkative member of the chat - a conversationalist extraordinaire who keeps discussions flowing.",
     ],
+    gender: "man",
   },
   {
     name: "Chipoun",
@@ -76,6 +81,7 @@ export const communityMembers: CommunityMember[] = [
       'The "maîtresse" and famous supporter of Benfica - her passion for football is matched only by her Hearthstone prowess.',
       'Queen of the chat and holder of the title "maîtresse". Her royal presence commands respect and admiration from all.',
     ],
+    gender: "woman",
   },
   {
     name: "JehanMenilpotene",
@@ -86,6 +92,7 @@ export const communityMembers: CommunityMember[] = [
       'The wisest elder of the chat and a famous cook whose culinary creations are legendary. "Oldies but Goldies" personified.',
       "Undefeated champion at FoodGuessr and the oldest member of the chat. His wisdom and taste buds are unmatched.",
     ],
+    gender: "man",
   },
   {
     name: "yanousama",
@@ -96,6 +103,7 @@ export const communityMembers: CommunityMember[] = [
       "Master sommelier and Hearthstone expert. Also a certified memelord whose wine-infused memes are legendary.",
       'Famous host of the show "ALDUM" (à La Découverte d\'Un Métier) and wine enthusiast who pairs career advice with perfect vintages.',
     ],
+    gender: "man",
   },
   {
     name: "mat_hkb",
@@ -106,6 +114,7 @@ export const communityMembers: CommunityMember[] = [
       "Chef extraordinaire and strategic Battlegrounds player who can season minions and marinate strategies with equal finesse. A true Michelin-starred gamer.",
       'Master of "Ticket Resto" - the sacred currency more valuable than gold or legendary minions. Every play is treated like a perfectly crafted dish.',
     ],
+    gender: "man",
   },
   {
     name: "Askow",
@@ -116,6 +125,7 @@ export const communityMembers: CommunityMember[] = [
       "The creator of Askowbot who brings code chaos and epic bugs to life. Also an avid cyclist who pedals through compile errors.",
       "Coffee-addicted developer whose code runs on pure caffeine and determination. The mastermind behind this very bot.",
     ],
+    gender: "man",
   },
   {
     name: "Filou",
@@ -126,6 +136,7 @@ export const communityMembers: CommunityMember[] = [
       "Askow's cat who is absolutely adorable and cute beyond measure. Don't let those innocent eyes fool you - world domination is the master plan.",
       "Super cute feline with an unexpected love for tomato sauce. Plotting world domination one paw step at a time.",
     ],
+    gender: "male",
   },
   {
     name: "Lory",
@@ -136,6 +147,7 @@ export const communityMembers: CommunityMember[] = [
       "The ultimate gamer who can finish video games even when situations seem utterly impossible. A true legend of The Binding of Isaac.",
       "Hates sleeping because there are too many video games to master. A legend who turns impossible gaming challenges into victories.",
     ],
+    gender: "man",
   },
   {
     name: "SamyZ",
@@ -146,6 +158,7 @@ export const communityMembers: CommunityMember[] = [
       "A legendary 100x developer whose coding prowess is matched only by his motivational speeches.",
       "Pro gamer at Warcraft III and motivational guru. Can debug code and boost morale simultaneously.",
     ],
+    gender: "man",
   },
   {
     name: "saladspls",
@@ -156,6 +169,7 @@ export const communityMembers: CommunityMember[] = [
       "A brilliant researcher in mathematics who brings analytical precision to every chat interaction.",
       "Professional decision-making expert who combines mathematical rigor with professional Twitch viewing skills.",
     ],
+    gender: "man",
   },
   {
     name: "Pierrick",
@@ -166,6 +180,7 @@ export const communityMembers: CommunityMember[] = [
       "Expert in every domain - truly a renaissance person with infinite knowledge.",
       "Expert in every domain - the walking encyclopedia of absolutely everything.",
     ],
+    gender: "man",
   },
   {
     name: "Slyders",
@@ -176,5 +191,6 @@ export const communityMembers: CommunityMember[] = [
       "The eternal Battlegrounds mastermind, commanding his digital kingdom with unparalleled strategic brilliance.",
       "Undisputed Hearthstone Battlegrounds emperor, ruling over pixels and RNG with iron fist and golden heart.",
     ],
+    gender: "man",
   },
 ];

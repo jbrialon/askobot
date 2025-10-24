@@ -32,7 +32,7 @@ class AskOS {
   private model: string;
 
   constructor() {
-    this.model = "gpt-4o-mini-2024-07-18";
+    this.model = "gpt-5-mini";
     this.openai = new OpenAI({
       organization: process.env["ORGKEY"],
       apiKey: process.env["APIKEY"],
@@ -85,8 +85,12 @@ class AskOS {
     const options: any = {
       model: this.model,
       input,
+      reasoning: {
+        effort: "minimal",
+        summary: null,
+      },
       text: {
-        // verbosity: "low",
+        verbosity: "low",
         format: {
           type: "json_schema" as const,
           name: responseFormat.json_schema.name,

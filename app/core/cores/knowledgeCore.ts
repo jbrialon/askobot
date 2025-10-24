@@ -55,7 +55,8 @@ export class KnowledgeCore {
    */
   private findStreamer(channel: string): CommunityMember | undefined {
     return this.members.find(
-      (member) => member.name.toLowerCase() === channel.toLowerCase() || member.alias.some((alias) => alias.toLowerCase() === channel.toLowerCase()),
+      (member) =>
+        member.name.toLowerCase() === channel.toLowerCase() || member.alias.some((alias) => alias.toLowerCase() === channel.toLowerCase()),
     );
   }
 
@@ -102,7 +103,7 @@ export class KnowledgeCore {
 
         const aliasAttr = member.alias.length > 0 ? ` aliases="${member.alias.join(", ")}"` : "";
 
-        return `<member name="${member.name}"${aliasAttr}>
+        return `<member name="${member.name}" gender="${member.gender}" ${aliasAttr}>
         ${randomDescription}
       </member>`;
       })
