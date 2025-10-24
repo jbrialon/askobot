@@ -15,7 +15,7 @@ import { communityMembers } from "../tapes/knowledgeTape.ts";
 
 function filterCommunityByMention(user: string, message: string): typeof communityMembers {
   const fuse = new Fuse(communityMembers, {
-    keys: ["name", "alias"],
+    keys: ["name", "keywords"],
     threshold: 0.3,
     includeScore: true,
   });
@@ -50,11 +50,11 @@ export function buildCommunity(user?: string, message?: string): string {
 
   const communityXml = members
     .map((member) => {
-      const randomDescription = member.description[Math.floor(Math.random() * member.description.length)];
+      const randomDescription = member.descriptions[Math.floor(Math.random() * member.descriptions.length)];
 
-      const aliasAttr = member.alias.length > 0 ? ` aliases="${member.alias.join(", ")}"` : "";
+      const keywordsAttr = member.keywords.length > 0 ? ` keywords="${member.keywords.join(", ")}"` : "";
 
-      return `      <member name="${member.name}"${aliasAttr}>
+      return `<member name="${member.name}"${keywordsAttr}>
         ${randomDescription}
       </member>`;
     })
