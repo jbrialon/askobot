@@ -12,14 +12,14 @@ import config from "../../../config.js";
  * Part of the AskOS Core Systems v0.1alpha
  */
 
-export function createOutputSchema(channelConfig: { mood: string[] }): z.ZodObject<{
+export function createOutputSchema(): z.ZodObject<{
   message: z.ZodString;
   emotion: z.ZodEnum<[string, ...string[]]>;
   animation: z.ZodEnum<[string, ...string[]]>;
 }> {
   return z.object({
     message: z.string(),
-    emotion: z.enum(channelConfig.mood as [string, ...string[]]),
+    emotion: z.enum(config.mood as [string, ...string[]]),
     animation: z.enum(config.animations as [string, ...string[]]),
   });
 }

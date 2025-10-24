@@ -1,5 +1,5 @@
 import Fuse from "fuse.js";
-import { communityMembers } from "../tapes/knowledgeTape.ts";
+import { communityMembers, type CommunityMember } from "../tapes/knowledgeTape.ts";
 
 /**
  * KnowledgeCore - AskOS Community Intelligence Module
@@ -13,55 +13,108 @@ import { communityMembers } from "../tapes/knowledgeTape.ts";
  * Part of the AskOS Core Systems v0.1alpha
  */
 
-function filterCommunityByMention(user: string, message: string): typeof communityMembers {
-  const fuse = new Fuse(communityMembers, {
-    keys: ["name", "keywords"],
-    threshold: 0.3,
-    includeScore: true,
-  });
+export class KnowledgeCore {
+  private members: CommunityMember[];
+  private fuzzyThreshold: number;
 
-  // Combine user and message, split into words, and search for each word
-  const searchText = `${user} ${message}`;
-  const words = searchText
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((word) => word.length > 2);
-
-  const matchedMembers = new Set<(typeof communityMembers)[number]>();
-
-  for (const word of words) {
-    const results = fuse.search(word);
-    results.forEach((result) => matchedMembers.add(result.item));
+  constructor() {
+    this.members = communityMembers;
+    this.fuzzyThreshold = 0.3;
   }
 
-  return Array.from(matchedMembers);
-}
+  /**
+   * Filters community members by fuzzy matching user and message content
+   * Returns only members mentioned in the conversation
+   */
+  private filterCommunityByMention(user: string, message: string): CommunityMember[] {
+    const fuse = new Fuse(this.members, {
+      keys: ["name", "alias", "keywords"],
+      threshold: this.fuzzyThreshold,
+      includeScore: true,
+    });
 
-/**
- * Builds the community XML section for the prompt
- * Optionally filters by user and message to only include relevant members
- */
-export function buildCommunity(user?: string, message?: string): string {
-  const members = user && message ? filterCommunityByMention(user, message) : communityMembers;
+    // Combine user and message, split into words, and search for each word
+    const searchText = `${user} ${message}`;
+    const words = searchText
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((word) => word.length > 2);
 
-  if (members.length === 0) {
-    return ""; // No community members mentioned
+    const matchedMembers = new Set<CommunityMember>();
+
+    for (const word of words) {
+      const results = fuse.search(word);
+      results.forEach((result) => matchedMembers.add(result.item));
+    }
+
+    return Array.from(matchedMembers);
   }
 
-  const communityXml = members
-    .map((member) => {
-      const randomDescription = member.descriptions[Math.floor(Math.random() * member.descriptions.length)];
+  /**
+   * Finds the streamer for a given channel by matching channel name with member name/aliases
+   */
+  private findStreamer(channel: string): CommunityMember | undefined {
+    return this.members.find(
+      (member) => member.name.toLowerCase() === channel.toLowerCase() || member.alias.some((alias) => alias.toLowerCase() === channel.toLowerCase()),
+    );
+  }
 
-      const keywordsAttr = member.keywords.length > 0 ? ` keywords="${member.keywords.join(", ")}"` : "";
+  /**
+   * Builds the streamer XML section for the prompt
+   */
+  buildStreamer(channel: string): string {
+    const streamer = this.findStreamer(channel);
 
-      return `<member name="${member.name}"${keywordsAttr}>
+    if (!streamer) {
+      return ""; // No streamer found for this channel
+    }
+
+    const randomDescription = streamer.descriptions[Math.floor(Math.random() * streamer.descriptions.length)];
+    const aliasAttr = streamer.alias.length > 0 ? ` aliases="${streamer.alias.join(", ")}"` : "";
+
+    return `
+    <streamer name="${streamer.name}"${aliasAttr}>
+      ${randomDescription}
+    </streamer>`;
+  }
+
+  /**
+   * Builds the community XML section for the prompt
+   * Optionally filters by user and message to only include relevant members
+   * Excludes the streamer from the community list
+   */
+  buildCommunity(channel: string, user?: string, message?: string): string {
+    const streamer = this.findStreamer(channel);
+    let members = user && message ? this.filterCommunityByMention(user, message) : this.members;
+
+    // Exclude streamer from community members
+    if (streamer) {
+      members = members.filter((member) => member.name !== streamer.name);
+    }
+
+    if (members.length === 0) {
+      return ""; // No community members mentioned
+    }
+
+    const communityXml = members
+      .map((member) => {
+        const randomDescription = member.descriptions[Math.floor(Math.random() * member.descriptions.length)];
+
+        const aliasAttr = member.alias.length > 0 ? ` aliases="${member.alias.join(", ")}"` : "";
+
+        return `<member name="${member.name}"${aliasAttr}>
         ${randomDescription}
       </member>`;
-    })
-    .join("\n");
+      })
+      .join("\n");
 
-  return `
+    return `
     <community>
 ${communityXml}
     </community>`;
+  }
 }
+
+// Singleton instance
+const knowledgeCore = new KnowledgeCore();
+export default knowledgeCore;

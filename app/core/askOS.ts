@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import config from "../../config.js";
 import type { GenerateResponseParams, AskOSResponse } from "./types.ts";
-import { buildContext, buildPromptVars } from "./cores/contextCore.ts";
+import contextCore from "./cores/contextCore.ts";
 import { createOutputSchema } from "./cores/responseCore.ts";
 import memoryCore from "./cores/memoryCore.ts";
 
@@ -46,9 +46,9 @@ class AskOS {
     // Get conversation history from MemoryCore
     const history = memoryCore.getHistory(params.channel);
 
-    const promptVars = buildPromptVars(params, channelConfig, channelInfo);
-    const input = this.buildInputMessages(params, promptVars, history);
-    const outputSchema = createOutputSchema(channelConfig);
+    const contextVars = contextCore.buildContextVars(params, channelConfig, channelInfo);
+    const input = this.buildInputMessages(params, contextVars, history);
+    const outputSchema = createOutputSchema();
 
     const response = await this.callOpenAI(input, outputSchema);
 
@@ -66,8 +66,8 @@ class AskOS {
     return channelConfig;
   }
 
-  private buildInputMessages(params: GenerateResponseParams, promptVars: Record<string, any>, history: any[]): any[] {
-    const context = buildContext(promptVars);
+  private buildInputMessages(params: GenerateResponseParams, contextVars: Record<string, any>, history: any[]): any[] {
+    const context = contextCore.buildContext(contextVars);
     const platformPrefix = params.platform ? `[${params.platform.toUpperCase()}] ` : "";
 
     return [
@@ -86,6 +86,7 @@ class AskOS {
       model: this.model,
       input,
       text: {
+        // verbosity: "low",
         format: {
           type: "json_schema" as const,
           name: responseFormat.json_schema.name,

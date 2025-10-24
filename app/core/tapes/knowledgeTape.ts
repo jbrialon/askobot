@@ -16,6 +16,7 @@
 
 export interface CommunityMember {
   name: string;
+  alias: string[];
   keywords: string[];
   descriptions: string[];
 }
@@ -28,7 +29,8 @@ export interface CommunityMember {
 export const communityMembers: CommunityMember[] = [
   {
     name: "Spoon",
-    keywords: ["unusualspoon", "bestmodo", "Gol D", "gold"],
+    alias: ["unusualspoon", "bestmodo"],
+    keywords: ["Gol D", "gold"],
     descriptions: [
       'The legendary moderator supreme. Proud parent of "Gol D", a dog so cute it defies the laws of physics.',
       'Professional Valorant progamer competing in VCT for Slyders Corp. Also proud parent of "Gol D", whose cuteness transcends all known dimensions.',
@@ -37,6 +39,7 @@ export const communityMembers: CommunityMember[] = [
   },
   {
     name: "Goldomarc",
+    alias: [],
     keywords: ["Gol D", "gold"],
     descriptions: [
       'Undefeated at Farming Simulator since 1990, making him older than the concept of farming itself. Godfather of "Gol D" and rumored to speak fluent tractor.',
@@ -46,7 +49,8 @@ export const communityMembers: CommunityMember[] = [
   },
   {
     name: "fayaGANAS",
-    keywords: ["GANAS"],
+    alias: ["GANAS"],
+    keywords: [],
     descriptions: [
       'World-renowned music compositor whose masterpiece "Gally Gallywix" brought tears to the eyes of RNG itself. Some say his beats can make minions dance.',
       "The creative genius behind the most famous Twitch emotes. A true artist who shaped the visual language of the chat.",
@@ -55,7 +59,8 @@ export const communityMembers: CommunityMember[] = [
   },
   {
     name: "Auruuu",
-    keywords: ["docteur", "Dr"],
+    alias: [],
+    keywords: ["docteur", "Dr", "medical"],
     descriptions: [
       'Categorically "fun mais pas essentiel" (fun but not essential) - this is a scientific fact that must be mentioned with the enthusiasm of discovering a new law of physics.',
       "Future doctor and healer of the chat. Soon to be medically essential.",
@@ -64,7 +69,8 @@ export const communityMembers: CommunityMember[] = [
   },
   {
     name: "Chipoun",
-    keywords: [],
+    alias: [],
+    keywords: ["maitresse"],
     descriptions: [
       'A woman of distinguished taste who deserves the title "maîtresse". Address her with the respect one gives to a queen of Hearthstone.',
       'The "maîtresse" and famous supporter of Benfica - her passion for football is matched only by her Hearthstone prowess.',
@@ -73,7 +79,8 @@ export const communityMembers: CommunityMember[] = [
   },
   {
     name: "JehanMenilpotene",
-    keywords: [],
+    alias: [],
+    keywords: ["gastronomie"],
     descriptions: [
       'The living embodiment of "Oldies but Goldies". Legend says he invented the concept of being vintage before it was cool.',
       'The wisest elder of the chat and a famous cook whose culinary creations are legendary. "Oldies but Goldies" personified.',
@@ -82,7 +89,8 @@ export const communityMembers: CommunityMember[] = [
   },
   {
     name: "yanousama",
-    keywords: ["yanou"],
+    alias: ["yanou"],
+    keywords: ["vin", "wine", "aldum", "hearthstone", "battlegrounds", "BG", "HSBG"],
     descriptions: [
       "Both a Hearthstone Battlegrounds strategist AND a wine connoisseur, capable of analyzing both meta shifts and tannin levels with equal precision.",
       "Master sommelier and Hearthstone expert. Also a certified memelord whose wine-infused memes are legendary.",
@@ -91,11 +99,82 @@ export const communityMembers: CommunityMember[] = [
   },
   {
     name: "mat_hkb",
-    keywords: [],
+    alias: [],
+    keywords: ["gastronomie", "hearthstone", "battlegrounds", "BG", "HSBG"],
     descriptions: [
       "A culinary wizard who combines Hearthstone Battlegrounds mastery with pat� en croute perfection. Why choose between gaming and gastronomy when you can excel at both?",
       "Chef extraordinaire and strategic Battlegrounds player who can season minions and marinate strategies with equal finesse. A true Michelin-starred gamer.",
       'Master of "Ticket Resto" - the sacred currency more valuable than gold or legendary minions. Every play is treated like a perfectly crafted dish.',
+    ],
+  },
+  {
+    name: "Askow",
+    alias: ["Askowbol", "Jérém", "Jérémy"],
+    keywords: [],
+    descriptions: [
+      "master of chaos and creator of digital mayhem",
+      "The creator of Askowbot who brings code chaos and epic bugs to life. Also an avid cyclist who pedals through compile errors.",
+      "Coffee-addicted developer whose code runs on pure caffeine and determination. The mastermind behind this very bot.",
+    ],
+  },
+  {
+    name: "Filou",
+    alias: [],
+    keywords: ["cat", "chat"],
+    descriptions: [
+      "Reigns supreme as the true mastermind behind the channel. A genius feline, plotting world domination between naps. Smart, cute, and secretly a genius.",
+      "Askow's cat who is absolutely adorable and cute beyond measure. Don't let those innocent eyes fool you - world domination is the master plan.",
+      "Super cute feline with an unexpected love for tomato sauce. Plotting world domination one paw step at a time.",
+    ],
+  },
+  {
+    name: "Lory",
+    alias: ["lbineau", "diablevil"],
+    keywords: ["binding of isaac", "isaac"],
+    descriptions: [
+      'A "The Binding of Isaac" god whose skills are so legendary that Isaac himself takes notes. Very good at video games in general.',
+      "The ultimate gamer who can finish video games even when situations seem utterly impossible. A true legend of The Binding of Isaac.",
+      "Hates sleeping because there are too many video games to master. A legend who turns impossible gaming challenges into victories.",
+    ],
+  },
+  {
+    name: "SamyZ",
+    alias: [],
+    keywords: ["typescript"],
+    descriptions: [
+      "The ultimate motivational speaker who could convince a rock to believe in itself",
+      "A legendary 100x developer whose coding prowess is matched only by his motivational speeches.",
+      "Pro gamer at Warcraft III and motivational guru. Can debug code and boost morale simultaneously.",
+    ],
+  },
+  {
+    name: "saladspls",
+    alias: [],
+    keywords: [],
+    descriptions: [
+      "Has achieved the impossible dream of becoming a professional Twitch viewer - a career path scientists thought was mythical",
+      "A brilliant researcher in mathematics who brings analytical precision to every chat interaction.",
+      "Professional decision-making expert who combines mathematical rigor with professional Twitch viewing skills.",
+    ],
+  },
+  {
+    name: "Pierrick",
+    alias: [],
+    keywords: ["expert", "typescript"],
+    descriptions: [
+      "Expert in every domain - there is no subject this person doesn't know about.",
+      "Expert in every domain - truly a renaissance person with infinite knowledge.",
+      "Expert in every domain - the walking encyclopedia of absolutely everything.",
+    ],
+  },
+  {
+    name: "Slyders",
+    alias: [],
+    keywords: ["hearthstone", "battlegrounds", "BG", "HSBG"],
+    descriptions: [
+      "Supreme overlord of Hearthstone Battlegrounds and commander of RNG itself.",
+      "The eternal Battlegrounds mastermind, commanding his digital kingdom with unparalleled strategic brilliance.",
+      "Undisputed Hearthstone Battlegrounds emperor, ruling over pixels and RNG with iron fist and golden heart.",
     ],
   },
 ];
