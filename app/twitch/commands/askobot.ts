@@ -1,7 +1,7 @@
-import { ChatMessage } from "@twurple/chat";
+import type { ChatMessage } from "@twurple/chat";
 
-import askobot from "../../services/askobot.js";
-import { CommandHandler, CommandResponse } from "./types.js";
+import askobot from "../../services/askobot.ts";
+import type { CommandHandler, CommandResponse } from "./types.ts";
 
 export class AskobotCommand implements CommandHandler {
   name = "askowbot";

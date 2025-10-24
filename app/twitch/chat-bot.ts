@@ -1,9 +1,9 @@
-import { staticAuthProvider } from "./auth-clients.js";
+import { staticAuthProvider } from "./auth-clients.ts";
 import { ChatClient, ChatMessage, parseChatMessage } from "@twurple/chat";
 import { EventEmitter } from "events";
 
 import config from "../../config.js";
-import { commands } from "./commands/index.js";
+import { commands } from "./commands/index.ts";
 import { log } from "../utils/log.js";
 
 export class ChatBot extends EventEmitter {

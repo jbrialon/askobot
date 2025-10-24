@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
-import askobot from "../../services/askobot.js";
-import { CommandHandler } from "./types.js";
+import askobot from "../../services/askobot.ts";
+import type { CommandHandler } from "./types.ts";
 import config from "../../../config.js";
 
 export class AskobotCommand implements CommandHandler {

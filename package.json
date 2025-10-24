@@ -6,9 +6,11 @@
   "type": "module",
   "scripts": {
     "import": "node cron/fetch-data.js",
-    "build": "tsc --noCheck",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc --noCheck",
     "start": "node dist/app.js",
-    "dev": "npm run build && npm run start"
+    "dev": "node --watch app.js",
+    "test": "node --test app/tests/*.test.ts"
   },
   "author": "jbrialon",
   "license": "ISC",
@@ -38,6 +40,6 @@
     "@types/express": "^5.0.2",
     "@types/node": "22.15.18",
     "@types/pg": "^8.15.2",
-    "typescript": "5.8.3"
+    "typescript": "5.9.3"
   }
 }

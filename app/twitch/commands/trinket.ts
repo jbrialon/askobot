@@ -1,5 +1,5 @@
-import { ChatMessage } from "@twurple/chat";
-import { CommandHandler, CommandResponse } from "./types.js";
+import type { ChatMessage } from "@twurple/chat";
+import type { CommandHandler, CommandResponse } from "./types.ts";
 import { fetchCardData, CARD_TYPES } from "../../utils/battleground.js";
 
 export const trinketCommand: CommandHandler = {
