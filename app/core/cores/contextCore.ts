@@ -20,12 +20,13 @@ export class ContextCore {
    * with actual values from the provided contextVars
    */
   buildContext(contextVars: ContextVars): string {
-    return genericContext.replace(/\$\{(\w+)\}/g, (match, key) => {
+    const context = genericContext.replace(/\$\{(\w+)\}/g, (match, key) => {
       if (key in contextVars) {
         return String(contextVars[key as keyof ContextVars]);
       }
       return match;
     });
+    return context;
   }
 
   /**
