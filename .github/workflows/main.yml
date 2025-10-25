@@ -21,7 +21,6 @@ jobs:
             # Backend dependencies
             npm install
             npm run import
-            npm run build
 
             # Frontend build
             cd front
