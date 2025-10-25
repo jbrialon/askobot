@@ -1,6 +1,7 @@
 import knowledgeCore from "./knowledgeCore.ts";
 import personalityCore from "./personalityCore.ts";
 import { genericContext } from "../tapes/contextTape.ts";
+import type { ContextVars, ChannelConfig, BuildContextParams } from "../types.ts";
 
 /**
  * ContextCore - AskOS Contextual Analysis Module
@@ -16,10 +17,16 @@ import { genericContext } from "../tapes/contextTape.ts";
 export class ContextCore {
   /**
    * Builds the final context string by replacing template variables
-   * with actual values from the provided promptVars
+   * with actual values from the provided contextVars
    */
-  buildContext(promptVars: Record<string, any>): string {
-    return genericContext.replace(/\$\{(\w+)\}/g, (match, key) => (promptVars.hasOwnProperty(key) ? String(promptVars[key]) : match));
+  buildContext(contextVars: ContextVars): string {
+    const context = genericContext.replace(/\$\{(\w+)\}/g, (match, key) => {
+      if (key in contextVars) {
+        return String(contextVars[key as keyof ContextVars]);
+      }
+      return match;
+    });
+    return context;
   }
 
   /**
@@ -99,20 +106,7 @@ export class ContextCore {
    * Builds all context variables by collecting data from various cores
    * and generating context-specific information
    */
-  buildContextVars(
-    params: {
-      user: string;
-      message: string;
-      platform?: "twitch" | "discord";
-    },
-    channelConfig: {
-      twitchChannel: string;
-      mood: string[];
-      context?: string[];
-      maxChar: number | string;
-    },
-    channelInfo: any,
-  ): Record<string, any> {
+  buildContextVars(params: BuildContextParams, channelConfig: ChannelConfig, channelInfo: any): ContextVars {
     // Platform
     const platform = params.platform || "twitch";
     const platformInfo = this.buildPlatformInfo(platform, channelInfo);
@@ -121,11 +115,8 @@ export class ContextCore {
     const streamer = knowledgeCore.buildStreamer(channelConfig.twitchChannel);
     const community = knowledgeCore.buildCommunity(channelConfig.twitchChannel, params.user, params.message);
 
-    // Legacy channel context (deprecated, will be removed)
-    const channelContext = channelConfig.context ? channelConfig.context.join("\n") : "";
-
     // Constaints
-    const maxChar = typeof channelConfig.maxChar === "string" ? parseInt(channelConfig.maxChar) : channelConfig.maxChar;
+    const maxChar = channelConfig.maxChar;
 
     // Personality - dynamically filtered based on maxChar
     const personality = personalityCore.buildPersonality(maxChar);
@@ -142,7 +133,6 @@ export class ContextCore {
       availableCommands,
       streamer,
       community,
-      channelContext,
       personality,
       maxChar,
     };

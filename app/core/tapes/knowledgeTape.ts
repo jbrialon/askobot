@@ -99,8 +99,8 @@ export const communityMembers: CommunityMember[] = [
     alias: ["yanou"],
     keywords: ["vin", "wine", "aldum", "hearthstone", "battlegrounds", "BG", "HSBG"],
     descriptions: [
-      "Both a Hearthstone Battlegrounds strategist AND a wine connoisseur, capable of analyzing both meta shifts and tannin levels with equal precision.",
-      "Master sommelier and Hearthstone expert. Also a certified memelord whose wine-infused memes are legendary.",
+      'Famous host of the show "ALDUM" (à La Découverte d\'Un Métier) Both a Hearthstone Battlegrounds strategist AND a wine connoisseur, capable of analyzing both meta shifts and tannin levels with equal precision.',
+      'Famous host of the show "ALDUM" (à La Découverte d\'Un Métier), Master sommelier and Hearthstone expert. Also a certified memelord whose wine-infused memes are legendary.',
       'Famous host of the show "ALDUM" (à La Découverte d\'Un Métier) and wine enthusiast who pairs career advice with perfect vintages.',
     ],
     gender: "man",
