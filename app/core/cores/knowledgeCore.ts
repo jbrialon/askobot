@@ -14,13 +14,8 @@ import { communityMembers, type CommunityMember } from "../tapes/knowledgeTape.t
  */
 
 export class KnowledgeCore {
-  private members: CommunityMember[];
-  private fuzzyThreshold: number;
-
-  constructor() {
-    this.members = communityMembers;
-    this.fuzzyThreshold = 0.3;
-  }
+  private members: CommunityMember[] = communityMembers;
+  private fuzzyThreshold: number = 0.3;
 
   /**
    * Filters community members by fuzzy matching user and message content

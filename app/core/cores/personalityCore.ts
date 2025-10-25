@@ -15,11 +15,7 @@ import { personalityTraits, type PersonalityTrait } from "../tapes/personalityTa
  */
 
 export class PersonalityCore {
-  private traits: PersonalityTrait[];
-
-  constructor() {
-    this.traits = personalityTraits;
-  }
+  private traits: PersonalityTrait[] = personalityTraits;
 
   /**
    * Randomly selects N traits from an array

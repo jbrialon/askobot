@@ -23,6 +23,7 @@
  * - ${channelContext}: Legacy channel-specific context (deprecated)
  * - ${platformInfo}: Platform-specific information (Twitch channel info or empty)
  * - ${availableCommands}: Command list (only when user asks about commands)
+ * - ${outputFormat}: JSON output format instructions from ResponseCore
  * - ${time}: Current timestamp
  * - ${platform}: Platform identifier (twitch/discord)
  * - ${username}: User who sent the message
@@ -99,8 +100,6 @@ export const genericContext: string = `
         \${streamer}
 
         \${community}
-
-        \${channelContext}
       </world_knowledge>
 
       \${platformInfo}
@@ -117,14 +116,6 @@ export const genericContext: string = `
         <user>\${username}</user>
         <user_message>\${message}</user_message>
       </current_context>
-      <output_format>
-        Return a JSON response with the following structure:
-        {
-          "message": "Your response (max \${maxChar} Characters)",
-          "emotion": "An emotion matching the response",
-          "animation": "An animation matching the response"
-        }
-
-      </output_format>
+      \${outputFormat}
     </system_prompt>
     `;

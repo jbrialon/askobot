@@ -12,14 +12,40 @@ import config from "../../../config.js";
  * Part of the AskOS Core Systems v0.1alpha
  */
 
-export function createOutputSchema(): z.ZodObject<{
-  message: z.ZodString;
-  emotion: z.ZodEnum<[string, ...string[]]>;
-  animation: z.ZodEnum<[string, ...string[]]>;
-}> {
-  return z.object({
-    message: z.string(),
-    emotion: z.enum(config.mood as [string, ...string[]]),
-    animation: z.enum(config.animations as [string, ...string[]]),
-  });
+class ResponseCore {
+  /**
+   * Creates and returns the output schema for AskOS responses
+   * Validates message content, emotion, and animation fields
+   */
+  createOutputSchema(): z.ZodObject<{
+    message: z.ZodString;
+    emotion: z.ZodEnum<[string, ...string[]]>;
+    animation: z.ZodEnum<[string, ...string[]]>;
+  }> {
+    return z.object({
+      message: z.string(),
+      emotion: z.enum(config.mood as [string, ...string[]]),
+      animation: z.enum(config.animations as [string, ...string[]]),
+    });
+  }
+
+  /**
+   * Generates the output format instructions for the AI prompt
+   * Includes the JSON structure with maxChar constraint and available options
+   */
+  buildOutputFormat(maxChar: number): string {
+    return `
+      <output_format>
+        Return a JSON response with the following structure:
+        {
+          "message": "Your response (max ${maxChar} Characters)",
+          "emotion": "${config.mood.join(" | ")}",
+          "animation": "${config.animations.join(" | ")}"
+        }
+      </output_format>`;
+  }
 }
+
+// Singleton instance
+const responseCore = new ResponseCore();
+export default responseCore;
