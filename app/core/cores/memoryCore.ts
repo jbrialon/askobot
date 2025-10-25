@@ -23,15 +23,10 @@ interface MemoryStorage {
   [channel: string]: ChannelMemory;
 }
 
-export class MemoryCore {
-  private memoryCapacity: number;
-  private memoryDuration: number; // in minutes
+class MemoryCore {
+  private memoryCapacity: number = 25;
+  private memoryDuration: number = 60; // in minutes
   private storage: MemoryStorage = {};
-
-  constructor() {
-    this.memoryCapacity = 40;
-    this.memoryDuration = 60;
-  }
 
   /**
    * Retrieves conversation history for a specific channel

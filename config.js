@@ -1,7 +1,4 @@
 export default {
-  model: "gpt-4o-mini-2024-07-18",
-  memoryCapacity: 40,
-  memoryDuration: 25, // in minutes
   animations: ["talk", "dance", "excited", "spin", "looping"],
   mood: ["excited", "helpful", "sarcastic", "extremely sarcastic"],
   channels: [

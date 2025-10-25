@@ -7,7 +7,7 @@ import { z } from "zod";
 import config from "../../config.js";
 import type { GenerateResponseParams, AskOSResponse, ContextVars } from "./types.ts";
 import contextCore from "./cores/contextCore.ts";
-import { createOutputSchema } from "./cores/responseCore.ts";
+import responseCore from "./cores/responseCore.ts";
 import memoryCore from "./cores/memoryCore.ts";
 
 /**
@@ -48,7 +48,7 @@ class AskOS {
 
     const contextVars = contextCore.buildContextVars(params, channelConfig, channelInfo);
     const input = this.buildInputMessages(params, contextVars, history);
-    const outputSchema = createOutputSchema();
+    const outputSchema = responseCore.createOutputSchema();
 
     const response = await this.callOpenAI(input, outputSchema, channelConfig.maxChar);
 

@@ -1,5 +1,6 @@
 import knowledgeCore from "./knowledgeCore.ts";
 import personalityCore from "./personalityCore.ts";
+import responseCore from "./responseCore.ts";
 import { genericContext } from "../tapes/contextTape.ts";
 import type { ContextVars, ChannelConfig, BuildContextParams } from "../types.ts";
 
@@ -124,6 +125,9 @@ export class ContextCore {
     // Available Commands - Only include if user is asking about them
     const availableCommands = this.isAskingAboutCommands(params.message) ? this.buildAvailableCommands(platform) : "";
 
+    // Output Format - from ResponseCore
+    const outputFormat = responseCore.buildOutputFormat(maxChar);
+
     return {
       time: new Date().toLocaleString(),
       username: params.user,
@@ -135,6 +139,7 @@ export class ContextCore {
       community,
       personality,
       maxChar,
+      outputFormat,
     };
   }
 }

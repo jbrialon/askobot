@@ -40,6 +40,8 @@ export interface ContextVars {
   personality: string;
   /** Maximum character limit for responses */
   maxChar: number;
+  /** Output format instructions (XML formatted) */
+  outputFormat: string;
 }
 
 /**
