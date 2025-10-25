@@ -1,6 +1,7 @@
 import knowledgeCore from "./knowledgeCore.ts";
 import personalityCore from "./personalityCore.ts";
 import { genericContext } from "../tapes/contextTape.ts";
+import type { ContextVars, ChannelConfig, BuildContextParams } from "../types.ts";
 
 /**
  * ContextCore - AskOS Contextual Analysis Module
@@ -16,10 +17,15 @@ import { genericContext } from "../tapes/contextTape.ts";
 export class ContextCore {
   /**
    * Builds the final context string by replacing template variables
-   * with actual values from the provided promptVars
+   * with actual values from the provided contextVars
    */
-  buildContext(promptVars: Record<string, any>): string {
-    return genericContext.replace(/\$\{(\w+)\}/g, (match, key) => (promptVars.hasOwnProperty(key) ? String(promptVars[key]) : match));
+  buildContext(contextVars: ContextVars): string {
+    return genericContext.replace(/\$\{(\w+)\}/g, (match, key) => {
+      if (key in contextVars) {
+        return String(contextVars[key as keyof ContextVars]);
+      }
+      return match;
+    });
   }
 
   /**
@@ -99,19 +105,7 @@ export class ContextCore {
    * Builds all context variables by collecting data from various cores
    * and generating context-specific information
    */
-  buildContextVars(
-    params: {
-      user: string;
-      message: string;
-      platform?: "twitch" | "discord";
-    },
-    channelConfig: {
-      twitchChannel: string;
-      context?: string[];
-      maxChar: number;
-    },
-    channelInfo: any,
-  ): Record<string, any> {
+  buildContextVars(params: BuildContextParams, channelConfig: ChannelConfig, channelInfo: any): ContextVars {
     // Platform
     const platform = params.platform || "twitch";
     const platformInfo = this.buildPlatformInfo(platform, channelInfo);

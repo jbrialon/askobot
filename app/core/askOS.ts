@@ -5,7 +5,7 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 import config from "../../config.js";
-import type { GenerateResponseParams, AskOSResponse } from "./types.ts";
+import type { GenerateResponseParams, AskOSResponse, ContextVars } from "./types.ts";
 import contextCore from "./cores/contextCore.ts";
 import { createOutputSchema } from "./cores/responseCore.ts";
 import memoryCore from "./cores/memoryCore.ts";
@@ -66,7 +66,7 @@ class AskOS {
     return channelConfig;
   }
 
-  private buildInputMessages(params: GenerateResponseParams, contextVars: Record<string, any>, history: any[]): any[] {
+  private buildInputMessages(params: GenerateResponseParams, contextVars: ContextVars, history: any[]): any[] {
     const context = contextCore.buildContext(contextVars);
     const platformPrefix = params.platform ? `[${params.platform.toUpperCase()}] ` : "";
 
