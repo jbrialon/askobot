@@ -32,7 +32,7 @@ class AskOS {
   private model: string;
 
   constructor() {
-    this.model = "gpt-5-mini";
+    this.model = "gpt-5-mini-2025-08-07";
     this.openai = new OpenAI({
       organization: process.env["ORGKEY"],
       apiKey: process.env["APIKEY"],
@@ -50,7 +50,7 @@ class AskOS {
     const input = this.buildInputMessages(params, contextVars, history);
     const outputSchema = createOutputSchema();
 
-    const response = await this.callOpenAI(input, outputSchema);
+    const response = await this.callOpenAI(input, outputSchema, channelConfig.maxChar);
 
     // Store conversation in MemoryCore
     memoryCore.addConversation(params.channel, params.user, params.message, response.message, params.platform);
@@ -80,8 +80,25 @@ class AskOS {
     ];
   }
 
-  private async callOpenAI(input: any[], outputSchema: z.ZodType): Promise<AskOSResponse> {
+  /**
+   * Converts character count to estimated token count.
+   *
+   * Rule of thumb: 1 token ≈ 3 characters for French text
+   *
+   * @param maxChar - Maximum character limit
+   * @returns Estimated maximum tokens
+   */
+  private charsToTokens(maxChar: number): number {
+    // French text: 1 token ≈ 3 characters
+    // Using 3.2 to add a small safety buffer
+    // adding 20 because we are outputting in json
+    return Math.ceil(maxChar / 3.2) + 30;
+  }
+
+  private async callOpenAI(input: any[], outputSchema: z.ZodType, maxChar?: number): Promise<AskOSResponse> {
     const responseFormat = zodResponseFormat(outputSchema, "structured_output");
+    const maxOutputTokens = maxChar ? this.charsToTokens(maxChar) : 300;
+
     const options: any = {
       model: this.model,
       input,
@@ -98,6 +115,7 @@ class AskOS {
           strict: responseFormat.json_schema.strict,
         },
       },
+      max_output_tokens: maxOutputTokens,
     };
 
     try {

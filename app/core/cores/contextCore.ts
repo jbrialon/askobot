@@ -107,9 +107,8 @@ export class ContextCore {
     },
     channelConfig: {
       twitchChannel: string;
-      mood: string[];
       context?: string[];
-      maxChar: number | string;
+      maxChar: number;
     },
     channelInfo: any,
   ): Record<string, any> {
@@ -121,11 +120,8 @@ export class ContextCore {
     const streamer = knowledgeCore.buildStreamer(channelConfig.twitchChannel);
     const community = knowledgeCore.buildCommunity(channelConfig.twitchChannel, params.user, params.message);
 
-    // Legacy channel context (deprecated, will be removed)
-    const channelContext = channelConfig.context ? channelConfig.context.join("\n") : "";
-
     // Constaints
-    const maxChar = typeof channelConfig.maxChar === "string" ? parseInt(channelConfig.maxChar) : channelConfig.maxChar;
+    const maxChar = channelConfig.maxChar;
 
     // Personality - dynamically filtered based on maxChar
     const personality = personalityCore.buildPersonality(maxChar);
@@ -142,7 +138,6 @@ export class ContextCore {
       availableCommands,
       streamer,
       community,
-      channelContext,
       personality,
       maxChar,
     };
