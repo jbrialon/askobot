@@ -7,13 +7,28 @@
 ```
 askobot/
 ├── app.js                # Express server and Socket.IO setup
-├── front/                # Front-end (React) app
+├── config.js             # Bot configuration (channels, personality, community)
+├── front/                # Frontend React app with Three.js visualization
 │   ├── src/app.jsx       # Main App component
 │   └── ...
-├── app/classes/          # Core logic (Voice, TwitchBot, etc.)
+├── app/
+│   ├── classes/          # Core services (Socket, Voice, MemoryCache)
+│   ├── core/             # AskOS - Modular AI brain system
+│   │   ├── askOS.ts      # Main AI coordinator (singleton)
+│   │   ├── cores/        # Personality cores (Context, Knowledge, Schema, Memory)
+│   │   ├── tapes/        # Data structures for core communication
+│   │   └── types.ts      # TypeScript interfaces
+│   ├── twitch/           # Twitch integration
+│   │   ├── chat-bot.ts   # Modern @twurple-based bot
+│   │   ├── commands/     # Hearthstone BG commands
+│   │   └── events/       # EventSub handlers
+│   ├── database/         # PostgreSQL integration
+│   ├── discord/          # Discord webhook notifications
+│   ├── utils/            # Helper utilities (battleground data, fuzzy matching)
+│   └── tests/            # Test suites
+├── cron/                 # Scheduled tasks (card data updates)
 ├── .env                  # API keys and secrets
-├── package.json          # Scripts and dependencies
-└── cron/                 # Task to update the bot "database"
+└── package.json          # Scripts and dependencies
 ```
 
 ---
@@ -66,7 +81,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 ### 1. Start the backend (chatbot + server)
 
 ```bash
-npm run serve
+npm run dev
 ```
 
 This launches the Express server, connects the Twitch bot and sets up Socket.IO.
@@ -99,14 +114,7 @@ The built front-end will be served statically by the backend.
 
 ## 🧪 Testing EventSub with Twitch CLI
 
-### Channel Point Redemption Testing
-
-```bash
-# Trigger a channel point redemption event
-twitch event trigger channel.channel_points_custom_reward_redemption.add -F http://localhost:3000/eventsub -n "askobot" -s thesecret
-```
-
-### Other EventSub Events
+### EventSub Events
 
 ```bash
 # Follow event
@@ -120,4 +128,10 @@ twitch event trigger hype-train-begin -F http://localhost:3000/eventsub -n "asko
 
 # Raid event
 twitch event trigger raid -F http://localhost:3000/eventsub -s thesecret
+
+# Stream online
+twitch event trigger stream.online -F http://localhost:3000/eventsub -s thesecret
+
+# Trigger a channel point redemption event for reward "askobot"
+twitch event trigger channel.channel_points_custom_reward_redemption.add -F http://localhost:3000/eventsub -n "askobot" -s thesecret
 ```

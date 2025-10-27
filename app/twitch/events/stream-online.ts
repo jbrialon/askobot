@@ -1,5 +1,6 @@
 import { log } from "../../utils/log.js";
-import askobot from "../../services/askobot.ts";
+import askOS from "../../core/askOS.ts";
+import { getChannelInfo } from "../../utils/twitch-data.js";
 import discordBot from "../../discord/discord-bot.ts";
 
 import config from "../../../config.js";
@@ -26,12 +27,24 @@ export async function handleStreamOnline(event: any) {
   // Send Discord notification if setup
   if (channelConfig?.discordNotifications) {
     const { guildId, channelId } = channelConfig.discordNotifications;
+    const channelInfo = await getChannelInfo(channel);
+    const game = (channelInfo as any)?.game || "";
+    const isGame = (channelInfo as any)?.isGame || false;
 
     // Generate a custom message from Askobot
-    const prompt = `le stream de ${broadcasterName} est en ligne, genere un message pour l'annoncer sur le discord`;
-    const result = await askobot.generateResponse(channel, "system", prompt);
+    const contentType = isGame ? "game" : "category";
+    const eventData = isGame
+      ? `${channel} has started the twitch live on the ${contentType} ${game}, give us a lot of details including spoils about the played game and encourage us to go see the live`
+      : `${channel} has started the twitch live and is doing ${game}, give us details about this streaming content`;
 
-    const message = `${result.message}\n\nhttps://twitch.tv/${channel}`;
+    const response = await askOS.reactToEvent({
+      channel,
+      eventType: "stream has come online",
+      eventData,
+      platform: "twitch",
+    });
+
+    const message = `${response.message}\nhttps://twitch.tv/${channel}`;
 
     await discordBot.say(guildId, channelId, message);
   }

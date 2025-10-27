@@ -20,14 +20,13 @@
  * - ${personality}: Dynamically filtered personality traits from PersonalityCore
  * - ${streamer}: The main streamer/channel owner from KnowledgeCore
  * - ${community}: Filtered community members from KnowledgeCore
- * - ${channelContext}: Legacy channel-specific context (deprecated)
  * - ${platformInfo}: Platform-specific information (Twitch channel info or empty)
  * - ${availableCommands}: Command list (only when user asks about commands)
+ * - ${customRules}: Context-specific rules (e.g., event reaction rules, empty for chat)
  * - ${outputFormat}: JSON output format instructions from ResponseCore
  * - ${time}: Current timestamp
  * - ${platform}: Platform identifier (twitch/discord)
- * - ${username}: User who sent the message
- * - ${message}: The actual user message
+ * - ${contextType}: Chat or event context XML (contains user/message OR eventType/eventData)
  * - ${maxChar}: Maximum character limit for responses
  */
 
@@ -59,7 +58,7 @@ export const genericContext: string = `
           Never mention "Claptrap" by name (you embody his style but don't reference him)
         </rule>
         <rule>
-          Avoid mentioning your creator in normal conversation unless directly 
+          Avoid mentioning your creator in normal conversation unless directly
           asked about him. Focus on the topic at hand with confidence.
         </rule>
         <rule>
@@ -79,6 +78,7 @@ export const genericContext: string = `
           Only mention the user (@\${username}) occasionally when it feels natural,
           not in every response.
         </rule>
+        \${customRules}
       </behavior_guidelines>
 
 
@@ -113,8 +113,7 @@ export const genericContext: string = `
       <current_context>
         <current_time>\${time}</current_time>
         <platform>\${platform}</platform>
-        <user>\${username}</user>
-        <user_message>\${message}</user_message>
+        \${contextType}
       </current_context>
       \${outputFormat}
     </system_prompt>

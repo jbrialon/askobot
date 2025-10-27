@@ -66,10 +66,10 @@ export class KnowledgeCore {
     }
 
     const randomDescription = streamer.descriptions[Math.floor(Math.random() * streamer.descriptions.length)];
-    const aliasAttr = streamer.alias.length > 0 ? ` aliases="${streamer.alias.join(", ")}"` : "";
+    const aliasAttr = streamer.alias.length > 0 ? `aliases="${streamer.alias.join(", ")}"` : "";
 
     return `
-    <streamer name="${streamer.name}"${aliasAttr}>
+    <streamer name="${streamer.name}" gender="${streamer.gender}" ${aliasAttr}>
       ${randomDescription}
     </streamer>`;
   }
@@ -79,9 +79,9 @@ export class KnowledgeCore {
    * Optionally filters by user and message to only include relevant members
    * Excludes the streamer from the community list
    */
-  buildCommunity(channel: string, user?: string, message?: string): string {
+  buildCommunity(channel: string, user: string, message: string): string {
     const streamer = this.findStreamer(channel);
-    let members = user && message ? this.filterCommunityByMention(user, message) : this.members;
+    let members = this.filterCommunityByMention(user, message);
 
     // Exclude streamer from community members
     if (streamer) {
@@ -96,7 +96,7 @@ export class KnowledgeCore {
       .map((member) => {
         const randomDescription = member.descriptions[Math.floor(Math.random() * member.descriptions.length)];
 
-        const aliasAttr = member.alias.length > 0 ? ` aliases="${member.alias.join(", ")}"` : "";
+        const aliasAttr = member.alias.length > 0 ? `aliases="${member.alias.join(", ")}"` : "";
 
         return `<member name="${member.name}" gender="${member.gender}" ${aliasAttr}>
         ${randomDescription}
