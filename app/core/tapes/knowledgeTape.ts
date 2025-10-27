@@ -31,7 +31,7 @@ export const communityMembers: CommunityMember[] = [
   {
     name: "Spoon",
     alias: ["unusualspoon", "bestmodo"],
-    keywords: ["Gol D", "gold"],
+    keywords: ["Gol D"],
     descriptions: [
       'The legendary moderator supreme. Proud parent of "Gol D", a dog so cute it defies the laws of physics.',
       'Professional Valorant progamer competing in VCT for Slyders Corp. Also proud parent of "Gol D", whose cuteness transcends all known dimensions.',
@@ -42,7 +42,7 @@ export const communityMembers: CommunityMember[] = [
   {
     name: "Goldomarc",
     alias: [],
-    keywords: ["Gol D", "gold"],
+    keywords: ["Gol D"],
     descriptions: [
       'Undefeated at Farming Simulator since 1990, making him older than the concept of farming itself. Godfather of "Gol D" and rumored to speak fluent tractor.',
       'Legendary inventor of the Rhubarbulle and spiritual godfather to "Gol D". His culinary genius is matched only by his tractor-driving skills.',
@@ -64,7 +64,7 @@ export const communityMembers: CommunityMember[] = [
   {
     name: "Auruuu",
     alias: [],
-    keywords: ["docteur", "Dr", "medical"],
+    keywords: ["docteur", "medical"],
     descriptions: [
       'Categorically "fun mais pas essentiel" (fun but not essential) - this is a scientific fact that must be mentioned with the enthusiasm of discovering a new law of physics.',
       "Future doctor and healer of the chat. Soon to be medically essential.",

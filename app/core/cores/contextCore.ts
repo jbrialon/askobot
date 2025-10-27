@@ -104,6 +104,41 @@ export class ContextCore {
   }
 
   /**
+   * Builds custom rules based on context type
+   */
+  private buildCustomRules(params: BuildContextParams): string {
+    if (params.type === "event") {
+      return `
+        <rule>
+          When reacting to events, ONLY provide your reaction message in your characteristic style.
+          Do NOT add greetings, do NOT add follow-up questions, do NOT add explanations.
+          Just react to the event naturally and stop.
+        </rule>`;
+    }
+    return "";
+  }
+
+  /**
+   * Builds context type-specific XML based on chat or event type
+   */
+  private buildContextTypeXML(params: BuildContextParams): string {
+    if (params.type === "event") {
+      return `
+        <event_context>
+          <event_type>${params.eventType}</event_type>
+          <event_data>${params.eventData}</event_data>
+        </event_context>`;
+    }
+
+    // Chat context
+    return `
+        <chat_context>
+          <user>${params.user}</user>
+          <user_message>${params.message}</user_message>
+        </chat_context>`;
+  }
+
+  /**
    * Builds all context variables by collecting data from various cores
    * and generating context-specific information
    */
@@ -114,30 +149,41 @@ export class ContextCore {
 
     // World Knowledge
     const streamer = knowledgeCore.buildStreamer(channelConfig.twitchChannel);
-    const community = knowledgeCore.buildCommunity(channelConfig.twitchChannel, params.user, params.message);
+    const community = knowledgeCore.buildCommunity(
+      channelConfig.twitchChannel,
+      params.user || "",
+      params.type === "event" ? params.eventData || "" : params.message || "",
+    );
 
-    // Constaints
+    // Constraints
     const maxChar = channelConfig.maxChar;
 
     // Personality - dynamically filtered based on maxChar
     const personality = personalityCore.buildPersonality(maxChar);
 
-    // Available Commands - Only include if user is asking about them
-    const availableCommands = this.isAskingAboutCommands(params.message) ? this.buildAvailableCommands(platform) : "";
+    // Available Commands - Only include if user is asking about them (chat only)
+    const availableCommands =
+      params.type === "chat" && params.message && this.isAskingAboutCommands(params.message) ? this.buildAvailableCommands(platform) : "";
 
     // Output Format - from ResponseCore
     const outputFormat = responseCore.buildOutputFormat(maxChar);
 
+    // Build context type-specific XML
+    const contextType = this.buildContextTypeXML(params);
+
+    // Build custom rules based on context type
+    const customRules = this.buildCustomRules(params);
+
     return {
       time: new Date().toLocaleString(),
-      username: params.user,
-      message: params.message,
+      contextType,
       platform,
       platformInfo,
       availableCommands,
       streamer,
       community,
       personality,
+      customRules,
       maxChar,
       outputFormat,
     };

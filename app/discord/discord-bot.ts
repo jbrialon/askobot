@@ -175,7 +175,7 @@ class DiscordBot extends EventEmitter {
   }
 
   // Send a message to a specific channel in a guild
-  public async say(guildId: string, channelId: string, message: string) {
+  public async say(guildId: string, channelId: string, message: string, embeds?: EmbedBuilder[]) {
     try {
       const guild = this.client.guilds.cache.get(guildId);
       if (!guild) {
@@ -189,7 +189,10 @@ class DiscordBot extends EventEmitter {
         return;
       }
 
-      await channel.send(message);
+      await channel.send({
+        content: message,
+        embeds: embeds || [],
+      });
     } catch (error) {
       console.error("Error sending message:", error);
     }

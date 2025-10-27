@@ -1,6 +1,8 @@
 import { log } from "../../utils/log.js";
-import askobot from "../../services/askobot.ts";
+import askOS from "../../core/askOS.ts";
+import { getChannelInfo } from "../../utils/twitch-data.js";
 import discordBot from "../../discord/discord-bot.ts";
+import { EmbedBuilder } from "discord.js";
 
 import config from "../../../config.js";
 
@@ -26,14 +28,47 @@ export async function handleStreamOnline(event: any) {
   // Send Discord notification if setup
   if (channelConfig?.discordNotifications) {
     const { guildId, channelId } = channelConfig.discordNotifications;
+    const channelInfo = (await getChannelInfo(channel)) as any;
+
+    const game = channelInfo.game;
+    const isGame = channelInfo.isGame;
 
     // Generate a custom message from Askobot
-    const prompt = `le stream de ${broadcasterName} est en ligne, genere un message pour l'annoncer sur le discord`;
-    const result = await askobot.generateResponse(channel, "system", prompt);
+    const contentType = isGame ? "game" : "category";
+    const eventData = isGame
+      ? `${channelInfo.displayName} has started the twitch live on the ${contentType} ${game}, give us a lot of details including spoils about the played game and encourage us to go see the live`
+      : `${channelInfo.displayName} has started the twitch live and is doing ${game}, give us details about this streaming content`;
 
-    const message = `${result.message}\n\nhttps://twitch.tv/${channel}`;
+    const { message } = await askOS.reactToEvent({
+      channel,
+      eventType: "stream has come online",
+      eventData,
+      platform: "twitch",
+    });
 
-    await discordBot.say(guildId, channelId, message);
+    const embed = new EmbedBuilder()
+      .setAuthor({
+        name: channelInfo.displayName,
+        iconURL: channelInfo.profileImage,
+        url: `https://www.twitch.tv/${channel}`,
+      })
+      .setTitle(channelInfo.title)
+      .setURL(`https://www.twitch.tv/${channel}`)
+      .setColor("#9146FF")
+      .setThumbnail(`https://static-cdn.jtvnw.net/ttv-boxart/${channelInfo.game_id}-272x380.jpg`)
+      .addFields({
+        name: channelInfo.isGame ? "Jeu" : "Catégorie",
+        value: channelInfo.game,
+        inline: false,
+      })
+      .setImage(`https://static-cdn.jtvnw.net/previews-ttv/live_user_${channel}-1280x720.jpg`)
+      .setFooter({
+        text: "Twitch",
+        iconURL: "https://www.twitch.tv/favicon.ico",
+      })
+      .setTimestamp();
+
+    await discordBot.say(guildId, channelId, message, [embed]);
   }
 
   // TODO: Update bot status

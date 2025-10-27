@@ -1,6 +1,6 @@
 export default {
   animations: ["talk", "dance", "excited", "spin", "looping"],
-  mood: ["excited", "helpful", "sarcastic", "extremely sarcastic"],
+  mood: ["excited", "enthusiastic", "sarcastic", "smug", "playful", "cheerful"],
   channels: [
     {
       twitchChannel: "askowbol",

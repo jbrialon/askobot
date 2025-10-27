@@ -5,7 +5,7 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 import config from "../../config.js";
-import type { GenerateResponseParams, AskOSResponse, ContextVars } from "./types.ts";
+import type { GenerateResponseParams, AskOSResponse, ContextVars, reactToEventParams } from "./types.ts";
 import contextCore from "./cores/contextCore.ts";
 import responseCore from "./cores/responseCore.ts";
 import memoryCore from "./cores/memoryCore.ts";
@@ -43,18 +43,45 @@ class AskOS {
     const channelConfig = this.getChannelConfig(params.channel);
     const channelInfo = await getChannelInfo(params.channel);
 
+    const platform = params.platform || "twitch";
+
     // Get conversation history from MemoryCore
     const history = memoryCore.getHistory(params.channel);
 
-    const contextVars = contextCore.buildContextVars(params, channelConfig, channelInfo);
+    const contextVars = contextCore.buildContextVars(
+      { type: "chat", user: params.user, message: params.message, platform: platform },
+      channelConfig,
+      channelInfo,
+    );
     const input = this.buildInputMessages(params, contextVars, history);
     const outputSchema = responseCore.createOutputSchema();
 
-    const response = await this.callOpenAI(input, outputSchema, channelConfig.maxChar);
+    const response = await this.callOpenAI(input, outputSchema);
 
     // Store conversation in MemoryCore
     memoryCore.addConversation(params.channel, params.user, params.message, response.message, params.platform);
 
+    return response;
+  }
+
+  async reactToEvent(params: reactToEventParams): Promise<AskOSResponse> {
+    const channelConfig = this.getChannelConfig(params.channel);
+    const channelInfo = await getChannelInfo(params.channel);
+
+    const platform = params.platform || "twitch";
+
+    const contextVars = contextCore.buildContextVars(
+      { type: "event", eventType: params.eventType, eventData: params.eventData, platform },
+      channelConfig,
+      channelInfo,
+    );
+
+    const input = this.buildEventInputMessages(contextVars);
+    const outputSchema = responseCore.createOutputSchema();
+
+    const response = await this.callOpenAI(input, outputSchema);
+
+    // TODO Maybe this should be store in memory aswell?
     return response;
   }
 
@@ -80,24 +107,20 @@ class AskOS {
     ];
   }
 
-  /**
-   * Converts character count to estimated token count.
-   *
-   * Rule of thumb: 1 token ≈ 3 characters for French text
-   *
-   * @param maxChar - Maximum character limit
-   * @returns Estimated maximum tokens
-   */
-  private charsToTokens(maxChar: number): number {
-    // French text: 1 token ≈ 3 characters
-    // Using 3.2 to add a small safety buffer
-    // adding 20 because we are outputting in json
-    return Math.ceil(maxChar / 3.2) + 30;
+  private buildEventInputMessages(contextVars: ContextVars): any[] {
+    const context = contextCore.buildContext(contextVars);
+
+    return [
+      { role: "system", content: context },
+      {
+        role: "user",
+        content: "React to this event with your characteristic personality.",
+      },
+    ];
   }
 
-  private async callOpenAI(input: any[], outputSchema: z.ZodType, maxChar?: number): Promise<AskOSResponse> {
+  private async callOpenAI(input: any[], outputSchema: z.ZodType): Promise<AskOSResponse> {
     const responseFormat = zodResponseFormat(outputSchema, "structured_output");
-    const maxOutputTokens = maxChar ? this.charsToTokens(maxChar) : 300;
 
     const options: any = {
       model: this.model,
@@ -115,7 +138,6 @@ class AskOS {
           strict: responseFormat.json_schema.strict,
         },
       },
-      max_output_tokens: maxOutputTokens,
     };
 
     try {
