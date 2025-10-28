@@ -149,11 +149,8 @@ export class ContextCore {
 
     // World Knowledge
     const streamer = knowledgeCore.buildStreamer(channelConfig.twitchChannel);
-    const community = knowledgeCore.buildCommunity(
-      channelConfig.twitchChannel,
-      params.user || "",
-      params.type === "event" ? params.eventData || "" : params.message || "",
-    );
+    const community =
+      params.type === "chat" ? knowledgeCore.buildCommunity(channelConfig.twitchChannel, params.user || "", params.message || "") : "";
 
     // Constraints
     const maxChar = channelConfig.maxChar;

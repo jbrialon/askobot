@@ -30,6 +30,10 @@ export default {
     {
       twitchChannel: "yanousama",
       discordGuild: ["1068573334234730526"],
+      discordNotifications: {
+        guildId: "1068573334234730526",
+        channelId: "1080241069637259285",
+      },
       maxChar: 200,
       battletag: "yanousama",
     },
