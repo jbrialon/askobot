@@ -103,6 +103,9 @@ export async function initChannelData(): Promise<void> {
  * Fetch and store channel data from Twitch API
  */
 async function fetchChannelData(channel: string): Promise<void> {
+  const startTime = Date.now();
+  console.log(`[ChannelData] Fetching data for "${channel}"...`);
+
   const user = await apiClient.users.getUserByName(channel);
   if (!user) {
     throw new Error(`User not found: ${channel}`);
@@ -156,6 +159,9 @@ async function fetchChannelData(channel: string): Promise<void> {
   }
 
   channelDataStore.set(channel.toLowerCase(), data);
+
+  const duration = Date.now() - startTime;
+  console.log(`[ChannelData] Fetched data for "${channel}" in ${duration}ms`);
 }
 
 /**
