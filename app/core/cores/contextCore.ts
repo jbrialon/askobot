@@ -27,6 +27,7 @@ export class ContextCore {
       }
       return match;
     });
+
     return context;
   }
 
@@ -34,13 +35,13 @@ export class ContextCore {
    * Builds platform-specific information XML section
    * Returns Twitch channel info or empty string for Discord
    */
-  private buildPlatformInfo(platform: "twitch" | "discord", channelInfo: any): string {
-    if (platform === "twitch" && channelInfo) {
+  private buildPlatformInfo(platform: "twitch" | "discord", channelData: any): string {
+    if (platform === "twitch" && channelData) {
       return `
     <twitch_channel_info>
-      <title>${channelInfo.title}</title>
-      <game>${channelInfo.game}</game>
-      <description>${channelInfo.description}</description>
+      <title>${channelData.title}</title>
+      <game>${channelData.gameName}</game>
+      <description>${channelData.description}</description>
     </twitch_channel_info>`;
     }
     return "";
@@ -142,10 +143,10 @@ export class ContextCore {
    * Builds all context variables by collecting data from various cores
    * and generating context-specific information
    */
-  buildContextVars(params: BuildContextParams, channelConfig: ChannelConfig, channelInfo: any): ContextVars {
+  buildContextVars(params: BuildContextParams, channelConfig: ChannelConfig, channelData: any): ContextVars {
     // Platform
     const platform = params.platform || "twitch";
-    const platformInfo = this.buildPlatformInfo(platform, channelInfo);
+    const platformInfo = this.buildPlatformInfo(platform, channelData);
 
     // World Knowledge
     const streamer = knowledgeCore.buildStreamer(channelConfig.twitchChannel);

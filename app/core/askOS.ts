@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { getChannelInfo } from "../utils/twitch-data.js";
+import { getChannelData } from "../twitch/channel-data.ts";
 import { jsonrepair } from "jsonrepair";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
@@ -41,7 +41,7 @@ class AskOS {
 
   async generateResponse(params: GenerateResponseParams): Promise<AskOSResponse> {
     const channelConfig = this.getChannelConfig(params.channel);
-    const channelInfo = await getChannelInfo(params.channel);
+    const channelData = await getChannelData(params.channel);
 
     const platform = params.platform || "twitch";
 
@@ -49,9 +49,9 @@ class AskOS {
     const history = memoryCore.getHistory(params.channel);
 
     const contextVars = contextCore.buildContextVars(
-      { type: "chat", user: params.user, message: params.message, platform: platform },
+      { type: "chat", user: params.user, message: params.message, platform },
       channelConfig,
-      channelInfo,
+      channelData,
     );
     const input = this.buildInputMessages(params, contextVars, history);
     const outputSchema = responseCore.createOutputSchema();
@@ -66,14 +66,14 @@ class AskOS {
 
   async reactToEvent(params: reactToEventParams): Promise<AskOSResponse> {
     const channelConfig = this.getChannelConfig(params.channel);
-    const channelInfo = await getChannelInfo(params.channel);
+    const channelData = await getChannelData(params.channel);
 
     const platform = params.platform || "twitch";
 
     const contextVars = contextCore.buildContextVars(
       { type: "event", eventType: params.eventType, eventData: params.eventData, platform },
       channelConfig,
-      channelInfo,
+      channelData,
     );
 
     const input = this.buildEventInputMessages(contextVars);

@@ -13,6 +13,7 @@ import voice from "./app/classes/voice.js";
 import { setupDatabase } from "./app/database/index.ts";
 
 // Twitch flow
+import { initChannelData } from "./app/twitch/channel-data.ts";
 import { oAuthTokenMiddleWare } from "./app/twitch/oauth-token-middleware.ts";
 import { eventSubMiddleware } from "./app/twitch/eventsub-middleware.ts";
 import { cleanupEventSubSubscriptions } from "./app/twitch/eventsub-setup.ts";
@@ -32,6 +33,7 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   await setupDatabase();
+  await initChannelData();
 
   // init express server
   const app = express();

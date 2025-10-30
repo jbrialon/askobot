@@ -1,18 +1,14 @@
 import { log } from "../../utils/log.js";
 import askobot from "../../services/askobot.ts";
+import { EventSubChannelRedemptionAddEvent } from "@twurple/eventsub-base";
 
-export async function handleChannelPointReward(event: any) {
-  let channel = event?.broadcaster_user_login?.toLowerCase();
+export async function handleChannelPointReward(event: EventSubChannelRedemptionAddEvent) {
+  const channel = event.broadcasterName.toLowerCase() === "testbroadcaster" ? "askowbol" : event.broadcasterName.toLowerCase();
 
-  // Test mode when we are testing from twitch-cli
-  if (channel === "testbroadcaster") {
-    channel = "askowbol";
-  }
-
-  const rewardTitle = event?.reward?.title;
-  const userName = event?.user_name;
-  const userInput = event?.user_input;
-  const cost = event?.reward?.cost;
+  const rewardTitle = event.rewardTitle;
+  const userName = event.userName;
+  const userInput = event.input;
+  const cost = event.rewardCost;
 
   // Handle different reward types based on title
   switch (rewardTitle?.toLowerCase()) {
