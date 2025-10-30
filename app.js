@@ -77,13 +77,15 @@ async function startServer() {
   // init Socket IO Server
   const socket = new Socket({ server, chatBot, voice, askobot });
 
-  // Wait for Discord bot to be ready before logging success
-  discordBot.once("ready", () => {
-    log.success({
-      user: "System",
-      message: "🚀 Askowbot Launch success 🚀",
-      channel: "system",
-    });
+  // Wait for Discord bot to be ready, then log final success message
+  await new Promise((resolve) => {
+    discordBot.once("ready", resolve);
+  });
+
+  log.success({
+    user: "System",
+    message: "🚀 Askowbot Launch success 🚀",
+    channel: "system",
   });
 }
 

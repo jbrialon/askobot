@@ -132,6 +132,9 @@ twitch event trigger raid -F http://localhost:3000/eventsub -s thesecret
 # Stream online
 twitch event trigger stream.online -F http://localhost:3000/eventsub -s thesecret
 
+# Channel updae
+twitch event trigger channel.update -F http://localhost:3000/eventsub --version 2 -s thesecret
+
 # Trigger a channel point redemption event for reward "askobot"
 twitch event trigger channel.channel_points_custom_reward_redemption.add -F http://localhost:3000/eventsub -n "askobot" -s thesecret
 ```
