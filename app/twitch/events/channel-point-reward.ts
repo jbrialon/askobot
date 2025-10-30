@@ -1,14 +1,19 @@
 import { log } from "../../utils/log.js";
 import askobot from "../../services/askobot.ts";
-import { EventSubChannelRedemptionAddEvent } from "@twurple/eventsub-base";
 
-export async function handleChannelPointReward(event: EventSubChannelRedemptionAddEvent) {
-  const channel = event.broadcasterName.toLowerCase() === "testbroadcaster" ? "askowbol" : event.broadcasterName.toLowerCase();
+export async function handleChannelPointReward(event: any) {
+  const broadcasterLogin = event.broadcaster_user_login.toLowerCase() || event.broadcaster_user_name?.toLowerCase();
+  const channel = broadcasterLogin === "testbroadcaster" ? "askowbol" : broadcasterLogin;
 
-  const rewardTitle = event.rewardTitle;
-  const userName = event.userName;
-  const userInput = event.input;
-  const cost = event.rewardCost;
+  if (!channel) {
+    console.error("[channel-point-reward] No broadcaster information in event:", event);
+    return;
+  }
+
+  const rewardTitle = event.reward?.title;
+  const userName = event.user_name;
+  const userInput = event.user_input;
+  const cost = event.reward?.cost;
 
   // Handle different reward types based on title
   switch (rewardTitle?.toLowerCase()) {

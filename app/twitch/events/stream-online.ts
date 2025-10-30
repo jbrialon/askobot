@@ -3,18 +3,23 @@ import askOS from "../../core/askOS.ts";
 import { setStreamOnline, getChannelData, type ChannelData } from "../channel-data.ts";
 import discordBot from "../../discord/discord-bot.ts";
 import { EmbedBuilder } from "discord.js";
-import { EventSubStreamOnlineEvent } from "@twurple/eventsub-base";
 import config from "../../../config.js";
 
-export async function handleStreamOnline(event: EventSubStreamOnlineEvent) {
-  const channel = event.broadcasterName.toLowerCase() === "testbroadcaster" ? "askowbol" : event.broadcasterName.toLowerCase();
+export async function handleStreamOnline(event: any) {
+  const broadcasterLogin = event.broadcaster_user_login.toLowerCase() || event.broadcaster_user_name?.toLowerCase();
+  const channel = broadcasterLogin === "testbroadcaster" ? "askowbol" : broadcasterLogin;
+
+  if (!channel) {
+    console.error("[stream-online] No broadcaster information in event:", event);
+    return;
+  }
 
   // Update channel data with stream online status
   await setStreamOnline(channel);
 
   log.info({
     user: "EventSub",
-    message: `Stream online: ${event.broadcasterDisplayName} at ${event.startDate.toISOString()}`,
+    message: `Stream online: ${event.broadcaster_user_name} at ${event.started_at}`,
     channel: channel,
   });
 
