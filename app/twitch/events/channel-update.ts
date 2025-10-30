@@ -1,23 +1,26 @@
 import { log } from "../../utils/log.js";
+import { updateChannelInfo } from "../channel-data.ts";
 
-// TODO: use this to give more context to askobot
 export async function handleChannelUpdate(event: any) {
-  let channel = event?.broadcaster_user_login?.toLowerCase();
+  const broadcasterLogin = event.broadcaster_user_login.toLowerCase() || event.broadcaster_user_name?.toLowerCase();
+  const channel = broadcasterLogin === "testbroadcaster" ? "askowbol" : broadcasterLogin;
 
-  // Test mode when we are testing from twitch-cli
-  if (channel === "testbroadcaster") {
-    channel = "askowbol";
+  if (!channel) {
+    console.error("[channel-update] No broadcaster information in event:", event);
+    return;
   }
 
-  const broadcasterName = event?.broadcaster_user_name;
-  const title = event?.title; // Stream title
-  const categoryName = event?.category_name; // Game Name
-  const categoryId = event?.category_id; // Game/category ID
-  const language = event?.language; // Stream language (en, fr...)
+  // Update channel data with new info
+  updateChannelInfo(channel, {
+    displayName: event.broadcaster_user_name,
+    title: event.title,
+    gameName: event.category_name,
+    gameId: event.category_id,
+  });
 
   log.info({
     user: "EventSub",
-    message: `Channel update: ${broadcasterName} - "${title}" | ${categoryName}`,
+    message: `Channel update: ${event.broadcaster_user_name} - "${event.title}" | ${event.category_name}`,
     channel: channel,
   });
 }

@@ -1,18 +1,21 @@
 import { log } from "../../utils/log.js";
+import { setStreamOffline } from "../channel-data.ts";
 
 export async function handleStreamOffline(event: any) {
-  let channel = event?.broadcaster_user_login?.toLowerCase();
+  const broadcasterLogin = event.broadcaster_user_login.toLowerCase() || event.broadcaster_user_name?.toLowerCase();
+  const channel = broadcasterLogin === "testbroadcaster" ? "askowbol" : broadcasterLogin;
 
-  // Test mode when we are testing from twitch-cli
-  if (channel === "testbroadcaster") {
-    channel = "askowbol";
+  if (!channel) {
+    console.error("[stream-offline] No broadcaster information in event:", event);
+    return;
   }
 
-  const broadcasterName = event?.broadcaster_user_name;
+  // Update channel data with stream offline status
+  setStreamOffline(channel);
 
   log.info({
     user: "EventSub",
-    message: `Stream offline: ${broadcasterName}`,
+    message: `Stream offline: ${event.broadcaster_user_name}`,
     channel: channel,
   });
 }

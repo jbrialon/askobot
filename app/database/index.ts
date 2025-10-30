@@ -13,7 +13,7 @@ export async function setupDatabase() {
     expires_in INTEGER NOT NULL);
   `);
 
-  console.log("Database setup complete");
+  console.log("[Database] Setup complete");
 }
 
 export async function getAuthenticatedUserIds(): Promise<string[]> {

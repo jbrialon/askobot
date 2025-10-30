@@ -2,17 +2,18 @@ import { log } from "../../utils/log.js";
 import askobot from "../../services/askobot.ts";
 
 export async function handleChannelPointReward(event: any) {
-  let channel = event?.broadcaster_user_login?.toLowerCase();
+  const broadcasterLogin = event.broadcaster_user_login.toLowerCase() || event.broadcaster_user_name?.toLowerCase();
+  const channel = broadcasterLogin === "testbroadcaster" ? "askowbol" : broadcasterLogin;
 
-  // Test mode when we are testing from twitch-cli
-  if (channel === "testbroadcaster") {
-    channel = "askowbol";
+  if (!channel) {
+    console.error("[channel-point-reward] No broadcaster information in event:", event);
+    return;
   }
 
-  const rewardTitle = event?.reward?.title;
-  const userName = event?.user_name;
-  const userInput = event?.user_input;
-  const cost = event?.reward?.cost;
+  const rewardTitle = event.reward?.title;
+  const userName = event.user_name;
+  const userInput = event.user_input;
+  const cost = event.reward?.cost;
 
   // Handle different reward types based on title
   switch (rewardTitle?.toLowerCase()) {
