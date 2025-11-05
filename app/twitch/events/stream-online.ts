@@ -5,7 +5,13 @@ import discordBot from "../../discord/discord-bot.ts";
 import { EmbedBuilder } from "discord.js";
 import config from "../../../config.js";
 
+/**
+ * Handles the stream.online EventSub notification when a broadcaster goes live.
+ *
+ * @param event - EventSub stream.online event payload containing broadcaster information
+ */
 export async function handleStreamOnline(event: any) {
+  // Extract broadcaster login, handling test events from Twitch CLI
   const broadcasterLogin = event.broadcaster_user_login.toLowerCase() || event.broadcaster_user_name?.toLowerCase();
   const channel = broadcasterLogin === "testbroadcaster" ? "askowbol" : broadcasterLogin;
 
@@ -23,15 +29,19 @@ export async function handleStreamOnline(event: any) {
     channel: channel,
   });
 
-  // Send Discord notification if configured
+  // Send Discord notification with AskOS-generated message if configured for this channel
   const channelConfig = config.channels.find((c) => c.twitchChannel === channel);
   if (channelConfig?.discordNotifications) {
     await sendDiscordNotification(channel, channelConfig.discordNotifications);
   }
-
-  // TODO: Update bot status
 }
 
+/**
+ * Sends a Discord notification when a stream goes live.
+ *
+ * @param channel - Twitch channel name (lowercase)
+ * @param notificationConfig - Discord server and channel IDs for the notification
+ */
 async function sendDiscordNotification(channel: string, notificationConfig: { guildId: string; channelId: string }) {
   const { guildId, channelId } = notificationConfig;
   const channelData = await getChannelData(channel);
@@ -41,6 +51,7 @@ async function sendDiscordNotification(channel: string, notificationConfig: { gu
     return;
   }
 
+  // Build event context for AI to generate personalized stream announcement
   const eventData = buildEventData(channelData);
   const { message } = await askOS.reactToEvent({
     channel,
@@ -49,10 +60,17 @@ async function sendDiscordNotification(channel: string, notificationConfig: { gu
     platform: "twitch",
   });
 
+  // Create Discord embed with stream information and send notification
   const embed = buildDiscordEmbed(channel, channelData);
   await discordBot.say(guildId, channelId, message, [embed]);
 }
 
+/**
+ * Builds the event context string for AskOS to generate an appropriate stream announcement.
+ *
+ * @param channelData - Channel information including display name, game/category, and stream details
+ * @returns Prompt string instructing AskOS how to announce the stream
+ */
 function buildEventData(channelData: ChannelData): string {
   const { displayName, gameName, isGame } = channelData;
   const contentType = isGame ? "game" : "category";
@@ -61,6 +79,10 @@ function buildEventData(channelData: ChannelData): string {
     ? `${displayName} has started the twitch live on the ${contentType} ${gameName}, give us a lot of details including spoils about the played game and encourage us to go see the live`
     : `${displayName} has started the twitch live and is doing ${gameName}, give us details about this streaming content`;
 }
+
+/**
+ * build Discord Embed
+ */
 
 function buildDiscordEmbed(channel: string, channelData: ChannelData): EmbedBuilder {
   const { displayName, profilePictureUrl, title, gameName, gameThumbnail, thumbnail, isGame } = channelData;

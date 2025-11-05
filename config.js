@@ -37,10 +37,5 @@ export default {
       maxChar: 200,
       battletag: "yanousama",
     },
-    {
-      twitchChannel: "mat_hkb",
-      maxChar: 200,
-      battletag: "Mathkb",
-    },
   ],
 };
