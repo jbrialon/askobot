@@ -1,6 +1,7 @@
 import { log } from "../../utils/log.js";
 import askOS from "../../core/askOS.ts";
 import { getChannelData } from "../channel-data.ts";
+import chatBot from "../chat-bot.ts";
 
 export async function handleChannelRaid(event: any) {
   const broadcasterLogin = event.broadcaster_user_login?.toLowerCase() || event.broadcaster_user_name?.toLowerCase();
@@ -25,8 +26,8 @@ export async function handleChannelRaid(event: any) {
     channel,
   });
 
-  // Only react to raids with more than 10 viewers
-  if (viewers <= 10) {
+  // Only react to raids with more than 5 viewers
+  if (viewers <= 5) {
     return;
   }
 
@@ -36,11 +37,14 @@ export async function handleChannelRaid(event: any) {
     const response = await askOS.reactToEvent({
       channel,
       eventType: "stream has received a raid",
-      eventData: `${channel} has received a raid from ${from} with ${viewers} viewers, welcome them and explain them what we are doing here`,
+      eventData: `${channel} has received a raid from @${from} with ${viewers} viewers, thank him, welcome them and explain them what we are doing here`,
     });
 
     if (response?.message) {
-      // bot says..
+      chatBot.say(channel, {
+        ...response,
+        emoji: "🎉",
+      });
     }
   }
 }

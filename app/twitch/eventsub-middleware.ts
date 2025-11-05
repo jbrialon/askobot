@@ -6,6 +6,7 @@ import { handleStreamOnline } from "./events/stream-online.ts";
 import { handleStreamOffline } from "./events/stream-offline.ts";
 import { handleChannelPointReward } from "./events/channel-point-reward.ts";
 import { handleChannelUpdate } from "./events/channel-update.ts";
+import { handleChannelRaid } from "./events/channel-raid.ts";
 
 interface EventSubEvent {
   subscription: {
@@ -160,11 +161,7 @@ async function handleEventSubNotification(eventData: EventSubEvent) {
       break;
 
     case "channel.raid":
-      log.info({
-        user: "EventSub",
-        message: `Raid: ${event?.from_broadcaster_user_name} with ${event?.viewers} viewers`,
-        channel: channel,
-      });
+      await handleChannelRaid(event);
       break;
 
     case "stream.online":

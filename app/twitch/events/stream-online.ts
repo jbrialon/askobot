@@ -1,9 +1,12 @@
 import { log } from "../../utils/log.js";
 import askOS from "../../core/askOS.ts";
-import { setStreamOnline, getChannelData, type ChannelData } from "../channel-data.ts";
+import chatBot from "../chat-bot.ts";
+import { setStreamOnline, type ChannelData } from "../channel-data.ts";
 import discordBot from "../../discord/discord-bot.ts";
 import { EmbedBuilder } from "discord.js";
 import config from "../../../config.js";
+
+const EVENT_STREAM_ONLINE = "stream.online";
 
 /**
  * Handles the stream.online EventSub notification when a broadcaster goes live.
@@ -21,7 +24,7 @@ export async function handleStreamOnline(event: any) {
   }
 
   // Update channel data with stream online status
-  await setStreamOnline(channel);
+  const channelData = await setStreamOnline(channel);
 
   log.info({
     user: "EventSub",
@@ -29,10 +32,25 @@ export async function handleStreamOnline(event: any) {
     channel: channel,
   });
 
+  const response = await askOS.reactToEvent({
+    channel,
+    eventType: EVENT_STREAM_ONLINE,
+    eventData: `generate a system like message that the live has started and you are recording the session data, mimic recording on tape sound`,
+    platform: "twitch",
+  });
+
+  if (response?.message) {
+    chatBot.say(channel, {
+      ...response,
+      emoji: "🚨",
+    });
+  }
+
   // Send Discord notification with AskOS-generated message if configured for this channel
   const channelConfig = config.channels.find((c) => c.twitchChannel === channel);
+
   if (channelConfig?.discordNotifications) {
-    await sendDiscordNotification(channel, channelConfig.discordNotifications);
+    await sendDiscordNotification(channel, channelConfig.discordNotifications, channelData);
   }
 }
 
@@ -42,9 +60,12 @@ export async function handleStreamOnline(event: any) {
  * @param channel - Twitch channel name (lowercase)
  * @param notificationConfig - Discord server and channel IDs for the notification
  */
-async function sendDiscordNotification(channel: string, notificationConfig: { guildId: string; channelId: string }) {
+async function sendDiscordNotification(
+  channel: string,
+  notificationConfig: { guildId: string; channelId: string },
+  channelData: ChannelData,
+) {
   const { guildId, channelId } = notificationConfig;
-  const channelData = await getChannelData(channel);
 
   if (!channelData) {
     console.error(`[stream-online] Channel data not found for ${channel}`);
@@ -55,7 +76,7 @@ async function sendDiscordNotification(channel: string, notificationConfig: { gu
   const eventData = buildEventData(channelData);
   const { message } = await askOS.reactToEvent({
     channel,
-    eventType: "stream has come online",
+    eventType: EVENT_STREAM_ONLINE,
     eventData,
     platform: "twitch",
   });
