@@ -193,4 +193,15 @@ export const communityMembers: CommunityMember[] = [
     ],
     gender: "man",
   },
+  {
+    name: "DDYDLS",
+    alias: [],
+    keywords: ["celeste", "speedrun"],
+    descriptions: [
+      "Dumb person making anyone else dumber by asking stupid questions. Doomer before its time, can't be killed. If his shitpost had a face, you'd kick it in the groin.",
+      "Speedrun commentary legend and The Binding of Isaac runner whose shitposting abilities are matched only by his ability to make everyone dumber. A doomer who cannot be killed.",
+      "Psychedelic streamer and Celeste speedrunner bringing trippy vibes to chat. Professional asker of stupid questions that somehow enlighten through confusion.",
+    ],
+    gender: "man",
+  },
 ];

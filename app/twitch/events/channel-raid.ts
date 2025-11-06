@@ -4,7 +4,7 @@ import { getChannelData } from "../channel-data.ts";
 import chatBot from "../chat-bot.ts";
 
 export async function handleChannelRaid(event: any) {
-  const broadcasterLogin = event.broadcaster_user_login?.toLowerCase() || event.broadcaster_user_name?.toLowerCase();
+  const broadcasterLogin = event.to_broadcaster_user_login?.toLowerCase() || event.to_broadcaster_user_name?.toLowerCase();
   const channel = broadcasterLogin === "testbroadcaster" ? "askowbol" : broadcasterLogin;
 
   const from = event?.from_broadcaster_user_name;
