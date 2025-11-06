@@ -33,7 +33,6 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   await setupDatabase();
-  await initChannelData();
 
   // init express server
   const app = express();
@@ -78,14 +77,13 @@ async function startServer() {
   const socket = new Socket({ server, chatBot, voice, askobot });
 
   // Wait for Discord bot to be ready, then log final success message
-  await new Promise((resolve) => {
-    discordBot.once("ready", resolve);
-  });
-
-  log.success({
-    user: "System",
-    message: "🚀 Askowbot Launch success 🚀",
-    channel: "system",
+  discordBot.once("ready", async () => {
+    await initChannelData();
+    log.success({
+      user: "System",
+      message: "🚀 Askowbot Launch success 🚀",
+      channel: "system",
+    });
   });
 }
 

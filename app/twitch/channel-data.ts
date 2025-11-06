@@ -231,7 +231,7 @@ export function updateChannelData(channel: string, data: Partial<ChannelData>): 
  * Set a channel as online (called from stream.online event)
  * It's returning a promise because the event alone does not provide all the data we would need
  */
-export async function setStreamOnline(channel: string): Promise<void> {
+export async function setStreamOnline(channel: string): Promise<ChannelData> {
   const user = await apiClient.users.getUserByName(channel);
   if (!user) {
     throw new Error(`User not found: ${channel}`);
@@ -272,6 +272,8 @@ export async function setStreamOnline(channel: string): Promise<void> {
   }
 
   updateChannelData(channel, updateData);
+
+  return channelDataStore.get(channel.toLowerCase())!;
 }
 
 /**

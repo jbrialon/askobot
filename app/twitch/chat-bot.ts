@@ -6,7 +6,7 @@ import config from "../../config.js";
 import { commands } from "./commands/index.ts";
 import { log } from "../utils/log.js";
 
-export class ChatBot extends EventEmitter {
+class ChatBot extends EventEmitter {
   private config: typeof config;
   private channels: string[];
   private chatClient: ChatClient;

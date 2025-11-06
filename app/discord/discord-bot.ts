@@ -8,8 +8,8 @@ class DiscordBot extends EventEmitter {
   private client: Client;
   private clientId: string;
   private token: string;
-  private logGuildId: string;
-  private logsChannelId: string;
+  private logGuildId: string = "1157764771681144924";
+  private logsChannelId: string = "1158084205658517584";
   private commands: Collection<string, any>;
 
   constructor() {
@@ -17,10 +17,6 @@ class DiscordBot extends EventEmitter {
 
     this.clientId = process.env["DISCORD_CLIENT_ID"] as string;
     this.token = process.env["DISCORD_TOKEN"] as string;
-
-    // logs setup
-    this.logGuildId = "1157764771681144924" as string;
-    this.logsChannelId = "1158084205658517584" as string;
 
     if (!this.clientId || !this.token) {
       throw new Error("Missing DISCORD_CLIENT_ID or DISCORD_TOKEN environment variables");

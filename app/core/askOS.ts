@@ -43,6 +43,10 @@ class AskOS {
     const channelConfig = this.getChannelConfig(params.channel);
     const channelData = await getChannelData(params.channel);
 
+    if (!channelData) {
+      throw Error("[AskOS.generateResponse] could not get ChannelData ");
+    }
+
     const platform = params.platform || "twitch";
 
     // Get conversation history from MemoryCore
@@ -67,6 +71,10 @@ class AskOS {
   async reactToEvent(params: reactToEventParams): Promise<AskOSResponse> {
     const channelConfig = this.getChannelConfig(params.channel);
     const channelData = await getChannelData(params.channel);
+
+    if (!channelData) {
+      throw Error("[AskOS.reactToEvent] could not get ChannelData ");
+    }
 
     const platform = params.platform || "twitch";
 

@@ -2,6 +2,8 @@ import knowledgeCore from "./knowledgeCore.ts";
 import personalityCore from "./personalityCore.ts";
 import responseCore from "./responseCore.ts";
 import { genericContext } from "../tapes/contextTape.ts";
+
+import type { ChannelData } from "../../twitch/channel-data.ts";
 import type { ContextVars, ChannelConfig, BuildContextParams } from "../types.ts";
 
 /**
@@ -35,8 +37,8 @@ export class ContextCore {
    * Builds platform-specific information XML section
    * Returns Twitch channel info or empty string for Discord
    */
-  private buildPlatformInfo(platform: "twitch" | "discord", channelData: any): string {
-    if (platform === "twitch" && channelData) {
+  private buildPlatformInfo(platform: "twitch" | "discord", channelData: ChannelData): string {
+    if (platform === "twitch") {
       return `
     <twitch_channel_info>
       <title>${channelData.title}</title>
@@ -143,7 +145,7 @@ export class ContextCore {
    * Builds all context variables by collecting data from various cores
    * and generating context-specific information
    */
-  buildContextVars(params: BuildContextParams, channelConfig: ChannelConfig, channelData: any): ContextVars {
+  buildContextVars(params: BuildContextParams, channelConfig: ChannelConfig, channelData: ChannelData): ContextVars {
     // Platform
     const platform = params.platform || "twitch";
     const platformInfo = this.buildPlatformInfo(platform, channelData);
