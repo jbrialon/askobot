@@ -54,7 +54,7 @@ class ChatBot extends EventEmitter {
   // https://twurple.js.org/reference/chat/classes/ChatMessage.html
   private async handleMessage(channel: string, user: string, text: string, msg: ChatMessage) {
     // Skip messages from the bot itself
-    if (user.toLowerCase() === this.botName.toLowerCase()) {
+    if (user.toLowerCase() === this.botName.toLowerCase() || msg.isRedemption) {
       return;
     }
 
