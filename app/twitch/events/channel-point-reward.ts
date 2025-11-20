@@ -1,7 +1,13 @@
 import { log } from "../../utils/log.js";
 import askobot from "../../services/askobot.ts";
 
-export async function handleChannelPointReward(event: any) {
+export async function handleChannelPointReward(event: {
+  broadcaster_user_login: string;
+  broadcaster_user_name: string;
+  reward: { title: string; cost: number };
+  user_name: string;
+  user_input: string;
+}) {
   const broadcasterLogin = event.broadcaster_user_login.toLowerCase() || event.broadcaster_user_name?.toLowerCase();
   const channel = broadcasterLogin === "testbroadcaster" ? "askowbol" : broadcasterLogin;
 
@@ -12,7 +18,7 @@ export async function handleChannelPointReward(event: any) {
 
   const rewardTitle = event.reward?.title;
   const userName = event.user_name;
-  const userInput = event.user_input;
+  const userInput = event.user_input.replaceAll("!askowbot", "").replaceAll("!askobot", "");
   const cost = event.reward?.cost;
 
   // Handle different reward types based on title
