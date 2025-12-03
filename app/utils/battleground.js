@@ -8,8 +8,8 @@ import cards from "../../db/db.json" with { type: "json" };
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
 const TOP_PAGES = 8;
-const CURRENT_BG_SEASON = 16;
-const CURRENT_ARENA_SEASON = 2;
+const CURRENT_BG_SEASON = 17;
+const CURRENT_ARENA_SEASON = 4;
 const cache = new MemoryCache();
 
 export const CARD_TYPES = {
