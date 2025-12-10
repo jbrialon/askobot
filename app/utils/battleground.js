@@ -21,6 +21,7 @@ export const CARD_TYPES = {
   TRINKET: 44,
   COMPANION: 45,
   REWARD: 40,
+  TIMEWARP: 999,
 };
 
 export const MINION_TYPES = {
@@ -73,8 +74,6 @@ export const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_T
   let paramTwo = args[1];
 
   const cacheKey = [paramOne, paramTwo, leaderboardType];
-  // Alias mode (Cheat Mode) when we search for "Sheupluh" we display the results for "oliech"
-  const overrideName = paramOne === "Sheupluh" ? "oliech" : paramOne;
   const cachedLeaderboardData = cache.get(cacheKey);
   if (cachedLeaderboardData) {
     console.log("Cache hit");
@@ -96,7 +95,7 @@ export const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_T
   const seasonId = leaderboardType === LEADERBOARD_TYPES.ARENA ? CURRENT_ARENA_SEASON : CURRENT_BG_SEASON;
 
   // Attempt to parse paramOne as a number
-  const playerRankNumber = Number(overrideName);
+  const playerRankNumber = Number(paramOne);
 
   if (!isNaN(playerRankNumber)) {
     try {
@@ -110,9 +109,6 @@ export const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_T
       const player = playerPageData?.leaderboard?.rows?.[playerIndexInPage] || null; // Return null if index is out of range
 
       if (player) {
-        if (paramOne === "Sheupluh" && player) {
-          player.accountid = "Sheupluh";
-        }
         cache.set(cacheKey, player);
         return player;
       }
@@ -131,11 +127,8 @@ export const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_T
       const pageData = await fetchData(pageUrl);
 
       const players = pageData?.leaderboard?.rows || [];
-      const leaderboardData = findRankByAccountId(players, overrideName);
+      const leaderboardData = findRankByAccountId(players, paramOne);
       if (leaderboardData) {
-        if (paramOne === "Sheupluh" && leaderboardData) {
-          leaderboardData.accountid = "Sheupluh";
-        }
         cache.set(cacheKey, leaderboardData);
         return leaderboardData;
       }
@@ -190,19 +183,13 @@ export const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_T
       const index = playerRankNumber - 1; // Adjust for 1-based indexing
       const player = allPlayers[index] || null; // Return player or null if index is out of range
       if (player) {
-        if (paramOne === "Sheupluh" && player) {
-          player.accountid = "Sheupluh";
-        }
         cache.set(cacheKey, player);
       }
       return player;
-    } else if (typeof overrideName === "string") {
+    } else if (typeof paramOne === "string") {
       // paramOne is an account ID (string), find the rank by account ID
-      const leaderboardData = findRankByAccountId(allPlayers, overrideName);
+      const leaderboardData = findRankByAccountId(allPlayers, paramOne);
       if (leaderboardData) {
-        if (paramOne === "Sheupluh" && leaderboardData) {
-          leaderboardData.accountid = "Sheupluh";
-        }
         cache.set(cacheKey, leaderboardData);
       }
       return leaderboardData;
@@ -216,8 +203,16 @@ export const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_T
 };
 
 export const fetchCardData = (cardName, type) => {
+  // search keys based on card type
+  let searchKeys = ["name.en", "name.fr"];
+
+  // don't look up for buddies when looking for heroes (some share the same name)
+  if (type !== CARD_TYPES.HERO) {
+    searchKeys.push("companion.name");
+  }
+
   const options = {
-    keys: ["name.en", "name.fr", "companion.name"], // Fields to search - including companion names
+    keys: searchKeys,
     threshold: 0.3, // Lower threshold means stricter matches
     includeScore: true, // Include match score for sorting
   };
@@ -317,6 +312,7 @@ export const fetchAllCardData = async () => {
                     spell: cardTypeId === 42,
                     anomaly: cardTypeId === 43,
                     trinket: cardTypeId === 44,
+                    timewarp: cardTypeId === 999,
                     tavernTier: battlegrounds.tier,
                   }
                 : undefined;

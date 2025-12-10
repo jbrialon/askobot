@@ -55,7 +55,7 @@ export class ContextCore {
    */
   private isAskingAboutCommands(message: string): boolean {
     const lowerMessage = message.toLowerCase();
-    const commandKeywords = ["command", "commande", "cmd", "bgrank", "arenarank", "card", "hero", "trinket", "spell", "anomaly"];
+    const commandKeywords = ["command", "commande", "cmd", "bgrank", "arenarank", "card", "hero", "trinket", "spell", "anomaly", "timewarp", "warp", "chrono", "chronodistordu"];
 
     return commandKeywords.some((keyword) => lowerMessage.includes(keyword));
   }
@@ -94,6 +94,9 @@ export class ContextCore {
       </command>
       <command name="!anomaly">
         Get information about a Hearthstone anomaly
+      </command>
+      <command name="!timewarp" aliases="!warp, !chrono, !chronodistordu">
+        Get information about a Hearthstone timewarped card
       </command>
     </available_commands>`;
     }
