@@ -31,7 +31,7 @@ export const cardCommand: CommandHandler = {
       }
 
       return {
-        message: `${cardData.name.fr}: ${cardData.text}`,
+        message: `${cardData.name.fr} - T${cardData.battlegrounds.tavernTier}: ${cardData.text}`,
         emotion: "",
         animation: "",
         emoji: "🤖",

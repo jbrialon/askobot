@@ -6,6 +6,7 @@ import { heroCommand } from "./hero.ts";
 import { trinketCommand } from "./trinket.ts";
 import { questCommand } from "./quest.ts";
 import { spellCommand } from "./spell.ts";
+import { timewarpCommand } from "./timewarp.ts";
 import { anomalyCommand } from "./anomaly.ts";
 import { arenaRankCommand } from "./arena-rank.ts";
 
@@ -18,6 +19,7 @@ export const commands = [
   trinketCommand,
   questCommand,
   spellCommand,
+  timewarpCommand,
   anomalyCommand,
   arenaRankCommand,
 ];
