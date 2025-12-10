@@ -235,6 +235,9 @@ export const fetchCardData = (cardName, type) => {
     case CARD_TYPES.REWARD:
       dataset = cards.filter((card) => card.battlegrounds?.reward === true);
       break;
+    case CARD_TYPES.TIMEWARP:
+      dataset = cards.filter((card) => card.battlegrounds?.timewarp === true);
+      break;
     default:
       const minionCards = cards.filter(
         (card) =>
@@ -243,7 +246,8 @@ export const fetchCardData = (cardName, type) => {
           !card.battlegrounds?.reward &&
           !card.battlegrounds?.trinket &&
           !card.battlegrounds?.anomaly &&
-          !card.battlegrounds?.spell,
+          !card.battlegrounds?.spell &&
+          !card.battlegrounds?.timewarp,
       );
       const heroesWithCompanions = cards.filter((card) => card.battlegrounds?.hero === true && card.companion);
       dataset = [...minionCards, ...heroesWithCompanions];
