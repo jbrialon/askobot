@@ -14,7 +14,7 @@ export const timewarpCommand: CommandHandler = {
 
       if (!cardData) {
         return {
-          message: "Aucuns carte chronodistordue trouvé portant ce nom 🤔",
+          message: "Aucune carte chronodistordue trouvé portant ce nom 🤔",
           emotion: "",
           animation: "",
           emoji: "🤖",
