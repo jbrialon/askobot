@@ -47,21 +47,9 @@ async function startServer() {
     );
   }
 
-  // Serve static files from the front-end build directory
-  const distPath = path.join(__dirname, "..", "front", "dist");
-  app.use(express.static(distPath));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
-  const server = http.createServer(app);
-
-  server.listen(process.env["APP_PORT"], () => {
-    console.log(`Askobot Front End is running at ${process.env["APP_URL"]}`);
-  });
-
-  // Route for serving the index.html
-  app.get("/", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
+  // Route for serving Battlegrounds card data
+  app.get("/api/cards", (req, res) => {
+    res.sendFile(path.join(__dirname, "db", "db.json"));
   });
 
   // Route for oAuth token
@@ -69,6 +57,21 @@ async function startServer() {
 
   // Route for EventSub webhooks
   app.post("/eventsub", eventSubMiddleware);
+
+  // Serve static files from the front-end build directory
+  const distPath = path.join(__dirname, "front", "dist");
+  app.use(express.static(distPath));
+
+  // Catch-all route is last to avoid intercepting API routes
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
+
+  const server = http.createServer(app);
+
+  server.listen(process.env["APP_PORT"], () => {
+    console.log(`Askobot Front End is running at ${process.env["APP_URL"]}`);
+  });
 
   // EventSub manual cleanup
   // await cleanupEventSubSubscriptions();

@@ -3,7 +3,6 @@ import Fuse from "fuse.js";
 
 import { MemoryCache } from "../classes/memory-cache.js";
 import { getValidToken, cleanText } from "./utils.js";
-import cards from "../../db/db.json" with { type: "json" };
 
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
@@ -45,6 +44,54 @@ export const LEADERBOARD_TYPES = {
   ARENA: "undergroundarena",
 };
 
+/**
+ * Loads card data from the /api/cards endpoint
+ * Prevents duplicate concurrent requests but always fetches fresh data
+ */
+// Promise to track ongoing card data fetch (prevents duplicate concurrent requests)
+let cardsLoadPromise = null;
+
+const loadCardData = async () => {
+  // If already fetching, return the existing promise
+  if (cardsLoadPromise !== null) {
+    return cardsLoadPromise;
+  }
+
+  // Create new fetch promise
+  cardsLoadPromise = (async () => {
+    try {
+      let apiUrl = process.env["APP_URL"];
+
+      // In development, append the port to the URL
+      if (process.env["APP_ENV"] === "development") {
+        const port = process.env["APP_PORT"];
+        apiUrl = `${apiUrl}:${port}`;
+      }
+
+      const response = await fetch(`${apiUrl}/api/cards`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error loading card data:", error);
+      throw error;
+    } finally {
+      cardsLoadPromise = null;
+    }
+  })();
+
+  return cardsLoadPromise;
+};
+
+/**
+ * Finds a player in the leaderboard by their account ID
+ * @param {Array<Object>} allPlayers - Array of all player objects from the leaderboard
+ * @param {string} accountId - The account ID to search for
+ */
 const findRankByAccountId = (allPlayers, accountId) => {
   // Find the player object that matches the accountId
   const player = allPlayers.find((player) => player.accountid.toLowerCase() === accountId.toLowerCase());
@@ -53,7 +100,11 @@ const findRankByAccountId = (allPlayers, accountId) => {
   return player ? player : null;
 };
 
-// Function to fetch data using node-fetch and return a Promise
+/**
+ * Fetches data from a URL and returns the JSON response
+ * @param {string} url - The URL to fetch data from
+ * @throws {Error} If the HTTP request fails
+ */
 const fetchData = async (url) => {
   try {
     const response = await fetch(url);
@@ -68,7 +119,15 @@ const fetchData = async (url) => {
   }
 };
 
-// Main function to fetch leaderboard data for the first 100 players
+/**
+ * Fetches leaderboard data for a specific player by rank number or account ID
+ * @param {Array<string>} args - Array containing [playerRankOrAccountId, region]
+ * @param {string} [leaderboardType=LEADERBOARD_TYPES.BATTLEGROUNDS] - Type of leaderboard to query
+ * @description
+ * - First parameter can be a rank number (1-based) or an account ID
+ * - Second parameter is the region (EU, US, AP). Defaults to EU if not provided
+ * - Results are cached to improve performance
+ */
 export const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_TYPES.BATTLEGROUNDS) => {
   const paramOne = args[0];
   let paramTwo = args[1];
@@ -202,7 +261,19 @@ export const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_T
   }
 };
 
-export const fetchCardData = (cardName, type) => {
+/**
+ * Searches for a card by name using fuzzy matching
+ * @param {string} cardName - The name of the card to search for (supports French and English)
+ * @param {number} type - The card type to filter by (use CARD_TYPES constants)
+ * @description
+ * - Uses Fuse.js for fuzzy string matching with a threshold of 0.3
+ * - Searches in both French and English card names
+ * - Filters cards by type before searching for better accuracy
+ */
+export const fetchCardData = async (cardName, type) => {
+  // Ensure card data is loaded
+  const cardData = await loadCardData();
+
   // search keys based on card type
   let searchKeys = ["name.en", "name.fr"];
 
@@ -221,25 +292,25 @@ export const fetchCardData = (cardName, type) => {
   let dataset;
   switch (type) {
     case CARD_TYPES.HERO:
-      dataset = cards.filter((card) => card.battlegrounds?.hero === true && !card.battlegrounds?.quest && !card.battlegrounds?.reward);
+      dataset = cardData.filter((card) => card.battlegrounds?.hero === true && !card.battlegrounds?.quest && !card.battlegrounds?.reward);
       break;
     case CARD_TYPES.TRINKET:
-      dataset = cards.filter((card) => card.battlegrounds?.trinket === true);
+      dataset = cardData.filter((card) => card.battlegrounds?.trinket === true);
       break;
     case CARD_TYPES.ANOMALY:
-      dataset = cards.filter((card) => card.battlegrounds?.anomaly === true);
+      dataset = cardData.filter((card) => card.battlegrounds?.anomaly === true);
       break;
     case CARD_TYPES.SPELL:
-      dataset = cards.filter((card) => card.battlegrounds?.spell === true);
+      dataset = cardData.filter((card) => card.battlegrounds?.spell === true);
       break;
     case CARD_TYPES.REWARD:
-      dataset = cards.filter((card) => card.battlegrounds?.reward === true);
+      dataset = cardData.filter((card) => card.battlegrounds?.reward === true);
       break;
     case CARD_TYPES.TIMEWARP:
-      dataset = cards.filter((card) => card.battlegrounds?.timewarp === true);
+      dataset = cardData.filter((card) => card.battlegrounds?.timewarp === true);
       break;
     default:
-      const minionCards = cards.filter(
+      const minionCards = cardData.filter(
         (card) =>
           !card.battlegrounds?.hero &&
           !card.battlegrounds?.quest &&
@@ -249,7 +320,7 @@ export const fetchCardData = (cardName, type) => {
           !card.battlegrounds?.spell &&
           !card.battlegrounds?.timewarp,
       );
-      const heroesWithCompanions = cards.filter((card) => card.battlegrounds?.hero === true && card.companion);
+      const heroesWithCompanions = cardData.filter((card) => card.battlegrounds?.hero === true && card.companion);
       dataset = [...minionCards, ...heroesWithCompanions];
   }
 
@@ -267,16 +338,14 @@ export const fetchCardData = (cardName, type) => {
   return results[0].item;
 };
 
+/**
+ * Fetches all Battlegrounds card data from the Blizzard API
+ * @description
+ * - Fetches cards in both French and English locales
+ * - Merges card data by slug to combine translations
+ * - Includes companion, upgrade (golden), and hero power data
+ */
 export const fetchAllCardData = async () => {
-  // Battlegrounds Card Type:
-  // 3  - Hero
-  // 4  - Minion
-  // 10 - Hero Power
-  // 42 - Spell
-  // 43 - Anomaly
-  // 44 - Trinket
-  // 45 - Companion
-
   const token = await getValidToken();
   const baseUrls = [
     `https://eu.api.blizzard.com/hearthstone/cards?locale=fr_FR&gameMode=battlegrounds`,

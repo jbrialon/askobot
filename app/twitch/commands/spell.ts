@@ -10,7 +10,7 @@ export const spellCommand: CommandHandler = {
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const spellName = params.join(" ");
-      const spellData = fetchCardData(spellName, CARD_TYPES.SPELL);
+      const spellData = await fetchCardData(spellName, CARD_TYPES.SPELL);
 
       if (!spellData) {
         return {

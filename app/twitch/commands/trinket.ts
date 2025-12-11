@@ -10,7 +10,7 @@ export const trinketCommand: CommandHandler = {
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const trinketName = params.join(" ");
-      const trinketData = fetchCardData(trinketName, CARD_TYPES.TRINKET);
+      const trinketData = await fetchCardData(trinketName, CARD_TYPES.TRINKET);
 
       if (!trinketData) {
         return {

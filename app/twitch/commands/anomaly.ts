@@ -10,7 +10,7 @@ export const anomalyCommand: CommandHandler = {
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const anomalyName = params.join(" ");
-      const anomalyData = fetchCardData(anomalyName, CARD_TYPES.ANOMALY);
+      const anomalyData = await fetchCardData(anomalyName, CARD_TYPES.ANOMALY);
 
       if (!anomalyData) {
         return {
