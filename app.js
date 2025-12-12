@@ -30,6 +30,8 @@ import { log } from "./app/utils/log.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// if project is running from dist/ or dev mode
+const projectRoot = __dirname.endsWith("dist") ? path.join(__dirname, "..") : __dirname;
 
 async function startServer() {
   await setupDatabase();
@@ -49,7 +51,7 @@ async function startServer() {
 
   // Route for serving Battlegrounds card data
   app.get("/api/cards", (req, res) => {
-    res.sendFile(path.join(__dirname, "db", "db.json"));
+    res.sendFile(path.join(projectRoot, "db", "db.json"));
   });
 
   // Route for oAuth token
@@ -59,7 +61,7 @@ async function startServer() {
   app.post("/eventsub", eventSubMiddleware);
 
   // Serve static files from the front-end build directory
-  const distPath = path.join(__dirname, "front", "dist");
+  const distPath = path.join(projectRoot, "front", "dist");
   app.use(express.static(distPath));
 
   // Catch-all route is last to avoid intercepting API routes
