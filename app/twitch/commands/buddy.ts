@@ -10,7 +10,7 @@ export const buddyCommand: CommandHandler = {
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const heroName = params.join(" ");
-      const heroData = fetchCardData(heroName, CARD_TYPES.HERO);
+      const heroData = await fetchCardData(heroName, CARD_TYPES.HERO);
 
       if (!heroData || !heroData.companion) {
         return {

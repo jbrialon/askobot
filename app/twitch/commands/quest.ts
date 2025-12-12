@@ -10,7 +10,7 @@ export const questCommand: CommandHandler = {
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const questName = params.join(" ");
-      const questData = fetchCardData(questName, CARD_TYPES.REWARD);
+      const questData = await fetchCardData(questName, CARD_TYPES.REWARD);
 
       if (!questData) {
         return {

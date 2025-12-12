@@ -10,7 +10,7 @@ export const cardCommand: CommandHandler = {
   execute: async (_channel: string, _user: string, params: string[], _msg: ChatMessage): Promise<CommandResponse> => {
     try {
       const cardName = params.join(" ");
-      const cardData = fetchCardData(cardName, CARD_TYPES.MINION);
+      const cardData = await fetchCardData(cardName, CARD_TYPES.MINION);
 
       if (!cardData) {
         return {
