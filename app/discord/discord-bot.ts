@@ -218,6 +218,10 @@ class DiscordBot extends EventEmitter {
   private connect() {
     this.client.login(this.token);
   }
+
+  public async disconnect() {
+    await this.client.destroy();
+  }
 }
 
 const discordBot = new DiscordBot();
