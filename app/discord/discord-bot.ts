@@ -2,6 +2,7 @@ import { EventEmitter } from "events";
 import { Client, Collection, Events, GatewayIntentBits, MessageFlags, REST, Routes, EmbedBuilder } from "discord.js";
 
 import { commands } from "./commands/index.ts";
+import { getCommandsData } from "./utils/get-commands-data.ts";
 
 // guild = discord server
 class DiscordBot extends EventEmitter {
@@ -27,59 +28,9 @@ class DiscordBot extends EventEmitter {
     });
     this.commands = new Collection();
 
-    // this.deleteCommands();
-    // this.deployCommands();
     this.setupCommands();
     this.setupEventHandlers();
     this.connect();
-  }
-
-  private async deployCommands() {
-    const commandsData = this.getCommandsData();
-
-    const rest = new REST().setToken(this.token);
-
-    try {
-      console.log(`Started refreshing ${commandsData.length} application (/) commands across all guilds.`);
-
-      // Wait for client to be ready before accessing guilds
-      await new Promise((resolve) => {
-        if (this.client.isReady()) {
-          resolve(undefined);
-        } else {
-          this.client.once(Events.ClientReady, () => resolve(undefined));
-        }
-      });
-
-      console.log(`Askobot is in ${this.client.guilds.cache.size} guilds`);
-
-      // Deploy to each guild
-      let deployedCount = 0;
-      for (const guild of this.client.guilds.cache.values()) {
-        try {
-          await rest.put(Routes.applicationGuildCommands(this.clientId, guild.id), {
-            body: commandsData,
-          });
-          console.log(`Deployed commands to ${guild.name} (${guild.id})`);
-          deployedCount++;
-        } catch (error) {
-          console.error(`Failed to deploy to ${guild.name}:`, error instanceof Error ? error.message : String(error));
-        }
-      }
-
-      console.log(`Successfully deployed commands to ${deployedCount}/${this.client.guilds.cache.size} guilds.`);
-    } catch (error) {
-      console.error("Error deploying commands:", error);
-    }
-  }
-
-  private deleteCommands() {
-    const rest = new REST().setToken(this.token);
-
-    rest
-      .put(Routes.applicationCommands(this.clientId), { body: [] })
-      .then(() => console.log("Successfully deleted all application commands."))
-      .catch(console.error);
   }
 
   private setupCommands() {
@@ -91,22 +42,6 @@ class DiscordBot extends EventEmitter {
         console.log(`[WARNING] A command is missing a required "data" or "execute" property.`);
       }
     }
-  }
-
-  private getCommandsData() {
-    const commandsData = [];
-    for (const command of commands) {
-      if ("data" in command && "execute" in command) {
-        try {
-          commandsData.push(command.data.toJSON());
-        } catch (error) {
-          console.error(`Error preparing command:`, command, error);
-        }
-      } else {
-        console.log(`[WARNING] A command is missing a required "data" or "execute" property.`);
-      }
-    }
-    return commandsData;
   }
 
   private setupEventHandlers() {
@@ -156,7 +91,7 @@ class DiscordBot extends EventEmitter {
   private async handleGuildJoin(guild: any) {
     console.log(`Joined new guild: ${guild.name} (${guild.id})`);
 
-    const commandsData = this.getCommandsData();
+    const commandsData = getCommandsData();
 
     const rest = new REST().setToken(this.token);
 
