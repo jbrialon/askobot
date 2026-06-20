@@ -14,14 +14,6 @@ export class AskobotCommand implements CommandHandler {
     return config.channels.find((channel) => channel.discordGuild && channel.discordGuild.includes(guildId));
   }
 
-  private convertMentionsToDiscordFormat(message: string, interaction: ChatInputCommandInteraction): string {
-    const mentionRegex = /@([\w\u00C0-\u017F]+)/g;
-
-    return message.replace(mentionRegex, () => {
-      return `<@${interaction.user.id}>`;
-    });
-  }
-
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
     const guildId = interaction.guild?.id;
     if (!guildId) {
@@ -44,10 +36,9 @@ export class AskobotCommand implements CommandHandler {
 
     try {
       const response = await askobot.generateResponse(channel, displayName, question, "discord");
-      const message = this.convertMentionsToDiscordFormat(response.message, interaction);
 
       await interaction.editReply({
-        content: `*${question}*\n**${message}**`,
+        content: `*${question}*\n**${response.message}**`,
       });
     } catch (error) {
       console.error("Error generating response:", error);
