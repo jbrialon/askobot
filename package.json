@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.12.2",
+    "@mistralai/mistralai": "^2.2.6",
     "@twurple/api": "^7.3.0",
     "@twurple/auth": "^7.3.0",
     "@twurple/chat": "^7.3.0",
@@ -27,7 +28,6 @@
     "http": "^0.0.1-security",
     "jsonrepair": "^3.12.0",
     "node-fetch": "^3.3.2",
-    "openai": "^6.1.0",
     "pg": "^8.16.0",
     "prettier": "^3.4.2",
     "socket.io": "^4.8.1",

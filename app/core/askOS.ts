@@ -1,7 +1,6 @@
-import OpenAI from "openai";
+import { Mistral } from "@mistralai/mistralai";
 import { getChannelData } from "../twitch/channel-data.ts";
 import { jsonrepair } from "jsonrepair";
-import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 import config from "../../config.js";
@@ -14,7 +13,7 @@ import memoryCore from "./cores/memoryCore.ts";
  * AskOS v0.1alpha
  *
  * The central AI operating system for Askobot. Coordinates all personality cores
- * and manages conversation generation through OpenAI integration.
+ * and manages conversation generation through Mistral AI integration.
  *
  * Core Systems:
  * - ContextCore: Context and prompt variable management
@@ -28,14 +27,13 @@ import memoryCore from "./cores/memoryCore.ts";
  */
 
 class AskOS {
-  private openai: OpenAI;
+  private mistral: Mistral;
   private model: string;
 
   constructor() {
-    this.model = "gpt-5-mini-2025-08-07";
-    this.openai = new OpenAI({
-      organization: process.env["ORGKEY"],
-      apiKey: process.env["APIKEY"],
+    this.model = "mistral-medium-latest";
+    this.mistral = new Mistral({
+      apiKey: process.env["MISTRAL_API_KEY"],
     });
   }
 
@@ -59,8 +57,7 @@ class AskOS {
     );
     const input = this.buildInputMessages(params, contextVars, history);
     const outputSchema = responseCore.createOutputSchema();
-
-    const response = await this.callOpenAI(input, outputSchema);
+    const response = await this.callMistral(input, outputSchema);
 
     // Store conversation in MemoryCore
     memoryCore.addConversation(params.channel, params.user, params.message, response.message, params.platform);
@@ -87,7 +84,7 @@ class AskOS {
     const input = this.buildEventInputMessages(contextVars);
     const outputSchema = responseCore.createOutputSchema();
 
-    const response = await this.callOpenAI(input, outputSchema);
+    const response = await this.callMistral(input, outputSchema);
 
     // TODO Maybe this should be store in memory aswell?
     return response;
@@ -127,33 +124,23 @@ class AskOS {
     ];
   }
 
-  private async callOpenAI(input: any[], outputSchema: z.ZodType): Promise<AskOSResponse> {
-    const responseFormat = zodResponseFormat(outputSchema, "structured_output");
-
-    const options: any = {
-      model: this.model,
-      input,
-      reasoning: {
-        effort: "minimal",
-        summary: null,
-      },
-      text: {
-        verbosity: "low",
-        format: {
-          type: "json_schema" as const,
-          name: responseFormat.json_schema.name,
-          schema: responseFormat.json_schema.schema,
-          strict: responseFormat.json_schema.strict,
-        },
-      },
-    };
-
+  private async callMistral(input: any[], outputSchema: z.ZodType): Promise<AskOSResponse> {
     try {
-      const response = await this.openai.responses.create(options);
-      const content = response.output_text;
+      const response = await this.mistral.chat.parse({
+        model: this.model,
+        messages: input,
+        responseFormat: outputSchema,
+        temperature: 0.7,
+      });
 
-      if (!content) {
-        throw new Error("No output_text in API response");
+      const parsed = response.choices?.[0]?.message?.parsed;
+      if (parsed) {
+        return parsed as AskOSResponse;
+      }
+
+      const content = response.choices?.[0]?.message?.content;
+      if (!content || typeof content !== "string") {
+        throw new Error("No content in API response");
       }
 
       const repairedContent = jsonrepair(content);

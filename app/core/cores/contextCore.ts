@@ -34,17 +34,12 @@ export class ContextCore {
   }
 
   /**
-   * Builds platform-specific information XML section
+   * Builds platform-specific information Markdown section
    * Returns Twitch channel info or empty string for Discord
    */
   private buildPlatformInfo(platform: "twitch" | "discord", channelData: ChannelData): string {
     if (platform === "twitch") {
-      return `
-    <twitch_channel_info>
-      <title>${channelData.title}</title>
-      <game>${channelData.gameName}</game>
-      <description>${channelData.description}</description>
-    </twitch_channel_info>`;
+      return `## Twitch Channel Info\n- Title: ${channelData.title}\n- Game: ${channelData.gameName}\n- Description: ${channelData.description}`;
     }
     return "";
   }
@@ -55,58 +50,43 @@ export class ContextCore {
    */
   private isAskingAboutCommands(message: string): boolean {
     const lowerMessage = message.toLowerCase();
-    const commandKeywords = ["command", "commande", "cmd", "bgrank", "arenarank", "card", "hero", "trinket", "spell", "anomaly", "timewarp", "warp", "chrono", "chronodistordu"];
+    const commandKeywords = [
+      "command",
+      "commande",
+      "cmd",
+      "bgrank",
+      "arenarank",
+      "mmr",
+      "card",
+      "hero",
+      "trinket",
+      "spell",
+      "anomaly",
+      "timewarp",
+      "warp",
+      "chrono",
+      "chronodistordu",
+    ];
 
     return commandKeywords.some((keyword) => lowerMessage.includes(keyword));
   }
 
-  /**
-   * Builds available commands XML section based on platform
-   * Different commands for Twitch and Discord
-   */
   private buildAvailableCommands(platform: "twitch" | "discord"): string {
     if (platform === "twitch") {
-      return `
-    <available_commands>
-      <command name="!askobot" aliases="!askowbot">
-        Ask you any question
-      </command>
-      <command name="!bgrank" aliases="!bg">
-        Check a player's Hearthstone Battlegrounds rank
-      </command>
-      <command name="!bgrankduo" aliases="!bgduo">
-        Check a player's Hearthstone Battlegrounds Duo rank
-      </command>
-      <command name="!arenarank" aliases="!ar">
-        Check a player's Hearthstone Arena rank
-      </command>
-      <command name="!card">
-        Get information about a Hearthstone card
-      </command>
-      <command name="!hero">
-        Get information about a Hearthstone Battlegrounds hero
-      </command>
-      <command name="!trinket">
-        Get information about a Hearthstone trinket
-      </command>
-      <command name="!spell">
-        Get information about a Hearthstone spell
-      </command>
-      <command name="!anomaly">
-        Get information about a Hearthstone anomaly
-      </command>
-      <command name="!timewarp" aliases="!warp, !chrono, !chronodistordu">
-        Get information about a Hearthstone timewarped card
-      </command>
-    </available_commands>`;
+      return `## Available Commands
+- !askobot (!askowbot) — Ask you any question
+- !bgrank (!bg) — Check a player's Hearthstone Battlegrounds rank
+- !bgrankduo (!bgduo) — Check a player's Hearthstone Battlegrounds Duo rank
+- !arenarank (!ar) — Check a player's Hearthstone Arena rank
+- !card — Get information about a Hearthstone card
+- !hero — Get information about a Hearthstone Battlegrounds hero
+- !trinket — Get information about a Hearthstone trinket
+- !spell — Get information about a Hearthstone spell
+- !anomaly — Get information about a Hearthstone anomaly
+- !timewarp (!warp, !chrono, !chronodistordu) — Get information about a Hearthstone timewarped card`;
     }
 
-    return `
-  <discord_commands>
-    <command name="/askobot">
-      Ask you any question directly in Discord
-    </command>
-  </discord_commands>`;
+    return `## Available Commands\n- /askobot — Ask you any question directly in Discord`;
   }
 
   /**
@@ -114,34 +94,20 @@ export class ContextCore {
    */
   private buildCustomRules(params: BuildContextParams): string {
     if (params.type === "event") {
-      return `
-        <rule>
-          When reacting to events, ONLY provide your reaction message in your characteristic style.
-          Do NOT add greetings, do NOT add follow-up questions, do NOT add explanations.
-          Just react to the event naturally and stop.
-        </rule>`;
+      return `\n- When reacting to events, ONLY provide your reaction message in your characteristic style. Do NOT add greetings, follow-up questions, or explanations. Just react naturally and stop.`;
     }
     return "";
   }
 
   /**
-   * Builds context type-specific XML based on chat or event type
+   * Builds context type-specific Markdown based on chat or event type
    */
-  private buildContextTypeXML(params: BuildContextParams): string {
+  private buildContextType(params: BuildContextParams): string {
     if (params.type === "event") {
-      return `
-        <event_context>
-          <event_type>${params.eventType}</event_type>
-          <event_data>${params.eventData}</event_data>
-        </event_context>`;
+      return `- Event type: ${params.eventType}\n- Event data: ${params.eventData}`;
     }
 
-    // Chat context
-    return `
-        <chat_context>
-          <user>${params.user}</user>
-          <user_message>${params.message}</user_message>
-        </chat_context>`;
+    return `- User: ${params.user}\n- Message: ${params.message}`;
   }
 
   /**
@@ -171,13 +137,13 @@ export class ContextCore {
     // Output Format - from ResponseCore
     const outputFormat = responseCore.buildOutputFormat(maxChar);
 
-    // Build context type-specific XML
-    const contextType = this.buildContextTypeXML(params);
+    const contextType = this.buildContextType(params);
 
     // Build custom rules based on context type
     const customRules = this.buildCustomRules(params);
 
     return {
+      username: params.user || "",
       time: new Date().toLocaleString(),
       contextType,
       platform,

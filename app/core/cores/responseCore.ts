@@ -34,15 +34,15 @@ class ResponseCore {
    * Includes the JSON structure with maxChar constraint and available options
    */
   buildOutputFormat(maxChar: number): string {
-    return `
-      <output_format>
-        Return a JSON response with the following structure:
-        {
-          "message": "Your response (max ${maxChar} Characters)",
-          "emotion": "${config.mood.join(" | ")}",
-          "animation": "${config.animations.join(" | ")}"
-        }
-      </output_format>`;
+    return `# Output Format
+Return a JSON response with the following structure:
+<<<
+{
+  "message": "Your response (max ${maxChar} Characters)",
+  "emotion": "${config.mood.join(" | ")}",
+  "animation": "${config.animations.join(" | ")}"
+}
+>>>`;
   }
 }
 
