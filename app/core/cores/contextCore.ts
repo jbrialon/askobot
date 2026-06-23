@@ -2,7 +2,7 @@ import knowledgeCore from "./knowledgeCore.ts";
 import personalityCore from "./personalityCore.ts";
 import responseCore from "./responseCore.ts";
 import { genericContext } from "../tapes/contextTape.ts";
-import { fetchCardData } from "../../utils/battleground.js";
+import { searchCards } from "../../utils/battleground.js";
 
 import type { ChannelData } from "../../twitch/channel-data.ts";
 import type { ContextVars, ChannelConfig, BuildContextParams, IntentClassification } from "../types.ts";
@@ -88,40 +88,37 @@ export class ContextCore {
    * Builds all context variables by collecting data from various cores
    * and generating context-specific information
    */
+  private formatCardType(card: any): string {
+    const bg = card.battlegrounds;
+    if (bg?.hero) return "Hero";
+    if (bg?.spell) return "Spell";
+    if (bg?.anomaly) return "Anomaly";
+    if (bg?.trinket) return "Trinket";
+    if (bg?.quest) return "Quest";
+    if (bg?.reward) return "Reward";
+    if (bg?.timewarp) return "Timewarp";
+    if (bg?.tavernTier) return `Minion — Tier ${bg.tavernTier}`;
+    return "Unknown";
+  }
+
+  private formatCard(card: any, score: number): string {
+    const isHero = card.battlegrounds?.hero;
+    const effectLabel = isHero ? "Hero Power (hp/pouvoir)" : "Effect";
+    let info = `### ${card.name.fr} (${card.name.en}) — match: ${Math.round((1 - score) * 100)}%\n- Type: ${this.formatCardType(card)}\n- ${effectLabel}: ${card.text}`;
+    if (card.upgradeText) info += `\n- Golden: ${card.upgradeText}`;
+    if (card.companion) info += `\n- Companion: ${card.companion.name} — ${card.companion.text}`;
+    return info;
+  }
+
   private async buildGameData(query: string): Promise<string> {
     try {
-      const card = await (fetchCardData as any)(query, undefined, 0.2);
-      if (!card) return "";
+      const results = await (searchCards as any)(query, 0.2, 3);
+      if (!results || results.length === 0) return "";
 
-      const bg = card.battlegrounds;
-      let type = "Unknown";
-      if (card.minion) {
-        type = `Minion — Tier ${card.minion.tier} — ${card.minion.attack}/${card.minion.health}`;
-      } else if (bg?.hero) {
-        type = "Hero";
-      } else if (bg?.spell) {
-        type = "Spell";
-      } else if (bg?.anomaly) {
-        type = "Anomaly";
-      } else if (bg?.trinket) {
-        type = "Trinket";
-      } else if (bg?.quest) {
-        type = "Quest";
-      } else if (bg?.reward) {
-        type = "Reward";
-      } else if (bg?.timewarp) {
-        type = "Timewarp";
-      }
-      let info = `## Card Info: ${card.name.fr} (${card.name.en})\n- Type: ${type}\n- Effect: ${card.text}`;
+      const header = `## Game Data (best matches for "${query}" — use the most relevant one, ignore poor matches)`;
+      const cards = results.map((r: any) => this.formatCard(r.card, r.score)).join("\n");
 
-      if (card.upgradeText) {
-        info += `\n- Golden: ${card.upgradeText}`;
-      }
-      if (card.companion) {
-        info += `\n- Companion: ${card.companion.name} — ${card.companion.text}`;
-      }
-
-      return info;
+      return `${header}\n${cards}`;
     } catch (error) {
       console.error("[ContextCore] Card lookup failed:", error);
       return "";

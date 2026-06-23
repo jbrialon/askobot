@@ -43,13 +43,13 @@ export const intentFields: IntentField[] = [
   {
     name: "needsGameData",
     type: "boolean",
-    description: "true if asking about a Hearthstone Battlegrounds card, hero, minion, spell, trinket, or anomaly",
+    description: "true ONLY if the message mentions a SPECIFIC card, hero, minion, spell, trinket, or anomaly BY NAME. false for general questions about the game, strategy, or categories (e.g. 'what is the best hero?' → false, 'what does X do?' where X is a specific name → true)",
     defaultValue: false,
   },
   {
     name: "gameQuery",
     type: "string",
-    description: "extracted card/hero/minion name from the message, empty string if needsGameData is false",
+    description: "the specific entity name extracted from the message, exactly as the user wrote it. Must be a proper name, NOT a generic word like 'héro', 'carte', 'sort', 'minion', 'meilleur héro'. Empty string if needsGameData is false or no specific name is mentioned",
     defaultValue: "",
   },
 ];

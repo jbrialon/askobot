@@ -341,6 +341,21 @@ export const fetchCardData = async (cardName, type, threshold = 0.3) => {
   return results[0].item;
 };
 
+export const searchCards = async (cardName, threshold = 0.3, limit = 3) => {
+  const cardData = await loadCardData();
+
+  const fuse = new Fuse(cardData, {
+    keys: ["name.en", "name.fr", "companion.name"],
+    threshold,
+    includeScore: true,
+  });
+
+  const results = fuse.search(cardName);
+  if (results.length === 0) return [];
+
+  return results.slice(0, limit).map((r) => ({ card: r.item, score: r.score }));
+};
+
 /**
  * Fetches all Battlegrounds card data from the Blizzard API
  * @description
