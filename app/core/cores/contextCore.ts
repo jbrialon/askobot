@@ -113,7 +113,9 @@ export class ContextCore {
   private async buildGameData(query: string): Promise<string> {
     try {
       const results = await (searchCards as any)(query, 0.2, 3);
-      if (!results || results.length === 0) return "";
+      if (!results || results.length === 0) {
+        return `## Game Data\nNo match found for "${query}" in the database. You may improvise an answer but you MUST tell the user you didn't find it and that you're making it up.`;
+      }
 
       const header = `## Game Data (best matches for "${query}" — use the most relevant one, ignore poor matches)`;
       const cards = results.map((r: any) => this.formatCard(r.card, r.score)).join("\n");
