@@ -9,7 +9,7 @@ import config from "../../../config.js";
  * Because JSON doesn't validate itself (Unfortunately)
  *
  * [Note: Schema violations will be reported to the AskOS supervisor]
- * Part of the AskOS Core Systems v0.1alpha
+ * Part of the AskOS Core Systems v0.2alpha
  */
 
 class ResponseCore {

@@ -2,9 +2,10 @@ import knowledgeCore from "./knowledgeCore.ts";
 import personalityCore from "./personalityCore.ts";
 import responseCore from "./responseCore.ts";
 import { genericContext } from "../tapes/contextTape.ts";
+import { fetchCardData } from "../../utils/battleground.js";
 
 import type { ChannelData } from "../../twitch/channel-data.ts";
-import type { ContextVars, ChannelConfig, BuildContextParams } from "../types.ts";
+import type { ContextVars, ChannelConfig, BuildContextParams, IntentClassification } from "../types.ts";
 
 /**
  * ContextCore - AskOS Contextual Analysis Module
@@ -14,7 +15,7 @@ import type { ContextVars, ChannelConfig, BuildContextParams } from "../types.ts
  * (Surprisingly, this is harder than it sounds)
  *
  * [Warning: Do not remove this core during active conversation]
- * Part of the AskOS Core Systems v0.1alpha
+ * Part of the AskOS Core Systems v0.2alpha
  */
 
 export class ContextCore {
@@ -42,33 +43,6 @@ export class ContextCore {
       return `## Twitch Channel Info\n- Title: ${channelData.title}\n- Game: ${channelData.gameName}\n- Description: ${channelData.description}`;
     }
     return "";
-  }
-
-  /**
-   * Detects if the user message is asking about commands or features
-   * Returns true if commands should be included in context
-   */
-  private isAskingAboutCommands(message: string): boolean {
-    const lowerMessage = message.toLowerCase();
-    const commandKeywords = [
-      "command",
-      "commande",
-      "cmd",
-      "bgrank",
-      "arenarank",
-      "mmr",
-      "card",
-      "hero",
-      "trinket",
-      "spell",
-      "anomaly",
-      "timewarp",
-      "warp",
-      "chrono",
-      "chronodistordu",
-    ];
-
-    return commandKeywords.some((keyword) => lowerMessage.includes(keyword));
   }
 
   private buildAvailableCommands(platform: "twitch" | "discord"): string {
@@ -114,7 +88,53 @@ export class ContextCore {
    * Builds all context variables by collecting data from various cores
    * and generating context-specific information
    */
-  buildContextVars(params: BuildContextParams, channelConfig: ChannelConfig, channelData: ChannelData): ContextVars {
+  private async buildGameData(query: string): Promise<string> {
+    try {
+      const card = await (fetchCardData as any)(query, undefined, 0.2);
+      if (!card) return "";
+
+      const bg = card.battlegrounds;
+      let type = "Unknown";
+      if (card.minion) {
+        type = `Minion — Tier ${card.minion.tier} — ${card.minion.attack}/${card.minion.health}`;
+      } else if (bg?.hero) {
+        type = "Hero";
+      } else if (bg?.spell) {
+        type = "Spell";
+      } else if (bg?.anomaly) {
+        type = "Anomaly";
+      } else if (bg?.trinket) {
+        type = "Trinket";
+      } else if (bg?.quest) {
+        type = "Quest";
+      } else if (bg?.reward) {
+        type = "Reward";
+      } else if (bg?.timewarp) {
+        type = "Timewarp";
+      }
+      let info = `## Card Info: ${card.name.fr} (${card.name.en})\n- Type: ${type}\n- Effect: ${card.text}`;
+
+      if (card.upgradeText) {
+        info += `\n- Golden: ${card.upgradeText}`;
+      }
+      if (card.companion) {
+        info += `\n- Companion: ${card.companion.name} — ${card.companion.text}`;
+      }
+
+      return info;
+    } catch (error) {
+      console.error("[ContextCore] Card lookup failed:", error);
+      return "";
+    }
+  }
+
+  async buildContextVars(
+    params: BuildContextParams,
+    channelConfig: ChannelConfig,
+    channelData: ChannelData,
+    intent?: IntentClassification,
+  ): Promise<ContextVars> {
+    const username = params.user || "";
     // Platform
     const platform = params.platform || "twitch";
     const platformInfo = this.buildPlatformInfo(platform, channelData);
@@ -130,9 +150,11 @@ export class ContextCore {
     // Personality - dynamically filtered based on maxChar
     const personality = personalityCore.buildPersonality(maxChar);
 
-    // Available Commands - Only include if user is asking about them (chat only)
-    const availableCommands =
-      params.type === "chat" && params.message && this.isAskingAboutCommands(params.message) ? this.buildAvailableCommands(platform) : "";
+    // Available Commands - gated by intent classification (chat only)
+    const availableCommands = params.type === "chat" && intent?.needsCommands ? this.buildAvailableCommands(platform) : "";
+
+    // Game Data - gated by intent classification
+    const gameData = intent?.needsGameData && intent.gameQuery ? await this.buildGameData(intent.gameQuery) : "";
 
     // Output Format - from ResponseCore
     const outputFormat = responseCore.buildOutputFormat(maxChar);
@@ -143,7 +165,7 @@ export class ContextCore {
     const customRules = this.buildCustomRules(params);
 
     return {
-      username: params.user || "",
+      username,
       time: new Date().toLocaleString(),
       contextType,
       platform,
@@ -151,6 +173,7 @@ export class ContextCore {
       availableCommands,
       streamer,
       community,
+      gameData,
       personality,
       customRules,
       maxChar,

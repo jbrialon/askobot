@@ -3,6 +3,15 @@ export interface ChatMessage {
   content: string;
 }
 
+export type IntentCategory = "greeting" | "question" | "opinion" | "knowledge" | "command_help" | "banter" | "meta" | "other";
+
+export interface IntentClassification {
+  intent: IntentCategory;
+  needsCommands: boolean;
+  needsGameData: boolean;
+  gameQuery: string;
+}
+
 export interface GenerateResponseParams {
   channel: string;
   user: string;
@@ -45,6 +54,8 @@ export interface ContextVars {
   community: string;
   /** Bot personality description (Markdown formatted) */
   personality: string;
+  /** Game data from card lookup (Markdown formatted, empty if not relevant) */
+  gameData: string;
   /** Custom rules based on context type (Markdown formatted, empty if not applicable) */
   customRules: string;
   /** Maximum character limit for responses */

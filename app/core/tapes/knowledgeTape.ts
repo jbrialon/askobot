@@ -11,7 +11,7 @@
  *
  * [Last Updated: Never, because nobody updates documentation]
  *
- * Part of the AskOS Core Systems v0.1alpha
+ * Part of the AskOS Core Systems v0.2alpha
  */
 
 export interface CommunityMember {

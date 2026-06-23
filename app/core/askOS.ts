@@ -8,9 +8,10 @@ import type { GenerateResponseParams, AskOSResponse, ContextVars, reactToEventPa
 import contextCore from "./cores/contextCore.ts";
 import responseCore from "./cores/responseCore.ts";
 import memoryCore from "./cores/memoryCore.ts";
+import { IntentCore } from "./cores/intentCore.ts";
 
 /**
- * AskOS v0.1alpha
+ * AskOS v0.2alpha
  *
  * The central AI operating system for Askobot. Coordinates all personality cores
  * and manages conversation generation through Mistral AI integration.
@@ -29,17 +30,20 @@ import memoryCore from "./cores/memoryCore.ts";
 class AskOS {
   private mistral: Mistral;
   private model: string;
+  private intentCore: IntentCore;
 
   constructor() {
     this.model = "mistral-medium-latest";
     this.mistral = new Mistral({
       apiKey: process.env["MISTRAL_API_KEY"],
     });
+    this.intentCore = new IntentCore(this.mistral);
   }
 
   async generateResponse(params: GenerateResponseParams): Promise<AskOSResponse> {
     const channelConfig = this.getChannelConfig(params.channel);
-    const channelData = await getChannelData(params.channel);
+
+    const [channelData, intent] = await Promise.all([getChannelData(params.channel), this.intentCore.classify(params.message)]);
 
     if (!channelData) {
       throw Error("[AskOS.generateResponse] could not get ChannelData ");
@@ -50,10 +54,11 @@ class AskOS {
     // Get conversation history from MemoryCore
     const history = memoryCore.getHistory(params.channel);
 
-    const contextVars = contextCore.buildContextVars(
+    const contextVars = await contextCore.buildContextVars(
       { type: "chat", user: params.user, message: params.message, platform },
       channelConfig,
       channelData,
+      intent,
     );
     const input = this.buildInputMessages(params, contextVars, history);
     const outputSchema = responseCore.createOutputSchema();
@@ -75,7 +80,7 @@ class AskOS {
 
     const platform = params.platform || "twitch";
 
-    const contextVars = contextCore.buildContextVars(
+    const contextVars = await contextCore.buildContextVars(
       { type: "event", eventType: params.eventType, eventData: params.eventData, platform },
       channelConfig,
       channelData,

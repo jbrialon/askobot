@@ -10,7 +10,7 @@ import { communityMembers, type CommunityMember } from "../tapes/knowledgeTape.t
  *
  * [Note: All community descriptions are 100% factual and not exaggerated at all]
  * [Warning: Low match threshold may result in excessive enthusiasm about members]
- * Part of the AskOS Core Systems v0.1alpha
+ * Part of the AskOS Core Systems v0.2alpha
  */
 
 export class KnowledgeCore {

@@ -6,7 +6,7 @@
  *
  * [Warning: Clearing Memory is permanent and cannot be undone]
  * [Note: Each channel maintains independent memory storage]
- * Part of the AskOS Core Systems v0.1alpha
+ * Part of the AskOS Core Systems v0.2alpha
  */
 
 interface ChatMessage {

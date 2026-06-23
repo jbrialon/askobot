@@ -11,7 +11,7 @@ import { personalityTraits, type PersonalityTrait } from "../tapes/personalityTa
  * [Warning: High enthusiasm levels may cause excessive CAPS LOCK usage]
  * [Status: Perfectly calibrated (don't question it)]
  *
- * Part of the AskOS Core Systems v0.1alpha
+ * Part of the AskOS Core Systems v0.2alpha
  */
 
 export class PersonalityCore {
