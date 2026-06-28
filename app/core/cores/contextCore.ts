@@ -106,8 +106,12 @@ export class ContextCore {
     const isHero = card.battlegrounds?.hero;
     const effectLabel = isHero ? "Hero Power (hp/pouvoir)" : "Effect";
     let info = `### ${card.name.fr} (${card.name.en}) — match: ${Math.round((1 - score) * 100)}%\n- Type: ${this.formatCardType(card)}\n- ${effectLabel}: ${card.text}`;
+    if (card.minion) info += `\n- Stats: ${card.minion.attack}/${card.minion.health} (attack/health)`;
     if (card.upgradeText) info += `\n- Golden: ${card.upgradeText}`;
-    if (card.companion) info += `\n- Companion: ${card.companion.name} — ${card.companion.text}`;
+    if (card.companion) {
+      info += `\n- Companion: ${card.companion.name} — ${card.companion.text}`;
+      if (card.companion.attack != null) info += `\n- Companion Stats: ${card.companion.attack}/${card.companion.health} (attack/health)`;
+    }
     return info;
   }
 

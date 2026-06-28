@@ -1,7 +1,7 @@
 import type { Mistral } from "@mistralai/mistralai";
 import { z } from "zod";
 import { intentCategories, intentFields } from "../tapes/intentTape.ts";
-import type { IntentClassification } from "../types.ts";
+import type { ChatMessage, IntentClassification } from "../types.ts";
 
 /**
  * IntentCore - AskOS Precognition Module
@@ -17,11 +17,15 @@ import type { IntentClassification } from "../types.ts";
  * Part of the AskOS Core Systems v0.2alpha
  */
 
-function buildPrompt(): string {
+function buildPrompt(hasHistory: boolean): string {
   const categories = intentCategories.join(", ");
   const fields = intentFields.map((f) => `  "${f.name}": <${f.description}>`).join(",\n");
 
-  return `Classify this Twitch/Discord chat message. Return JSON only.
+  const historyInstruction = hasHistory
+    ? "\nConversation history is provided. Use it to:\n- Resolve pronouns and references ('it', 'that card', 'the hero', 'le vert') to their original entity names\n- Carry forward topic context: if the conversation was about patch changes and the user asks a follow-up ('c\\'était combien avant?', 'and before?'), the topic is still patch-related\n- Inherit needsGameData/needsPatchNotes from the conversation topic when the follow-up message is clearly continuing the same discussion"
+    : "";
+
+  return `Classify this Twitch/Discord chat message. Return JSON only.${historyInstruction}
 Intent categories: ${categories}.
 {
   "intent": "<category>",
@@ -53,9 +57,10 @@ function buildDefaultIntent(): IntentClassification {
   return defaults as unknown as IntentClassification;
 }
 
-const intentPrompt = buildPrompt();
 const intentSchema = buildSchema();
 const defaultIntent = buildDefaultIntent();
+
+const MAX_HISTORY_MESSAGES = 6;
 
 export class IntentCore {
   private mistral: Mistral;
@@ -65,14 +70,24 @@ export class IntentCore {
     this.mistral = mistral;
   }
 
-  async classify(message: string): Promise<IntentClassification> {
+  async classify(message: string, history: ChatMessage[] = []): Promise<IntentClassification> {
     try {
+      const recentHistory = history.slice(-MAX_HISTORY_MESSAGES);
+      const hasHistory = recentHistory.length > 0;
+      const intentPrompt = buildPrompt(hasHistory);
+
+      const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
+        { role: "system", content: intentPrompt },
+        ...recentHistory.map((m) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        })),
+        { role: "user", content: message },
+      ];
+
       const response = await this.mistral.chat.parse({
         model: this.model,
-        messages: [
-          { role: "system", content: intentPrompt },
-          { role: "user", content: message },
-        ],
+        messages,
         responseFormat: intentSchema,
         temperature: 0,
       });

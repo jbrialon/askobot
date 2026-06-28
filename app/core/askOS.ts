@@ -43,16 +43,16 @@ class AskOS {
   async generateResponse(params: GenerateResponseParams): Promise<AskOSResponse> {
     const channelConfig = this.getChannelConfig(params.channel);
 
-    const [channelData, intent] = await Promise.all([getChannelData(params.channel), this.intentCore.classify(params.message)]);
+    const platform = params.platform || "twitch";
+
+    // Get conversation history before classification so IntentCore can resolve references
+    const history = memoryCore.getHistory(params.channel);
+
+    const [channelData, intent] = await Promise.all([getChannelData(params.channel), this.intentCore.classify(params.message, history)]);
 
     if (!channelData) {
       throw Error("[AskOS.generateResponse] could not get ChannelData ");
     }
-
-    const platform = params.platform || "twitch";
-
-    // Get conversation history from MemoryCore
-    const history = memoryCore.getHistory(params.channel);
 
     const contextVars = await contextCore.buildContextVars(
       { type: "chat", user: params.user, message: params.message, platform },
@@ -60,6 +60,7 @@ class AskOS {
       channelData,
       intent,
     );
+    console.log(intent);
     const input = this.buildInputMessages(params, contextVars, history);
     const outputSchema = responseCore.createOutputSchema();
     const response = await this.callMistral(input, outputSchema);

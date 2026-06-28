@@ -44,20 +44,21 @@ export const intentFields: IntentField[] = [
     name: "needsGameData",
     type: "boolean",
     description:
-      "true ONLY if the message mentions a SPECIFIC card, hero, minion, spell, trinket, or anomaly BY NAME. false for general questions about the game, strategy, or categories (e.g. 'what is the best hero?' → false, 'what does X do?' where X is a specific name → true)",
+      "true ONLY if the message mentions OR REFERS TO a SPECIFIC card, hero, minion, spell, trinket, or anomaly BY NAME or by reference (e.g. 'it', 'that card', 'the hero' referring to a previously mentioned entity). Use conversation history to resolve references. false for general questions about the game, strategy, or categories (e.g. 'what is the best hero?' → false, 'what does X do?' where X is a specific name → true, 'but how much was it before?' when 'it' refers to a previously discussed card → true)",
     defaultValue: false,
   },
   {
     name: "gameQuery",
     type: "string",
     description:
-      "the specific entity name extracted from the message, exactly as the user wrote it. Must be a proper name, NOT a generic word like 'héro', 'carte', 'sort', 'minion', 'meilleur héro'. Empty string if needsGameData is false or no specific name is mentioned",
+      "the specific entity name extracted from the message OR resolved from conversation history. If the user refers to a previously discussed entity with pronouns ('it', 'that', 'the card') or implicit references ('how much before?'), resolve the reference and return the original entity name. Must be a proper name, NOT a generic word like 'héro', 'carte', 'sort', 'minion', 'meilleur héro'. Empty string if needsGameData is false or no specific name can be resolved",
     defaultValue: "",
   },
   {
     name: "needsPatchNotes",
     type: "boolean",
-    description: "true if the message asks about a recent patch, update, nerf, buff, balance change, or new content",
+    description:
+      "true if the message asks about or continues a conversation about a recent patch, update, nerf, buff, balance change, or new content. Also true when the user asks about previous values, old stats, or what something was 'before'/'avant' — these imply comparing current vs. previous patch data. Use conversation history to detect ongoing patch discussions",
     defaultValue: false,
   },
 ];
