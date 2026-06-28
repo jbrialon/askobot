@@ -3,6 +3,7 @@ import personalityCore from "./personalityCore.ts";
 import responseCore from "./responseCore.ts";
 import { genericContext } from "../tapes/contextTape.ts";
 import { searchCards } from "../../utils/battleground.js";
+import { getPatchContent } from "../../utils/patch-store.ts";
 
 import type { ChannelData } from "../../twitch/channel-data.ts";
 import type { ContextVars, ChannelConfig, BuildContextParams, IntentClassification } from "../types.ts";
@@ -127,6 +128,12 @@ export class ContextCore {
     }
   }
 
+  private buildPatchNotes(): string {
+    const content = getPatchContent();
+    if (!content) return "";
+    return `## Latest Patch Notes\n${content}`;
+  }
+
   async buildContextVars(
     params: BuildContextParams,
     channelConfig: ChannelConfig,
@@ -155,6 +162,9 @@ export class ContextCore {
     // Game Data - gated by intent classification
     const gameData = intent?.needsGameData && intent.gameQuery ? await this.buildGameData(intent.gameQuery) : "";
 
+    // Patch Notes - gated by intent classification
+    const patchNotes = intent?.needsPatchNotes ? this.buildPatchNotes() : "";
+
     // Output Format - from ResponseCore
     const outputFormat = responseCore.buildOutputFormat(maxChar);
 
@@ -173,6 +183,7 @@ export class ContextCore {
       streamer,
       community,
       gameData,
+      patchNotes,
       personality,
       customRules,
       maxChar,

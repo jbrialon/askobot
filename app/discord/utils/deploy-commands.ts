@@ -13,7 +13,6 @@ export async function deployCommands() {
     throw new Error("Missing DISCORD_CLIENT_ID or DISCORD_TOKEN environment variables");
   }
 
-  const commandsData = getCommandsData();
   const rest = new REST().setToken(token);
 
   // Create a temporary client to access guilds
@@ -22,7 +21,7 @@ export async function deployCommands() {
   });
 
   try {
-    console.log(`Started refreshing ${commandsData.length} application (/) commands across all guilds.`);
+    console.log(`Started refreshing application (/) commands across all guilds.`);
 
     // Wait for client to be ready
     await new Promise<void>((resolve) => {
@@ -36,10 +35,11 @@ export async function deployCommands() {
     let deployedCount = 0;
     for (const guild of client.guilds.cache.values()) {
       try {
+        const guildCommands = getCommandsData(guild.id);
         await rest.put(Routes.applicationGuildCommands(clientId, guild.id), {
-          body: commandsData,
+          body: guildCommands,
         });
-        console.log(`Deployed commands to ${guild.name} (${guild.id})`);
+        console.log(`Deployed ${guildCommands.length} commands to ${guild.name} (${guild.id})`);
         deployedCount++;
       } catch (error) {
         console.error(`Failed to deploy to ${guild.name}:`, error instanceof Error ? error.message : String(error));
@@ -57,6 +57,7 @@ export async function deployCommands() {
 
 // If this script is run directly, execute deployCommands
 if (import.meta.url === `file://${process.argv[1]}`) {
+  await import("dotenv/config");
   deployCommands()
     .then(() => {
       console.log("Deploy completed successfully");

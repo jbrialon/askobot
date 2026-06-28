@@ -43,13 +43,21 @@ export const intentFields: IntentField[] = [
   {
     name: "needsGameData",
     type: "boolean",
-    description: "true ONLY if the message mentions a SPECIFIC card, hero, minion, spell, trinket, or anomaly BY NAME. false for general questions about the game, strategy, or categories (e.g. 'what is the best hero?' → false, 'what does X do?' where X is a specific name → true)",
+    description:
+      "true ONLY if the message mentions a SPECIFIC card, hero, minion, spell, trinket, or anomaly BY NAME. false for general questions about the game, strategy, or categories (e.g. 'what is the best hero?' → false, 'what does X do?' where X is a specific name → true)",
     defaultValue: false,
   },
   {
     name: "gameQuery",
     type: "string",
-    description: "the specific entity name extracted from the message, exactly as the user wrote it. Must be a proper name, NOT a generic word like 'héro', 'carte', 'sort', 'minion', 'meilleur héro'. Empty string if needsGameData is false or no specific name is mentioned",
+    description:
+      "the specific entity name extracted from the message, exactly as the user wrote it. Must be a proper name, NOT a generic word like 'héro', 'carte', 'sort', 'minion', 'meilleur héro'. Empty string if needsGameData is false or no specific name is mentioned",
     defaultValue: "",
+  },
+  {
+    name: "needsPatchNotes",
+    type: "boolean",
+    description: "true if the message asks about a recent patch, update, nerf, buff, balance change, or new content",
+    defaultValue: false,
   },
 ];

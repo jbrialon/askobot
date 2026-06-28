@@ -22,6 +22,7 @@
  * - ${streamer}: The main streamer/channel owner from KnowledgeCore
  * - ${community}: Filtered community members from KnowledgeCore
  * - ${gameData}: Card/hero info from Battlegrounds data (gated by IntentCore)
+ * - ${patchNotes}: Latest patch notes summary (gated by IntentCore)
  * - ${platformInfo}: Platform-specific information (Twitch channel info or empty)
  * - ${availableCommands}: Command list (gated by IntentCore, chat only)
  * - ${customRules}: Context-specific rules (e.g., event reaction rules, empty for chat)
@@ -65,6 +66,7 @@ Operating System: AskOS v0.2alpha
 \${streamer}
 \${community}
 \${gameData}
+\${patchNotes}
 
 \${platformInfo}
 \${availableCommands}

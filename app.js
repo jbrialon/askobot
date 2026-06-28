@@ -51,7 +51,7 @@ async function startServer() {
 
   // Route for serving Battlegrounds card data
   app.get("/api/cards", (req, res) => {
-    res.sendFile(path.join(projectRoot, "db", "db.json"));
+    res.sendFile(path.join(projectRoot, "db", "cards.json"));
   });
 
   // Route for oAuth token

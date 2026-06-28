@@ -28,6 +28,7 @@ export async function deleteCommands() {
 
 // If this script is run directly, execute deleteCommands
 if (import.meta.url === `file://${process.argv[1]}`) {
+  await import("dotenv/config");
   deleteCommands()
     .then(() => {
       console.log("Delete completed successfully");

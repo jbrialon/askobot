@@ -10,6 +10,7 @@ export interface IntentClassification {
   needsCommands: boolean;
   needsGameData: boolean;
   gameQuery: string;
+  needsPatchNotes: boolean;
 }
 
 export interface GenerateResponseParams {
@@ -56,6 +57,8 @@ export interface ContextVars {
   personality: string;
   /** Game data from card lookup (Markdown formatted, empty if not relevant) */
   gameData: string;
+  /** Patch notes content (Markdown formatted, empty if not relevant) */
+  patchNotes: string;
   /** Custom rules based on context type (Markdown formatted, empty if not applicable) */
   customRules: string;
   /** Maximum character limit for responses */
