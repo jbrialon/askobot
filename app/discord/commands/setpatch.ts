@@ -12,7 +12,7 @@ export class SetPatchCommand implements CommandHandler {
     .addStringOption((option) => option.setName("url_en").setDescription("L'URL du patch note en anglais").setRequired(true))
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
-  guildId = "801787387428601857";
+  guildId = "1157764771681144924";
 
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
     const urlFr = interaction.options.getString("url_fr")!;
