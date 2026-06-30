@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
-const PATCH_FILE = join(import.meta.dirname, "../../db/patch.json");
+const PATCH_FILE = join(process.cwd(), "db/patch.json");
 
 export interface PatchData {
   urlFr: string;
