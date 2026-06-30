@@ -10,7 +10,7 @@ import { communityMembers, type CommunityMember } from "../tapes/knowledgeTape.t
  *
  * [Note: All community descriptions are 100% factual and not exaggerated at all]
  * [Warning: Low match threshold may result in excessive enthusiasm about members]
- * Part of the AskOS Core Systems v0.1alpha
+ * Part of the AskOS Core Systems v0.2alpha
  */
 
 export class KnowledgeCore {
@@ -56,7 +56,7 @@ export class KnowledgeCore {
   }
 
   /**
-   * Builds the streamer XML section for the prompt
+   * Builds the streamer Markdown section for the prompt
    */
   buildStreamer(channel: string): string {
     const streamer = this.findStreamer(channel);
@@ -66,16 +66,13 @@ export class KnowledgeCore {
     }
 
     const randomDescription = streamer.descriptions[Math.floor(Math.random() * streamer.descriptions.length)];
-    const aliasAttr = streamer.alias.length > 0 ? `aliases="${streamer.alias.join(", ")}"` : "";
+    const aliases = streamer.alias.length > 0 ? ` (aliases: ${streamer.alias.join(", ")})` : "";
 
-    return `
-    <streamer name="${streamer.name}" gender="${streamer.gender}" ${aliasAttr}>
-      ${randomDescription}
-    </streamer>`;
+    return `## Streamer: ${streamer.name}${aliases} — gender: ${streamer.gender}\n${randomDescription}`;
   }
 
   /**
-   * Builds the community XML section for the prompt
+   * Builds the community Markdown section for the prompt
    * Optionally filters by user and message to only include relevant members
    * Excludes the streamer from the community list
    */
@@ -92,22 +89,15 @@ export class KnowledgeCore {
       return ""; // No community members mentioned
     }
 
-    const communityXml = members
+    const membersList = members
       .map((member) => {
         const randomDescription = member.descriptions[Math.floor(Math.random() * member.descriptions.length)];
-
-        const aliasAttr = member.alias.length > 0 ? `aliases="${member.alias.join(", ")}"` : "";
-
-        return `<member name="${member.name}" gender="${member.gender}" ${aliasAttr}>
-        ${randomDescription}
-      </member>`;
+        const aliases = member.alias.length > 0 ? ` (aliases: ${member.alias.join(", ")})` : "";
+        return `- ${member.name}${aliases} — gender: ${member.gender}: ${randomDescription}`;
       })
       .join("\n");
 
-    return `
-    <community>
-${communityXml}
-    </community>`;
+    return `## Community Members\n${membersList}`;
   }
 }
 

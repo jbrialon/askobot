@@ -2,5 +2,6 @@ import type { ChatInputCommandInteraction, SlashCommandBuilder, SlashCommandOpti
 
 export interface CommandHandler {
   data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
+  guildId?: string;
   execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
 }

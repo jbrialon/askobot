@@ -1,7 +1,7 @@
 import "dotenv/config";
 
-import fs from "fs";
-import path from "path";
+import { existsSync, mkdirSync, writeFileSync, statSync } from "fs";
+import { dirname } from "path";
 import { EmbedBuilder } from "discord.js";
 import { fetchAllCardData } from "../app/utils/battleground.js";
 import discordBot from "../app/discord/discord-bot.ts";
@@ -22,17 +22,15 @@ const saveDataToFile = async (outputFilePath) => {
 
     const cardsData = await fetchAllCardData();
     if (cardsData) {
-      // Create the output directory if it doesn't exist
-      const outputDir = path.dirname(outputFilePath);
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
+      const outputDir = dirname(outputFilePath);
+      if (!existsSync(outputDir)) {
+        mkdirSync(outputDir, { recursive: true });
       }
 
-      // Save the card data to a JSON file
-      fs.writeFileSync(outputFilePath, JSON.stringify(cardsData, null, 2));
+      writeFileSync(outputFilePath, JSON.stringify(cardsData, null, 2), "utf-8");
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      const fileSize = (fs.statSync(outputFilePath).size / 1024).toFixed(2);
+      const fileSize = (statSync(outputFilePath).size / 1024).toFixed(2);
 
       console.log(`Cards data saved to: ${outputFilePath}`);
 
@@ -73,7 +71,7 @@ const saveDataToFile = async (outputFilePath) => {
   }
 };
 
-const outputFilePath = "./db/db.json";
+const outputFilePath = "./db/cards.json";
 
 // Wait for Discord bot to be ready before running the import
 discordBot.once("ready", async () => {

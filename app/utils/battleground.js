@@ -270,7 +270,7 @@ export const fetchLeaderboardData = async (args, leaderboardType = LEADERBOARD_T
  * - Searches in both French and English card names
  * - Filters cards by type before searching for better accuracy
  */
-export const fetchCardData = async (cardName, type) => {
+export const fetchCardData = async (cardName, type, threshold = 0.3) => {
   // Ensure card data is loaded
   const cardData = await loadCardData();
 
@@ -284,11 +284,11 @@ export const fetchCardData = async (cardName, type) => {
 
   const options = {
     keys: searchKeys,
-    threshold: 0.3, // Lower threshold means stricter matches
+    threshold, // Lower threshold means stricter matches
     includeScore: true, // Include match score for sorting
   };
 
-  // Filter cards based on type
+  // Filter cards based on type (undefined = search all cards)
   let dataset;
   switch (type) {
     case CARD_TYPES.HERO:
@@ -308,6 +308,9 @@ export const fetchCardData = async (cardName, type) => {
       break;
     case CARD_TYPES.TIMEWARP:
       dataset = cardData.filter((card) => card.battlegrounds?.timewarp === true);
+      break;
+    case undefined:
+      dataset = cardData;
       break;
     default:
       const minionCards = cardData.filter(
@@ -336,6 +339,21 @@ export const fetchCardData = async (cardName, type) => {
 
   // Return the best match
   return results[0].item;
+};
+
+export const searchCards = async (cardName, threshold = 0.3, limit = 3) => {
+  const cardData = await loadCardData();
+
+  const fuse = new Fuse(cardData, {
+    keys: ["name.en", "name.fr", "companion.name"],
+    threshold,
+    includeScore: true,
+  });
+
+  const results = fuse.search(cardName);
+  if (results.length === 0) return [];
+
+  return results.slice(0, limit).map((r) => ({ card: r.item, score: r.score }));
 };
 
 /**

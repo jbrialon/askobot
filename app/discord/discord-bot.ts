@@ -91,7 +91,7 @@ class DiscordBot extends EventEmitter {
   private async handleGuildJoin(guild: any) {
     console.log(`Joined new guild: ${guild.name} (${guild.id})`);
 
-    const commandsData = getCommandsData();
+    const commandsData = getCommandsData(guild.id);
 
     const rest = new REST().setToken(this.token);
 

@@ -4,14 +4,14 @@ import { personalityTraits, type PersonalityTrait } from "../tapes/personalityTa
  * PersonalityCore - AskOS Character Definition Module
  *
  * Maintains the core personality matrix that defines Askobot's character.
- * Generates XML-structured personality context for AI responses with
+ * Generates Markdown-structured personality context for AI responses with
  * prioritized traits and behavioral rules.
  *
  * [Note: The personality is 100% intentional and not a bug]
  * [Warning: High enthusiasm levels may cause excessive CAPS LOCK usage]
  * [Status: Perfectly calibrated (don't question it)]
  *
- * Part of the AskOS Core Systems v0.1alpha
+ * Part of the AskOS Core Systems v0.2alpha
  */
 
 export class PersonalityCore {
@@ -58,27 +58,17 @@ export class PersonalityCore {
   }
 
   /**
-   * Builds the personality XML section for the prompt
-   * Returns only the personality traits in XML format
+   * Builds the personality Markdown section for the prompt
+   * Returns only the personality traits in Markdown format
    *
    * @param maxChar - Optional character limit to filter traits dynamically
    */
   buildPersonality(maxChar?: number): string {
     const activeTraits = maxChar ? this.filterTraitsByCharLimit(maxChar) : this.traits;
 
-    const traitsXml = activeTraits
-      .map(
-        (trait) =>
-          `    <trait priority="${trait.priority}">
-      ${trait.description}
-    </trait>`,
-      )
-      .join("\n");
+    const traitsList = activeTraits.map((trait) => `- [${trait.priority}] ${trait.description}`).join("\n");
 
-    return `
-  <personality>
-${traitsXml}
-  </personality>`;
+    return `## Personality Traits\n${traitsList}`;
   }
 
   /**

@@ -3,6 +3,16 @@ export interface ChatMessage {
   content: string;
 }
 
+export type IntentCategory = "greeting" | "question" | "opinion" | "knowledge" | "command_help" | "banter" | "meta" | "other";
+
+export interface IntentClassification {
+  intent: IntentCategory;
+  needsCommands: boolean;
+  needsGameData: boolean;
+  gameQuery: string;
+  needsPatchNotes: boolean;
+}
+
 export interface GenerateResponseParams {
   channel: string;
   user: string;
@@ -27,27 +37,33 @@ export interface AskOSResponse {
  * Context variables used in context template replacement
  */
 export interface ContextVars {
+  /** Current username for template replacement */
+  username: string;
   /** Current timestamp in locale string format */
   time: string;
-  /** Context type-specific XML (either chat or event context) */
+  /** Context type-specific Markdown (either chat or event context) */
   contextType: string;
   /** Platform where the message originated (twitch or discord) */
   platform: "twitch" | "discord";
-  /** Platform-specific information (XML formatted) */
+  /** Platform-specific information (Markdown formatted) */
   platformInfo: string;
-  /** Available bot commands (XML formatted, empty if not relevant) */
+  /** Available bot commands (Markdown formatted, empty if not relevant) */
   availableCommands: string;
-  /** Streamer information (XML formatted) */
+  /** Streamer information (Markdown formatted) */
   streamer: string;
-  /** Community members information (XML formatted) */
+  /** Community members information (Markdown formatted) */
   community: string;
-  /** Bot personality description (XML formatted) */
+  /** Bot personality description (Markdown formatted) */
   personality: string;
-  /** Custom rules based on context type (XML formatted, empty if not applicable) */
+  /** Game data from card lookup (Markdown formatted, empty if not relevant) */
+  gameData: string;
+  /** Patch notes content (Markdown formatted, empty if not relevant) */
+  patchNotes: string;
+  /** Custom rules based on context type (Markdown formatted, empty if not applicable) */
   customRules: string;
   /** Maximum character limit for responses */
   maxChar: number;
-  /** Output format instructions (XML formatted) */
+  /** Output format instructions (Markdown formatted) */
   outputFormat: string;
 }
 

@@ -12,7 +12,7 @@
  * [Last Updated: When someone finally complained about the jokes]
  * [Status: Working as intended (surprisingly)]
  *
- * Part of the AskOS Core Systems v0.1alpha
+ * Part of the AskOS Core Systems v0.2alpha
  */
 
 export interface PersonalityTrait {
