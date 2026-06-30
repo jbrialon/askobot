@@ -9,6 +9,7 @@ import contextCore from "./cores/contextCore.ts";
 import responseCore from "./cores/responseCore.ts";
 import memoryCore from "./cores/memoryCore.ts";
 import { IntentCore } from "./cores/intentCore.ts";
+import { logInteraction } from "../database/index.ts";
 
 /**
  * AskOS v0.2alpha
@@ -60,13 +61,22 @@ class AskOS {
       channelData,
       intent,
     );
-    console.log(intent);
+
     const input = this.buildInputMessages(params, contextVars, history);
     const outputSchema = responseCore.createOutputSchema();
     const response = await this.callMistral(input, outputSchema);
 
     // Store conversation in MemoryCore
     memoryCore.addConversation(params.channel, params.user, params.message, response.message, params.platform);
+
+    logInteraction({
+      type: "chat",
+      platform,
+      channel: params.channel,
+      message: params.message,
+      intent,
+      response,
+    });
 
     return response;
   }
@@ -91,6 +101,15 @@ class AskOS {
     const outputSchema = responseCore.createOutputSchema();
 
     const response = await this.callMistral(input, outputSchema);
+
+    logInteraction({
+      type: "event",
+      platform,
+      channel: params.channel,
+      eventType: params.eventType,
+      eventData: params.eventData,
+      response,
+    });
 
     // TODO Maybe this should be store in memory aswell?
     return response;
