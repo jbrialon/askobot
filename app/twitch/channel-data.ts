@@ -122,7 +122,7 @@ async function fetchChannelData(channel: string): Promise<void> {
   if (gameId) {
     const game = await apiClient.games.getGameById(gameId);
     if (game) {
-      gameThumbnail = game.getBoxArtUrl(285, 380);
+      gameThumbnail = addCacheBuster(game.getBoxArtUrl(285, 380));
     }
   }
 
@@ -256,7 +256,7 @@ export async function setStreamOnline(channel: string): Promise<ChannelData> {
   if (gameId) {
     const game = await apiClient.games.getGameById(gameId);
     if (game) {
-      gameThumbnail = game.getBoxArtUrl(285, 380);
+      gameThumbnail = addCacheBuster(game.getBoxArtUrl(285, 380));
     }
   }
 
@@ -313,7 +313,7 @@ export async function updateChannelInfo(
   if (data.gameId) {
     const game = await apiClient.games.getGameById(data.gameId);
     if (game) {
-      gameThumbnail = game.getBoxArtUrl(285, 380);
+      gameThumbnail = addCacheBuster(game.getBoxArtUrl(285, 380));
     }
   }
 
