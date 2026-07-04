@@ -3,7 +3,7 @@ export interface ChatMessage {
   content: string;
 }
 
-export type IntentCategory = "greeting" | "question" | "opinion" | "knowledge" | "command_help" | "banter" | "meta" | "other";
+export type IntentCategory = "question" | "opinion" | "command_help" | "banter" | "react" | "system" | "other";
 
 export interface IntentClassification {
   intent: IntentCategory;
