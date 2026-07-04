@@ -11,6 +11,7 @@ import voice from "./app/classes/voice.js";
 
 // Database
 import { setupDatabase } from "./app/database/index.ts";
+import interactionsRouter from "./app/database/interactions.ts";
 
 // Twitch flow
 import { initChannelData } from "./app/twitch/channel-data.ts";
@@ -53,6 +54,9 @@ async function startServer() {
   app.get("/api/cards", (req, res) => {
     res.sendFile(path.join(projectRoot, "db", "cards.json"));
   });
+
+  // Route for consulting logged interactions
+  app.use("/api/interactions", interactionsRouter);
 
   // Route for oAuth token
   app.post("/oauth-token", oAuthTokenMiddleWare);
