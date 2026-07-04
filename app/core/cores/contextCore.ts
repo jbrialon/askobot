@@ -67,22 +67,30 @@ export class ContextCore {
   /**
    * Builds custom rules based on context type
    */
-  private buildCustomRules(params: BuildContextParams): string {
+  private buildCustomRules(params: BuildContextParams, intent?: IntentClassification): string {
+    const rules: string[] = [];
+
     if (params.type === "event") {
-      return `\n- When reacting to events, ONLY provide your reaction message in your characteristic style. Do NOT add greetings, follow-up questions, or explanations. Just react naturally and stop.`;
+      rules.push("- When reacting to events, ONLY provide your reaction message in your characteristic style. Do NOT add greetings, follow-up questions, or explanations. Just react naturally and stop.");
     }
-    return "";
+
+    if (intent?.needsGameData) {
+      rules.push("- When Game Data is provided below, ONLY use the stats, effects, and details from that data. Never invent or guess stats, attack/health values, or effects that aren't in the provided data.");
+    }
+
+    return rules.length > 0 ? `\n${rules.join("\n")}` : "";
   }
 
   /**
    * Builds context type-specific Markdown based on chat or event type
    */
-  private buildContextType(params: BuildContextParams): string {
+  private buildContextType(params: BuildContextParams, intent?: IntentClassification): string {
     if (params.type === "event") {
       return `- Event type: ${params.eventType}\n- Event data: ${params.eventData}`;
     }
 
-    return `- User: ${params.user}\n- Message: ${params.message}`;
+    const intentLine = intent ? `\n- Message intent: ${intent.intent}` : "";
+    return `- User: ${params.user}\n- Message: ${params.message}${intentLine}`;
   }
 
   /**
@@ -119,7 +127,7 @@ export class ContextCore {
     try {
       const results = await (searchCards as any)(query, 0.2, 3);
       if (!results || results.length === 0) {
-        return `## Game Data\nNo match found for "${query}" in the database. You may improvise an answer but you MUST tell the user you didn't find it and that you're making it up.`;
+        return `## Game Data\nNo match found for "${query}" in the database. Do NOT invent stats or effects. Stay in character and tell the user the card wasn't found in your database.`;
       }
 
       const header = `## Game Data (best matches for "${query}" — use the most relevant one, ignore poor matches)`;
@@ -172,10 +180,10 @@ export class ContextCore {
     // Output Format - from ResponseCore
     const outputFormat = responseCore.buildOutputFormat(maxChar);
 
-    const contextType = this.buildContextType(params);
+    const contextType = this.buildContextType(params, intent);
 
-    // Build custom rules based on context type
-    const customRules = this.buildCustomRules(params);
+    // Build custom rules based on context type and intent
+    const customRules = this.buildCustomRules(params, intent);
 
     return {
       username,
