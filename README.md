@@ -2,7 +2,7 @@
 
 ---
 
-## 🧰 Project Structure
+## Project Structure
 
 ```
 askobot/
@@ -33,7 +33,7 @@ askobot/
 
 ---
 
-## 📦 Installation
+## Installation
 
 1. **Install dependencies**:
 
@@ -106,35 +106,35 @@ The built front-end will be served statically by the backend.
 
 ---
 
-## 🧪 Development Tips
+## Development Tips
 
 - Use the **Leva UI panel** to fake OBS scenes setup.
 
 ---
 
-## 🧪 Testing EventSub with Twitch CLI
+## Testing EventSub with Twitch CLI
 
 ### EventSub Events
 
 ```bash
 # Follow event
-twitch event trigger follow -F http://localhost:3000/eventsub -s thesecret
+twitch event trigger follow -F http://localhost:3000/eventsub -s $TWITCH_EVENTSUB_SECRET
 
 # Subscription event
-twitch event trigger subscribe -F http://localhost:3000/eventsub -s thesecret
+twitch event trigger subscribe -F http://localhost:3000/eventsub -s $TWITCH_EVENTSUB_SECRET
 
 # Hype Train event
-twitch event trigger hype-train-begin -F http://localhost:3000/eventsub -n "askobot" -s thesecret
+twitch event trigger hype-train-begin -F http://localhost:3000/eventsub -n "askobot" -s $TWITCH_EVENTSUB_SECRET
 
 # Raid event
-twitch event trigger raid -F http://localhost:3000/eventsub -s thesecret
+twitch event trigger raid -F http://localhost:3000/eventsub -s $TWITCH_EVENTSUB_SECRET
 
 # Stream online
-twitch event trigger stream.online -F http://localhost:3000/eventsub -s thesecret
+twitch event trigger stream.online -F http://localhost:3000/eventsub -s $TWITCH_EVENTSUB_SECRET
 
 # Channel updae
-twitch event trigger channel.update -F http://localhost:3000/eventsub --version 2 -s thesecret
+twitch event trigger channel.update -F http://localhost:3000/eventsub --version 2 -s $TWITCH_EVENTSUB_SECRET
 
 # Trigger a channel point redemption event for reward "askobot"
-twitch event trigger channel.channel_points_custom_reward_redemption.add -F http://localhost:3000/eventsub -n "askobot" -s thesecret
+twitch event trigger channel.channel_points_custom_reward_redemption.add -F http://localhost:3000/eventsub -n "askobot" -s $TWITCH_EVENTSUB_SECRET
 ```

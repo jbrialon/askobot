@@ -22,7 +22,7 @@
  * Cost: DELIGHTFULLY LOW
  * Ego: NONE (it's the small model)
  */
-export const intentCategories = ["greeting", "question", "opinion", "knowledge", "command_help", "banter", "meta", "other"] as const;
+export const intentCategories = ["question", "opinion", "command_help", "banter", "react", "system", "other"] as const;
 
 export type IntentFieldType = "boolean" | "string";
 
@@ -44,14 +44,14 @@ export const intentFields: IntentField[] = [
     name: "needsGameData",
     type: "boolean",
     description:
-      "true ONLY if the message mentions OR REFERS TO a SPECIFIC card, hero, minion, spell, trinket, or anomaly BY NAME or by reference (e.g. 'it', 'that card', 'the hero' referring to a previously mentioned entity). Use conversation history to resolve references. false for general questions about the game, strategy, or categories (e.g. 'what is the best hero?' → false, 'what does X do?' where X is a specific name → true, 'but how much was it before?' when 'it' refers to a previously discussed card → true)",
+      "true ONLY if the message mentions OR REFERS TO a SPECIFIC card, hero, minion, spell, trinket, or anomaly BY NAME or by reference (e.g. 'it', 'that card', 'the hero' referring to a previously mentioned entity). Use conversation history to resolve references. false for general questions about the game, strategy, or categories — even when they mention generic terms like 'héros', 'cartes', 'sorts' (e.g. 'what is the best hero?' → false, 'do some heroes appear less often?' → false, 'what does X do?' where X is a specific name → true, 'but how much was it before?' when 'it' refers to a previously discussed card → true). If this is true, gameQuery MUST contain the resolved entity name — never set needsGameData=true with an empty gameQuery",
     defaultValue: false,
   },
   {
     name: "gameQuery",
     type: "string",
     description:
-      "the specific entity name extracted from the message OR resolved from conversation history. If the user refers to a previously discussed entity with pronouns ('it', 'that', 'the card') or implicit references ('how much before?'), resolve the reference and return the original entity name. Must be a proper name, NOT a generic word like 'héro', 'carte', 'sort', 'minion', 'meilleur héro'. Empty string if needsGameData is false or no specific name can be resolved",
+      "the specific entity name extracted from the message OR resolved from conversation history. If the user refers to a previously discussed entity with pronouns ('it', 'that', 'the card') or implicit references ('how much before?'), resolve the reference and return the original entity name. Must be ONLY the card/hero/spell proper name — strip all qualifiers: no 'doré'/'golden', no type words ('elemental', 'beast', 'mech'), no 'en or', no 'buddy de'. Examples: 'ça fait quoi mastodonte en doré' → 'Mastodonte', 'vineclimber elemental card' → 'Vineclimber', 'c'est quoi le buddy de xyrella' → 'Xyrella', 'le timewarp ragnaros' → 'Timewarp Ragnaros'. Must be a proper name, NOT a generic word like 'héro', 'carte', 'sort', 'minion', 'meilleur héro'. Empty string if needsGameData is false or no specific name can be resolved",
     defaultValue: "",
   },
   {
