@@ -25,17 +25,17 @@ export const CARD_TYPES = {
 
 export const MINION_TYPES = {
   NONE: 0,
-  UNDEAD: 1,
-  QUILBOAR: 2,
-  BEAST: 3,
-  ELEMENTAL: 4,
-  MECH: 5,
-  PIRATE: 7,
-  MURLOC: 8,
-  DEMON: 9,
-  DRAGON: 10,
-  ALL: 12,
-  NAGA: 14,
+  UNDEAD: 11,
+  MURLOC: 14,
+  DEMON: 15,
+  MECH: 17,
+  ELEMENTAL: 18,
+  BEAST: 20,
+  PIRATE: 23,
+  DRAGON: 24,
+  ALL: 26,
+  QUILBOAR: 43,
+  NAGA: 92,
 };
 
 export const LEADERBOARD_TYPES = {
@@ -341,6 +341,30 @@ export const fetchCardData = async (cardName, type, threshold = 0.3) => {
   return results[0].item;
 };
 
+export const searchCardsByTribe = async (tribeName, tier) => {
+  const cardData = await loadCardData();
+  const tribeIds = tribeName
+    .split(",")
+    .map((t) => MINION_TYPES[t.trim()])
+    .filter((id) => id !== undefined);
+
+  if (tribeIds.length === 0) return [];
+
+  return cardData.filter((card) => {
+    if (card.cardTypeId !== CARD_TYPES.MINION) return false;
+
+    const matchesTribe = tribeIds.some((tribeId) => card.minion?.typeId === tribeId || card.minion?.multiTypeIds?.includes(tribeId));
+
+    if (!matchesTribe) return false;
+
+    if (tier) {
+      return card.minion?.tier === Number(tier);
+    }
+
+    return true;
+  });
+};
+
 export const searchCards = async (cardName, threshold = 0.3, limit = 3) => {
   const cardData = await loadCardData();
 
@@ -392,7 +416,7 @@ export const fetchAllCardData = async () => {
           const localeCards = localeData.cards || [];
           return Promise.all(
             localeCards.map(async (card) => {
-              let { slug, name, text, childIds, battlegrounds, cardTypeId, health, attack, classId, multiClassIds, minionTypeId } = card;
+              let { slug, name, text, childIds, battlegrounds, cardTypeId, health, attack, minionTypeId, multiTypeIds } = card;
               const cleanedBattlegrounds = battlegrounds
                 ? {
                     hero: battlegrounds.hero,
@@ -410,17 +434,13 @@ export const fetchAllCardData = async () => {
 
               // get minion data
               let minion;
-              if (cardTypeId === 4 && localeIndex === 0) {
-                let minionType = classId;
-                if (!minionTypeId && classId === MINION_TYPES.ALL) {
-                  minionType = MINION_TYPES.NONE;
-                }
+              if (cardTypeId === 4) {
                 minion = {
                   tier: battlegrounds?.tier,
                   health: health,
                   attack: attack,
-                  classId: minionType,
-                  multiClassIds: multiClassIds,
+                  typeId: minionTypeId ?? MINION_TYPES.NONE,
+                  multiTypeIds: multiTypeIds ?? [],
                 };
               }
 
@@ -496,19 +516,14 @@ export const fetchAllCardData = async () => {
                     const companionData = await companionResponse.json();
                     const companionCard = companionData.cards?.[0];
                     if (companionCard && companionCard.name && companionCard.text) {
-                      let minionType = companionCard.classId;
-                      if (!minionTypeId && companionCard.classId === MINION_TYPES.ALL) {
-                        minionType = MINION_TYPES.NONE;
-                      }
-
                       companion = {
                         name: companionCard.name,
                         text: cleanText(companionCard.text),
                         tier: companionCard.battlegrounds.tier,
                         health: companionCard.health,
                         attack: companionCard.attack,
-                        classId: minionType,
-                        multiClassIds: companionCard.multiClassIds,
+                        typeId: companionCard.minionTypeId ?? MINION_TYPES.NONE,
+                        multiTypeIds: companionCard.multiTypeIds ?? [],
                       };
                     }
                   }
@@ -556,6 +571,8 @@ export const fetchAllCardData = async () => {
           name: { ...acc[card.slug].name, ...card.name },
           text: acc[card.slug].text || card.text, // Keep French text
           upgradeText: acc[card.slug].upgradeText || card.upgradeText, // Keep French text
+          minion: acc[card.slug].minion || card.minion,
+          companion: acc[card.slug].companion || card.companion,
         };
       }
       return acc;

@@ -10,6 +10,8 @@ export interface IntentClassification {
   needsCommands: boolean;
   needsGameData: boolean;
   gameQuery: string;
+  gameTribe: string;
+  gameTier: string;
   needsPatchNotes: boolean;
 }
 

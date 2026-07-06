@@ -44,14 +44,28 @@ export const intentFields: IntentField[] = [
     name: "needsGameData",
     type: "boolean",
     description:
-      "true ONLY if the message mentions OR REFERS TO a SPECIFIC card, hero, minion, spell, trinket, or anomaly BY NAME or by reference (e.g. 'it', 'that card', 'the hero' referring to a previously mentioned entity). Use conversation history to resolve references. false for general questions about the game, strategy, or categories — even when they mention generic terms like 'héros', 'cartes', 'sorts' (e.g. 'what is the best hero?' → false, 'do some heroes appear less often?' → false, 'what does X do?' where X is a specific name → true, 'but how much was it before?' when 'it' refers to a previously discussed card → true). If this is true, gameQuery MUST contain the resolved entity name — never set needsGameData=true with an empty gameQuery",
+      "true if the message mentions a SPECIFIC card/hero/minion/spell/trinket/anomaly BY NAME or reference, OR asks about a tribe/tier category (e.g. 'les nagas t6', 'combien de dragons'). Use conversation history to resolve references ('it', 'that card'). false for general questions about the game, strategy, or categories without tribe/tier (e.g. 'what is the best hero?' → false, 'do some heroes appear less often?' → false). When true, either gameQuery OR gameTribe must be set",
     defaultValue: false,
   },
   {
     name: "gameQuery",
     type: "string",
     description:
-      "the specific entity name extracted from the message OR resolved from conversation history. If the user refers to a previously discussed entity with pronouns ('it', 'that', 'the card') or implicit references ('how much before?'), resolve the reference and return the original entity name. Must be ONLY the card/hero/spell proper name — strip all qualifiers: no 'doré'/'golden', no type words ('elemental', 'beast', 'mech'), no 'en or', no 'buddy de'. Examples: 'ça fait quoi mastodonte en doré' → 'Mastodonte', 'vineclimber elemental card' → 'Vineclimber', 'c'est quoi le buddy de xyrella' → 'Xyrella', 'le timewarp ragnaros' → 'Timewarp Ragnaros'. Must be a proper name, NOT a generic word like 'héro', 'carte', 'sort', 'minion', 'meilleur héro'. Empty string if needsGameData is false or no specific name can be resolved",
+      "the specific entity name extracted from the message OR resolved from conversation history. If the user refers to a previously discussed entity with pronouns ('it', 'that', 'the card') or implicit references ('how much before?'), resolve the reference and return the original entity name. Must be ONLY the card/hero/spell proper name — strip all qualifiers: no 'doré'/'golden', no type words ('elemental', 'beast', 'mech'), no 'en or', no 'buddy de'. Translate synonyms to canonical names: 'chrono'/'chronodistordu' → 'Timewarp'. Examples: 'ça fait quoi mastodonte en doré' → 'Mastodonte', 'vineclimber elemental card' → 'Vineclimber', 'c'est quoi le buddy de xyrella' → 'Xyrella', 'le timewarp ragnaros' → 'Timewarp Ragnaros', 'le chrono ragnaros' → 'Timewarp Ragnaros'. Must be a proper name, NOT a generic word like 'héro', 'carte', 'sort', 'minion', 'meilleur héro'. Empty string if needsGameData is false, no specific name can be resolved, or gameTribe is set (tribe queries don't need a card name)",
+    defaultValue: "",
+  },
+  {
+    name: "gameTribe",
+    type: "string",
+    description:
+      "the minion tribe/type extracted from the message. Must be one of these exact values: NONE, UNDEAD, QUILBOAR, BEAST, ELEMENTAL, MECH, PIRATE, MURLOC, DEMON, DRAGON, ALL, NAGA. NONE = neutral/tribeless minion, ALL = amalgam (counts as every tribe). If multiple tribes are mentioned, comma-separate them (e.g. 'NAGA,DRAGON'). Match common synonyms and slang: 'ud'/'mort-vivant' → UNDEAD, 'huran' → QUILBOAR, 'bête' → BEAST, 'élémentaire' → ELEMENTAL, 'méca' → MECH, 'démon' → DEMON, 'neutre' → NONE, 'amalgame'/'tout type' → ALL. Empty string if no tribe mentioned",
+    defaultValue: "",
+  },
+  {
+    name: "gameTier",
+    type: "string",
+    description:
+      "the tavern tier extracted from the message (1-7), from expressions like 't6', 'tier 3', 'niveau 5', 'taverne 4'. Empty string if no tier mentioned",
     defaultValue: "",
   },
   {
