@@ -2,7 +2,7 @@ import knowledgeCore from "./knowledgeCore.ts";
 import personalityCore from "./personalityCore.ts";
 import responseCore from "./responseCore.ts";
 import { genericContext } from "../tapes/contextTape.ts";
-import { searchCards } from "../../utils/battleground.js";
+import { searchCards, searchCardsByTribe, MINION_TYPES } from "../../utils/battleground.js";
 import { getPatchContent } from "../../utils/patch-store.ts";
 
 import type { ChannelData } from "../../twitch/channel-data.ts";
@@ -71,11 +71,15 @@ export class ContextCore {
     const rules: string[] = [];
 
     if (params.type === "event") {
-      rules.push("- When reacting to events, ONLY provide your reaction message in your characteristic style. Do NOT add greetings, follow-up questions, or explanations. Just react naturally and stop.");
+      rules.push(
+        "- When reacting to events, ONLY provide your reaction message in your characteristic style. Do NOT add greetings, follow-up questions, or explanations. Just react naturally and stop.",
+      );
     }
 
     if (intent?.needsGameData) {
-      rules.push("- When Game Data is provided below, ONLY use the stats, effects, and details from that data. Never invent or guess stats, attack/health values, or effects that aren't in the provided data.");
+      rules.push(
+        "- When Game Data is provided below, ONLY use the stats, effects, and details from that data. Never invent or guess stats, attack/health values, or effects that aren't in the provided data.",
+      );
     }
 
     return rules.length > 0 ? `\n${rules.join("\n")}` : "";
@@ -97,6 +101,32 @@ export class ContextCore {
    * Builds all context variables by collecting data from various cores
    * and generating context-specific information
    */
+  private tribeNames: Record<number, string> = Object.fromEntries(
+    Object.entries(MINION_TYPES as Record<string, number>).map(([key, val]) => [
+      val,
+      key === "NONE" ? "Neutral" : key === "ALL" ? "All" : key.charAt(0) + key.slice(1).toLowerCase(),
+    ]),
+  );
+
+  private formatTribe(card: any): string {
+    const tribes: string[] = [];
+    const typeId = card.minion?.typeId;
+    const multiTypeIds = card.minion?.multiTypeIds;
+
+    if (typeId && this.tribeNames[typeId]) {
+      tribes.push(this.tribeNames[typeId]);
+    }
+    if (multiTypeIds?.length) {
+      for (const id of multiTypeIds) {
+        if (this.tribeNames[id] && !tribes.includes(this.tribeNames[id])) {
+          tribes.push(this.tribeNames[id]);
+        }
+      }
+    }
+
+    return tribes.length > 0 ? ` (${tribes.join("/")})` : "";
+  }
+
   private formatCardType(card: any): string {
     const bg = card.battlegrounds;
     if (bg?.hero) return "Hero";
@@ -106,7 +136,7 @@ export class ContextCore {
     if (bg?.quest) return "Quest";
     if (bg?.reward) return "Reward";
     if (bg?.timewarp) return "Timewarp";
-    if (bg?.tavernTier) return `Minion — Tier ${bg.tavernTier}`;
+    if (bg?.tavernTier) return `Minion — Tier ${bg.tavernTier}${this.formatTribe(card)}`;
     return "Unknown";
   }
 
@@ -123,6 +153,26 @@ export class ContextCore {
     return info;
   }
 
+  private async buildTribeData(tribe: string, tier?: string): Promise<string> {
+    try {
+      const results = await (searchCardsByTribe as any)(tribe, tier);
+      if (!results || results.length === 0) {
+        const tierInfo = tier ? ` tier ${tier}` : "";
+        return `## Game Data\nNo${tierInfo} ${tribe} minions found in the database. Stay in character and tell the user nothing was found.`;
+      }
+
+      const tierInfo = tier ? ` tier ${tier}` : "";
+      const header = `## Game Data (${results.length}${tierInfo} ${tribe} minions found)`;
+      const cards = results.map((card: any) => this.formatCard(card, 0)).join("\n");
+
+      console.log(`${header}\n${cards}`);
+      return `${header}\n${cards}`;
+    } catch (error) {
+      console.error("[ContextCore] Tribe search failed:", error);
+      return "";
+    }
+  }
+
   private async buildGameData(query: string): Promise<string> {
     try {
       const results = await (searchCards as any)(query, 0.2, 3);
@@ -133,6 +183,7 @@ export class ContextCore {
       const header = `## Game Data (best matches for "${query}" — use the most relevant one, ignore poor matches)`;
       const cards = results.map((r: any) => this.formatCard(r.card, r.score)).join("\n");
 
+      console.log(`${header}\n${cards}`);
       return `${header}\n${cards}`;
     } catch (error) {
       console.error("[ContextCore] Card lookup failed:", error);
@@ -171,8 +222,15 @@ export class ContextCore {
     // Available Commands - gated by intent classification (chat only)
     const availableCommands = params.type === "chat" && intent?.needsCommands ? this.buildAvailableCommands(platform) : "";
 
-    // Game Data - gated by intent classification
-    const gameData = intent?.needsGameData && intent.gameQuery ? await this.buildGameData(intent.gameQuery) : "";
+    // Game Data - gated by intent classification, branch on search strategy
+    let gameData = "";
+    if (intent?.needsGameData) {
+      if (intent.gameTribe) {
+        gameData = await this.buildTribeData(intent.gameTribe, intent.gameTier || undefined);
+      } else if (intent.gameQuery) {
+        gameData = await this.buildGameData(intent.gameQuery);
+      }
+    }
 
     // Patch Notes - gated by intent classification
     const patchNotes = intent?.needsPatchNotes ? this.buildPatchNotes() : "";
