@@ -1,0 +1,12 @@
+node_modules
+dist
+front/node_modules
+front/dist
+.env
+.git
+.github
+.vscode
+crea
+*.pdf
+*.log
+.DS_Store
