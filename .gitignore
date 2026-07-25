@@ -28,3 +28,19 @@ dist-ssr
 
 # json
 db/*
+!db/.gitkeep
+
+# AI agents
+CLAUDE.md
+.claude/
+.cursorrules
+.cursor/
+.windsurfrules
+.windsurf/
+.aider*
+.copilot/
+AGENTS.md
+COPILOT.md
+GEMINI.md
+.clinerules
+.cline/
