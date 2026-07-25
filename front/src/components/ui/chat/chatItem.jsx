@@ -1,6 +1,8 @@
 import { Fragment } from "react";
-import { buildEmoteImageUrl } from "@twurple/chat";
 import styles from "./chat.module.scss";
+
+const emoteUrl = (id, size = "3.0") =>
+  `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/light/${size}`;
 
 const ChatItem = ({ item }) => {
   return (
@@ -20,7 +22,7 @@ const ChatItem = ({ item }) => {
               <img
                 key={idx}
                 className={styles["ui-chat__emote"]}
-                src={buildEmoteImageUrl(part.id, { theme: "light", scale: "3.0" })}
+                src={emoteUrl(part.id)}
                 alt={part.name}
               />
             );
