@@ -25,7 +25,7 @@ Include:
 Exclude:
 - Standard/Wild/Twist mode changes
 - Cosmetic updates, bundles, shop items
-- Other game modes (Arena, Duels, etc.)
+- Other game modes (Arena, Duels, Tavern Brawl, etc.)
 - Hero cards from Standard/Wild that mention "Battlegrounds" in their text — only include heroes that are actual Battlegrounds heroes (with a Hero Power used in the Battlegrounds game mode)
 
 Output a concise summary in French, using markdown lists. Group changes by category (e.g. Héros, Serviteurs, Sorts, Trinkets, Anomalies, Mécaniques).`;
