@@ -12,18 +12,21 @@ For every card, hero, minion, spell, trinket, or anomaly name, write BOTH names 
 
 Include:
 - Card buffs, nerfs, reworks (with before/after stats when available)
-- New cards, heroes, spells, trinkets, anomalies added or removed
+- New cards, heroes, spells, trinkets, anomalies added, removed, or returned from previous patches
+- Card text updates (wording changes, tier references removed, etc.)
 - Tavern tier changes
 - Buddy changes
 - Armor tier changes
 - Gameplay mechanic changes specific to Battlegrounds
 - Keyword or tribe additions/removals
 - Bug fixes related to Battlegrounds
+- Season reset details and reward track contents
 
 Exclude:
 - Standard/Wild/Twist mode changes
 - Cosmetic updates, bundles, shop items
 - Other game modes (Arena, Duels, etc.)
+- Hero cards from Standard/Wild that mention "Battlegrounds" in their text — only include heroes that are actual Battlegrounds heroes (with a Hero Power used in the Battlegrounds game mode)
 
 Output a concise summary in French, using markdown lists. Group changes by category (e.g. Héros, Serviteurs, Sorts, Trinkets, Anomalies, Mécaniques).`;
 
