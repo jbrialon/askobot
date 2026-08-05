@@ -7,7 +7,7 @@ import { getValidToken, cleanText } from "./utils.js";
 const VALID_REGIONS = ["EU", "US", "AP"];
 const PLAYERS_PER_PAGE = 25;
 const TOP_PAGES = 8;
-const CURRENT_BG_SEASON = 18;
+const CURRENT_BG_SEASON = 19;
 const CURRENT_ARENA_SEASON = 4;
 const cache = new MemoryCache();
 
