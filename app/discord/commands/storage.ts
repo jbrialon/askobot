@@ -62,8 +62,6 @@ export class StorageCommand implements CommandHandler {
   }
 
   async handleSelectMenu(interaction: StringSelectMenuInteraction): Promise<void> {
-    if (interaction.customId !== "storage-dl-select") return;
-
     const path = interaction.values[0]!;
     await interaction.deferReply();
     await this.startDownload(interaction, path);

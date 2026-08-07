@@ -82,7 +82,6 @@ class DiscordBot extends EventEmitter {
         if (command.handleSelectMenu) {
           try {
             await command.handleSelectMenu(interaction);
-            if (interaction.replied || interaction.deferred) return;
           } catch (error) {
             console.error(error);
             if (interaction.replied || interaction.deferred) {
@@ -90,27 +89,8 @@ class DiscordBot extends EventEmitter {
             } else {
               await interaction.reply({ content: "There was an error handling this selection!", flags: MessageFlags.Ephemeral });
             }
-            return;
           }
-        }
-      }
-    }
-
-    if (interaction.isButton()) {
-      for (const command of commands) {
-        if (command.handleButton) {
-          try {
-            await command.handleButton(interaction);
-            if (interaction.replied || interaction.deferred) return;
-          } catch (error) {
-            console.error(error);
-            if (interaction.replied || interaction.deferred) {
-              await interaction.followUp({ content: "There was an error handling this button!", flags: MessageFlags.Ephemeral });
-            } else {
-              await interaction.reply({ content: "There was an error handling this button!", flags: MessageFlags.Ephemeral });
-            }
-            return;
-          }
+          return;
         }
       }
     }

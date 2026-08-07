@@ -1,5 +1,4 @@
 import type {
-  ButtonInteraction,
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
@@ -12,5 +11,4 @@ export interface CommandHandler {
   guildId?: string;
   execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
   handleSelectMenu?: (interaction: StringSelectMenuInteraction) => Promise<void>;
-  handleButton?: (interaction: ButtonInteraction) => Promise<void>;
 }
